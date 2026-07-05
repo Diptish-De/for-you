@@ -1571,7 +1571,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
     const nextOpened = new Set(opened).add(id);
     setOpened(nextOpened);
     setBurst(new Set(nextOpened));
-    if (nextOpened.size >= 4) setTimeout(() => setShowNext(true), 500);
+    if (nextOpened.size >= 1) setTimeout(() => setShowNext(true), 500);
   };
 
   return (
@@ -1680,9 +1680,10 @@ function Ch5({ onNext }: { onNext: () => void }) {
             zIndex: 4,
           }}
         >
-          look through the keepsakes in the box ({opened.size}/4)
+          look through the keepsakes in the box
         </motion.div>
       )}
+
 
       {/* Ornate Keepsake Wooden Box */}
       <motion.div 
