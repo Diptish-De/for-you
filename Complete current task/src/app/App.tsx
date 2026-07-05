@@ -3026,66 +3026,101 @@ function Ch9({ memory }: { memory: Memory }) {
           </motion.div>
         )}
 
-        {/* Developing Polaroid Photo */}
+        {/* Developing Polaroid Photo & Download Button */}
         {(step === "photo" || step === "final") && (
-          <motion.div 
-            initial={{ opacity: 0, y: -40, rotate: -6 }} 
-            animate={{ opacity: 1, y: 0, rotate: -2 }} 
-            transition={{ duration: 0.85, ease: "easeOut" }}
-            style={{ 
-              width: 220, 
-              height: 254, 
-              background: "#ffffff", 
-              boxShadow: "0 10px 30px rgba(0,0,0,0.35)", 
-              display: "flex", 
-              flexDirection: "column", 
-              alignItems: "center", 
-              padding: "14px 14px 28px", 
-              borderRadius: 3, 
-              position: "relative",
-            }}
-          >
-            {/* Washi Tape holding the polaroid */}
-            <div className="washi" style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 56, height: 18, borderRadius: 2, background: "rgba(244, 114, 182, 0.45)" }} />
-            
-            {/* Image develops */}
-            {capturedImg ? (
-              <div style={{ 
-                width: "100%", 
-                flex: 1, 
-                background: `url(${capturedImg}) center/cover no-repeat`,
-                borderRadius: 1.5,
-                border: "1px solid rgba(0,0,0,0.06)",
-                animation: "photoDevelop 4s ease-out forwards",
-              }} />
-            ) : (
-              <div style={{ 
-                width: "100%", 
-                flex: 1, 
-                background: `url(${sayani2}) center/cover no-repeat`,
-                borderRadius: 1.5,
-                border: "1px solid rgba(0,0,0,0.06)",
-                animation: "photoDevelop 4s ease-out forwards",
-              }} />
-            )}
-            
-            {/* Caption appears on final step */}
-            {step === "final" && (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.5 }}
-                style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <motion.div 
+              initial={{ opacity: 0, y: -40, rotate: -6 }} 
+              animate={{ opacity: 1, y: 0, rotate: -2 }} 
+              transition={{ duration: 0.85, ease: "easeOut" }}
+              style={{ 
+                width: 220, 
+                height: 254, 
+                background: "#ffffff", 
+                boxShadow: "0 10px 30px rgba(0,0,0,0.35)", 
+                display: "flex", 
+                flexDirection: "column", 
+                alignItems: "center", 
+                padding: "14px 14px 28px", 
+                borderRadius: 3, 
+                position: "relative",
+              }}
+            >
+              {/* Washi Tape holding the polaroid */}
+              <div className="washi" style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 56, height: 18, borderRadius: 2, background: "rgba(244, 114, 182, 0.45)" }} />
+              
+              {/* Image develops */}
+              {capturedImg ? (
+                <div style={{ 
+                  width: "100%", 
+                  flex: 1, 
+                  background: `url(${capturedImg}) center/cover no-repeat`,
+                  borderRadius: 1.5,
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  animation: "photoDevelop 4s ease-out forwards",
+                }} />
+              ) : (
+                <div style={{ 
+                  width: "100%", 
+                  flex: 1, 
+                  background: "#1e1b4b",
+                  borderRadius: 1.5,
+                  border: "1px solid rgba(0,0,0,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#a78bfa",
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 14,
+                }}>
+                  Developing...
+                </div>
+              )}
+              
+              {/* Caption appears on final step */}
+              {step === "final" && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1.5 }}
+                  style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
+                >
+                  ♡ there she is.
+                  {memory.selectedChocolate && (
+                    <div style={{ fontSize: 14, color: "#7c2d12", marginTop: 4 }}>
+                      and here is your chocolate: {memory.selectedChocolate}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Polaroid Download Button (Available immediately when captured) */}
+            {capturedImg && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={downloadPolaroid}
+                style={{
+                  background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                  border: "none",
+                  padding: "10px 24px",
+                  borderRadius: 24,
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  color: "white",
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
+                  marginTop: 6,
+                }}
               >
-                ♡ there she is.
-                {memory.selectedChocolate && (
-                  <div style={{ fontSize: 14, color: "#7c2d12", marginTop: 4 }}>
-                    and here is your chocolate: {memory.selectedChocolate}
-                  </div>
-                )}
-              </motion.div>
+                📥 Download Polaroid Card
+              </motion.button>
             )}
-          </motion.div>
+          </div>
         )}
 
         {/* Final Letter Message & Actions */}
@@ -3117,27 +3152,6 @@ function Ch9({ memory }: { memory: Memory }) {
             
             {lf2.done && (
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 14 }}>
-                {/* Download Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={downloadPolaroid}
-                  style={{
-                    background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
-                    border: "none",
-                    padding: "10px 24px",
-                    borderRadius: 24,
-                    fontFamily: "'Caveat', cursive",
-                    fontSize: 18,
-                    fontWeight: "bold",
-                    color: "white",
-                    cursor: "pointer",
-                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
-                  }}
-                >
-                  📥 Download Polaroid Card
-                </motion.button>
-
                 <motion.div 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }} 
