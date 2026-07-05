@@ -619,326 +619,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
   );
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  CHAPTER 2 · The Letter
-// ═════════════════════════════════════════════════════════════════════════════
-function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispatch<React.SetStateAction<Memory>> }) {
-  const [caughtCount, setCaughtCount] = useState(0);
-  const [fireflies, setFireflies] = useState(() =>
-    Array.from({ length: 6 }, (_, i) => ({
-      id: i,
-      x: 10 + Math.random() * 80,
-      y: 15 + Math.random() * 60,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      scale: 0.6 + Math.random() * 0.8,
-      speed: 0.25 + Math.random() * 0.25,
-      caught: false,
-    }))
-  );
-  const [completed, setCompleted] = useState(false);
-  const mousePos = useRef({ x: -1000, y: -1000 });
-  const firefliesRef = useRef(fireflies);
 
-  // Sync fireflies state to Ref
-  useEffect(() => {
-    firefliesRef.current = fireflies;
-  }, [fireflies]);
-
-  // Listen to mouse movement
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      mousePos.current = { x: e.clientX, y: e.clientY };
-    };
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-
-  // Animate fireflies floating around and check mathematical hover distance
-  useEffect(() => {
-    if (completed) return;
-    let animId: number;
-    const update = () => {
-      const mx = mousePos.current.x;
-      const my = mousePos.current.y;
-
-      // Check distance for all uncaught fireflies
-      const currentList = firefliesRef.current;
-      let caughtId: number | null = null;
-
-      for (const f of currentList) {
-        if (!f.caught) {
-          const fxPx = (f.x / 100) * window.innerWidth;
-          const fyPx = (f.y / 100) * window.innerHeight;
-          const dx = mx - fxPx;
-          const dy = my - fyPx;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 70) {
-            caughtId = f.id;
-            break; // Catch one firefly per frame
-          }
-        }
-      }
-
-      if (caughtId !== null) {
-        const targetId = caughtId;
-        playSound("chime");
-        setFireflies(prev => prev.map(f => f.id === targetId ? { ...f, caught: true } : f));
-        setCaughtCount(c => {
-          const nextCount = c + 1;
-          if (nextCount >= 5) {
-            setCompleted(true);
-            setMemory(m => ({ ...m, foundFeather: true }));
-          }
-          return nextCount;
-        });
-      } else {
-        // Run standard drift simulation
-        setFireflies(prev =>
-          prev.map(f => {
-            if (f.caught) return f;
-            let nx = f.x + f.vx * f.speed;
-            let ny = f.y + f.vy * f.speed;
-            let nvx = f.vx;
-            let nvy = f.vy;
-
-            if (nx < 5 || nx > 95) nvx = -nvx;
-            if (ny < 10 || ny > 75) nvy = -nvy;
-
-            if (Math.random() < 0.02) nvx += (Math.random() - 0.5) * 0.1;
-            if (Math.random() < 0.02) nvy += (Math.random() - 0.5) * 0.1;
-
-            const mag = Math.sqrt(nvx * nvx + nvy * nvy);
-            if (mag > 0.4) {
-              nvx = (nvx / mag) * 0.4;
-              nvy = (nvy / mag) * 0.4;
-            }
-
-            return { ...f, x: nx, y: ny, vx: nvx, vy: nvy };
-          })
-        );
-      }
-
-      animId = requestAnimationFrame(update);
-    };
-    animId = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(animId);
-  }, [completed, setMemory]);
-
-  const handleCatch = (id: number) => {
-    // Click fallback
-    playSound("chime");
-    setFireflies(prev => prev.map(f => f.id === id ? { ...f, caught: true } : f));
-    setCaughtCount(c => {
-      const nextCount = c + 1;
-      if (nextCount >= 5) {
-        setCompleted(true);
-        setMemory(m => ({ ...m, foundFeather: true }));
-      }
-      return nextCount;
-    });
-  };
-
-  return (
-    <div style={{
-      width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #070d1e 0%, #0d162a 60%, #15203b 100%)",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden",
-    }}>
-      {/* Background Star twinkle */}
-      {STARS_BG.slice(0, 25).map(s => (
-        <div key={s.id} style={{
-          position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
-          width: s.size * .8, height: s.size * .8, borderRadius: "50%", background: "white",
-          opacity: .1 + .18 * Math.random(),
-          animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s`
-        }} />
-      ))}
-
-      {/* Floating Fireflies (not caught yet) */}
-      {fireflies.map(f => {
-        if (f.caught) return null;
-        return (
-          <motion.div
-            key={f.id}
-            onClick={() => handleCatch(f.id)}
-            onMouseEnter={() => handleCatch(f.id)}
-            style={{
-              position: "absolute",
-              left: `${f.x}%`,
-              top: `${f.y}%`,
-              width: 54, // Large invisible hit box
-              height: 54,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transform: "translate(-50%, -50%)",
-              willChange: "left, top",
-              zIndex: 500, // Make sure it sits above all background elements
-            }}
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 1.2 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
-          >
-            {/* The visible glowing firefly particle */}
-            <div style={{
-              width: 14 * f.scale,
-              height: 14 * f.scale,
-              borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(253,224,71,1) 0%, rgba(234,179,8,0.5) 40%, transparent 70%)",
-              boxShadow: "0 0 16px rgba(253, 224, 71, 0.9)",
-            }} />
-          </motion.div>
-        );
-      })}
-
-      {/* Centerpiece: The Glass Jar on a wooden stool */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", top: 40 }}>
-        {/* The glass jar */}
-        <div style={{
-          position: "relative",
-          width: 150,
-          height: 200,
-          background: "rgba(220, 240, 255, 0.12)",
-          border: "4px solid rgba(255, 255, 255, 0.35)",
-          borderTop: "6px solid rgba(255, 255, 255, 0.45)",
-          borderRadius: "24px 24px 18px 18px",
-          boxShadow: "inset 0 10px 30px rgba(255,255,255,0.15), 0 12px 36px rgba(0,0,0,0.3)",
-          overflow: "hidden",
-        }}>
-          {/* Metal Lid */}
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 80,
-            height: 12,
-            background: "linear-gradient(90deg, #c0c0c0, #e8e8e8, #a8a8a8)",
-            borderBottom: "1px solid #777",
-            borderRadius: "4px 4px 0 0",
-          }} />
-
-          {/* Golden glow inside jar */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            background: "radial-gradient(circle at center, rgba(253,224,71,0.6) 0%, rgba(234,179,8,0.2) 50%, transparent 90%)",
-            opacity: Math.min(1, (caughtCount / 5)),
-            transition: "opacity 0.8s ease-out",
-          }} />
-
-          {/* Caught Fireflies inside the jar */}
-          {Array.from({ length: caughtCount }).map((_, idx) => (
-            <motion.div
-              key={idx}
-              style={{
-                position: "absolute",
-                left: `${25 + (idx * 13) + Math.random() * 8}%`,
-                top: `${40 + (idx * 22) + Math.random() * 12}%`,
-                width: 9,
-                height: 9,
-                borderRadius: "50%",
-                background: "#fde047",
-                boxShadow: "0 0 12px #fde047, 0 0 20px #eab308",
-              }}
-              animate={{
-                y: [0, -6, 0],
-                x: [0, Math.sin(idx) * 4, 0]
-              }}
-              transition={{
-                duration: 1.5 + idx * 0.3,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-
-          {/* Pencil doodle (Revealed when 5 caught) */}
-          {completed && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, duration: 1 }}
-              style={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "20px 10px",
-                pointerEvents: "none",
-              }}
-            >
-              {/* Cute doodle bunny drawing */}
-              <svg width="60" height="60" viewBox="0 0 60 60" style={{ opacity: 0.8, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}>
-                {/* Ears */}
-                <ellipse cx="22" cy="18" rx="5" ry="12" fill="#fff" stroke="#4a3028" strokeWidth="2" />
-                <ellipse cx="22" cy="18" rx="2" ry="8" fill="#ffd0e0" />
-                <ellipse cx="38" cy="18" rx="5" ry="12" fill="#fff" stroke="#4a3028" strokeWidth="2" />
-                <ellipse cx="38" cy="18" rx="2" ry="8" fill="#ffd0e0" />
-                {/* Head */}
-                <circle cx="30" cy="35" r="16" fill="#fff" stroke="#4a3028" strokeWidth="2" />
-                {/* Face details */}
-                <circle cx="24" cy="33" r="1.5" fill="#4a3028" />
-                <circle cx="36" cy="33" r="1.5" fill="#4a3028" />
-                <path d="M28 37Q30 39 32 37" stroke="#4a3028" strokeWidth="1.5" fill="none" />
-                {/* Blush */}
-                <circle cx="21" cy="36" r="2" fill="#ffb0c0" opacity="0.6" />
-                <circle cx="39" cy="36" r="2" fill="#ffb0c0" opacity="0.6" />
-              </svg>
-              <div style={{
-                fontFamily: "'Caveat', cursive",
-                fontSize: 15,
-                color: "#4a3028",
-                fontWeight: "bold",
-                textAlign: "center",
-                marginTop: 2,
-                background: "rgba(255, 255, 255, 0.72)",
-                padding: "1px 6px",
-                borderRadius: 8,
-              }}>
-                hello sayani ✦
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* The stool it sits on */}
-        <svg width="180" height="40" viewBox="0 0 180 40" style={{ marginTop: -2 }}>
-          <rect x="25" y="0" width="130" height="8" rx="3" fill="#5c3c24" />
-          <line x1="45" y1="8" x2="35" y2="35" stroke="#462c16" strokeWidth="6" strokeLinecap="round" />
-          <line x1="135" y1="8" x2="145" y2="35" stroke="#462c16" strokeWidth="6" strokeLinecap="round" />
-        </svg>
-
-        {/* Instruction label */}
-        <div style={{
-          fontFamily: "'Caveat', cursive",
-          fontSize: 16,
-          color: "rgba(220,205,240,.65)",
-          textAlign: "center",
-          marginTop: 15,
-          letterSpacing: 0.5,
-          height: 24,
-        }}>
-          {completed ? "You gathered the stars ✦" : "Catch the dancing fireflies in the jar..."}
-        </div>
-
-        {/* Turn the page */}
-        {completed && (
-          <div style={{ marginTop: 12 }}>
-            <PageTab onClick={onNext} />
-          </div>
-        )}
-      </div>
-
-      <ChLabel text="Chapter II · The Light-Gatherer" light />
-    </div>
-  );
-}
 
 // ═════════════════════════════════════════════════════════════════════════════
 //  CHAPTER 3 · Dream Cloud Garden
@@ -1038,7 +719,7 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
           <PageTab onClick={onNext} label="Step into the room →" pos="center" />
         </div>
       )}
-      <ChLabel text="Chapter III · Dream Cloud Garden" />
+      <ChLabel text="Chapter II · Dream Cloud Garden" />
     </div>
   );
 }
@@ -1188,7 +869,7 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
           <PageTab onClick={onNext} label="Open the box →" />
         </motion.div>
       )}
-      <ChLabel text="Chapter IV · Sayani's Little Room" />
+      <ChLabel text="Chapter III · Sayani's Little Room" />
     </div>
   );
 }
@@ -1282,7 +963,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
           <PageTab onClick={onNext} label="To the gacha machine →" />
         </motion.div>
       )}
-      <ChLabel text="Chapter V · The Keepsake Box" />
+      <ChLabel text="Chapter IV · The Keepsake Box" />
     </div>
   );
 }
@@ -1398,7 +1079,7 @@ function Ch6({ onNext }: { onNext: () => void }) {
           </motion.div>
         )}
       </AnimatePresence>
-      <ChLabel text="Chapter VI · Gacha of Tiny Joy" />
+      <ChLabel text="Chapter V · Gacha of Tiny Joy" />
     </div>
   );
 }
@@ -1585,7 +1266,7 @@ function Ch7({ onNext }: { onNext: () => void }) {
           <PageTab onClick={onNext} label="Bring the spring →" pos="center" />
         </motion.div>
       )}
-      <ChLabel text="Chapter VII · A Universe That Remembers You" light />
+      <ChLabel text="Chapter VI · A Universe That Remembers You" light />
     </div>
   );
 }
@@ -1674,7 +1355,7 @@ function Ch8({ onNext }: { onNext: () => void }) {
           <PageTab onClick={onNext} label="One last thing →" pos="center" />
         </motion.div>
       )}
-      <ChLabel text="Chapter VIII · You Made Spring Come" />
+      <ChLabel text="Chapter VII · You Made Spring Come" />
     </div>
   );
 }
@@ -1804,7 +1485,7 @@ function Ch9({ memory }: { memory: Memory }) {
           </motion.div>
         )}
       </div>
-      <ChLabel text="Chapter IX · One Last Request" />
+      <ChLabel text="Chapter VIII · One Last Request" />
     </div>
   );
 }
@@ -1819,18 +1500,17 @@ export default function App() {
     watchedButterflies: false, foundFeather: false,
   });
 
-  const next = () => setChapter(c => Math.min(c + 1, 8));
+  const next = () => setChapter(c => Math.min(c + 1, 7));
 
   const chapters = [
     <Ch1 key={0} onNext={next} />,
-    <Ch2 key={1} onNext={next} setMemory={setMemory} />,
-    <Ch3 key={2} onNext={next} setMemory={setMemory} />,
-    <Ch4 key={3} onNext={next} memory={memory} setMemory={setMemory} />,
-    <Ch5 key={4} onNext={next} />,
-    <Ch6 key={5} onNext={next} />,
-    <Ch7 key={6} onNext={next} />,
-    <Ch8 key={7} onNext={next} />,
-    <Ch9 key={8} memory={memory} />,
+    <Ch3 key={1} onNext={next} setMemory={setMemory} />,
+    <Ch4 key={2} onNext={next} memory={memory} setMemory={setMemory} />,
+    <Ch5 key={3} onNext={next} />,
+    <Ch6 key={4} onNext={next} />,
+    <Ch7 key={5} onNext={next} />,
+    <Ch8 key={6} onNext={next} />,
+    <Ch9 key={7} memory={memory} />,
   ];
 
   return (
@@ -1840,7 +1520,7 @@ export default function App() {
 
       {/* Progress dots */}
       <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 7, zIndex: 100, pointerEvents: "none" }}>
-        {Array.from({ length: 9 }, (_, i) => (
+        {Array.from({ length: 8 }, (_, i) => (
           <div key={i} style={{
             width: i === chapter ? 22 : 7, height: 7, borderRadius: 4,
             background: i <= chapter ? "rgba(255,255,255,.72)" : "rgba(255,255,255,.2)",
