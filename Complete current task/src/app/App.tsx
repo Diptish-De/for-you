@@ -2585,297 +2585,196 @@ function Ch7({ onNext }: { onNext: () => void }) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-//  CHAPTER 8 · You Made Spring Come
+//  CHAPTER 8 · You Made Spring Come (The Mystical Tree)
 // ═════════════════════════════════════════════════════════════════════════════
-type FlowerEl = { id: number; x: number; y: number; emoji: string };
-const FLOWER_EMOJIS = ["🌸","🌺","🌼","🌻","🌹","💐","🌷"];
+type BloomEl = { id: number; x: number; y: number; size: number; rotation: number; hue: number; delay: number };
 
 function Ch8({ onNext }: { onNext: () => void }) {
-  const [flowers, setFlowers] = useState<FlowerEl[]>([]);
-  const [phase, setPhase] = useState(0); // 0 winter grey, 1 blooming, 2 full spring
+  const [blooms, setBlooms] = useState<BloomEl[]>([]);
+  const [phase, setPhase] = useState(0); // 0 winter night, 1 blooming aura, 2 dawn
   const fid = useRef(0);
   const count = useRef(0);
 
   const grow = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Throttle blooming on mouse move to avoid clutter
+    if (e.type === "mousemove" && Math.random() > 0.15) return;
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    if (y < 30) return;
+    
     const id = fid.current++;
-    setFlowers(fs => [...fs.slice(-60), { id, x, y, emoji: FLOWER_EMOJIS[Math.floor(Math.random() * FLOWER_EMOJIS.length)] }]);
+    const size = 10 + Math.random() * 25; // elegant small to medium petals
+    const rotation = Math.random() * 360;
+    // Hues ranging from soft cherry blossom pinks (330) to warm golds (45)
+    const hue = Math.random() > 0.6 ? 330 + Math.random() * 35 : 35 + Math.random() * 25;
+    const delay = e.type === "mousemove" ? 0 : Math.random() * 0.2;
+
+    setBlooms(fs => [...fs.slice(-80), { id, x, y, size, rotation, hue, delay }]);
     count.current++;
+    
     if (count.current === 1) setPhase(1);
-    if (count.current >= 22 && phase < 2) setPhase(2);
+    if (count.current >= 35 && phase < 2) setPhase(2);
   };
 
-  // Sky transitions
-  const skyBg = phase === 0
-    ? "linear-gradient(to bottom, #5a6275 0%, #8ea0b5 60%, #b8c9db 100%)" // Misty winter grey
+  const bgGradient = phase === 0
+    ? "linear-gradient(to bottom, #030208 0%, #0a0715 40%, #150a21 100%)" // Deep mystical midnight
     : phase === 1
-      ? "linear-gradient(to bottom, #1e1b4b 0%, #4c1d95 40%, #881337 70%, #fda4af 100%)" // Sunset violet-rose
-      : "linear-gradient(to bottom, #0284c7 0%, #0ea5e9 40%, #38bdf8 65%, #ffedd5 90%, #fef08a 100%)"; // Brilliant sunrise
-
-  // Curved SVG Hills color transitions
-  const hillColors = phase === 0
-    ? ["#374151", "#4b5563", "#6b7280"] // Grey charcoal winter hills
-    : phase === 1
-      ? ["#143e21", "#1b5a32", "#247a44"] // Dusk green hills
-      : ["#0f2e1a", "#14532d", "#16a34a"]; // Lush spring greens
+      ? "linear-gradient(to bottom, #0a071a 0%, #170d30 50%, #2b0e36 100%)" // Warming purple aura
+      : "linear-gradient(to bottom, #110934 0%, #3e1247 30%, #90215c 55%, #d95a53 80%, #ffb875 100%)"; // Breathtaking golden dawn
 
   return (
     <div onMouseMove={grow} onClick={grow} style={{
       width: "100vw", height: "100vh",
-      background: skyBg,
-      position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
-      transition: "background 2.5s ease",
+      background: bgGradient,
+      position: "relative", overflow: "hidden", fontFamily: "'Cormorant Garamond', serif",
+      transition: "background 4s ease-in-out",
+      cursor: "crosshair",
     }}>
-      {/* Volumetric Sunbeams in full spring */}
-      {phase >= 2 && (
-        <div style={{
-          position: "absolute",
-          top: "-20%",
-          right: "-10%",
-          width: "80%",
-          height: "80%",
-          background: "radial-gradient(circle, rgba(254, 240, 138, 0.22) 0%, transparent 70%)",
-          transform: "rotate(-15deg)",
-          pointerEvents: "none",
-          zIndex: 2,
-        }}>
-          {Array.from({ length: 5 }, (_, i) => (
-            <div key={i} style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              width: "120px",
-              height: "1000px",
-              background: "linear-gradient(to bottom, rgba(254,240,138,0.07) 0%, transparent 100%)",
-              transformOrigin: "top center",
-              transform: `translate(-50%, -50%) rotate(${i * 18 - 36}deg)`,
-            }} />
-          ))}
-        </div>
-      )}
-
-      {/* Sun / Sunset light */}
-      <motion.div 
-        animate={{ 
-          opacity: phase === 0 ? 0.3 : 1, 
-          scale: phase === 0 ? 0.8 : 1,
-          y: phase === 0 ? 50 : 0
-        }} 
-        transition={{ duration: 2.2 }}
-        style={{ 
-          position: "absolute", 
-          top: "8%", 
-          right: "12%", 
-          width: 90, 
-          height: 90, 
-          borderRadius: "50%", 
-          background: phase === 0 
-            ? "radial-gradient(circle, #e5e7eb, #9ca3af)"
-            : "radial-gradient(circle, #fffbeb 20%, #fef08a 45%, #f97316 75%, transparent 100%)", 
-          boxShadow: phase === 0 
-            ? "0 0 25px rgba(255,255,255,0.2)"
-            : "0 0 50px #fef08a, 0 0 90px rgba(249,115,22,0.45)",
-          zIndex: 1,
-        }} 
-      />
-
-      {/* Parallax SVG Meadow Hills */}
-      {/* Background Hill */}
-      <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{
-        position: "absolute", bottom: 0, left: 0, width: "100vw", height: "30%",
-        zIndex: 2, pointerEvents: "none", transition: "all 2.5s ease"
-      }}>
-        <path d="M 0 80 Q 250 20, 500 70 Q 750 120, 1000 50 L 1000 150 L 0 150 Z" fill={hillColors[0]} style={{ transition: "fill 2.5s ease" }} />
-      </svg>
-
-      {/* Mid-ground Hill */}
-      <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{
-        position: "absolute", bottom: 0, left: 0, width: "100vw", height: "26%",
-        zIndex: 3, pointerEvents: "none", transition: "all 2.5s ease"
-      }}>
-        <path d="M 0 90 Q 350 110, 650 40 Q 850 10, 1000 70 L 1000 150 L 0 150 Z" fill={hillColors[1]} style={{ transition: "fill 2.5s ease" }} />
-      </svg>
-
-      {/* Foreground Hill */}
-      <svg viewBox="0 0 1000 150" preserveAspectRatio="none" style={{
-        position: "absolute", bottom: 0, left: 0, width: "100vw", height: "21%",
-        zIndex: 4, pointerEvents: "none", transition: "all 2.5s ease"
-      }}>
-        <path d="M 0 100 Q 200 40, 500 90 Q 800 140, 1000 80 L 1000 150 L 0 150 Z" fill={hillColors[2]} style={{ transition: "fill 2.5s ease" }} />
-      </svg>
-
-      {/* Falling Cherry Blossom Petals (Spring Atmosphere) */}
+      {/* Bioluminescent Stardust */}
       {phase >= 1 && (
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 5 }}>
-          {Array.from({ length: 12 }, (_, i) => (
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1 }}>
+          {Array.from({ length: 45 }, (_, i) => (
             <motion.div
               key={i}
-              initial={{ x: `${Math.random() * 100}vw`, y: -20, rotate: 0 }}
+              initial={{ x: `${Math.random() * 100}vw`, y: "110vh", opacity: 0 }}
               animate={{ 
-                x: [`${Math.random() * 100}vw`, `${Math.random() * 100 - 15}vw`],
-                y: [0, window.innerHeight + 20],
-                rotate: [0, 360]
+                y: ["110vh", "-10vh"],
+                opacity: [0, 0.7, 0],
+                x: [`${Math.random() * 100}vw`, `${Math.random() * 100 + (Math.random() - 0.5) * 15}vw`]
               }}
               transition={{ 
-                duration: 6 + Math.random() * 4, 
+                duration: 9 + Math.random() * 10, 
                 repeat: Infinity, 
-                delay: i * 0.8,
+                delay: Math.random() * 6,
                 ease: "linear"
               }}
               style={{
                 position: "absolute",
-                fontSize: 14 + Math.random() * 6,
-              }}
-            >
-              🌸
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Glowing Rising Fireflies (Grass Dust) */}
-      {phase >= 1 && (
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 4 }}>
-          {Array.from({ length: 15 }, (_, i) => (
-            <motion.div
-              key={i}
-              initial={{ x: `${10 + Math.random() * 80}%`, y: "90%", opacity: 0 }}
-              animate={{ 
-                y: ["90%", `${35 + Math.random() * 20}%`],
-                opacity: [0, 0.85, 0],
-                x: [`${10 + Math.random() * 80}%`, `${10 + Math.random() * 80 + (Math.random() - 0.5) * 5}%`]
-              }}
-              transition={{ 
-                duration: 5 + Math.random() * 3, 
-                repeat: Infinity, 
-                delay: i * 0.4,
-                ease: "easeOut"
-              }}
-              style={{
-                position: "absolute",
-                width: 4,
-                height: 4,
+                width: i % 4 === 0 ? 3 : 1.5,
+                height: i % 4 === 0 ? 3 : 1.5,
                 borderRadius: "50%",
-                background: "#fef08a",
-                boxShadow: "0 0 8px #fef08a, 0 0 15px #fef08a",
+                background: i % 2 === 0 ? "#fef08a" : "#fbcfe8",
+                boxShadow: i % 2 === 0 ? "0 0 12px #fef08a" : "0 0 10px #fbcfe8",
+                filter: "blur(0.5px)"
               }}
             />
           ))}
         </div>
       )}
 
-      {/* Migrating Birds */}
-      {phase >= 2 && [0, 1, 2].map(i => (
-        <motion.div key={i}
-          initial={{ x: "-5vw", y: `${18 + i * 8}%` }}
-          animate={{ x: "110vw", y: [`${18 + i * 8}%`, `${14 + i * 8}%`, `${18 + i * 8}%`] }}
-          transition={{ duration: 9 + i * 2, delay: i * 1.8, repeat: Infinity }}
-          style={{ position: "absolute", top: 0, left: 0, fontSize: 18, zIndex: 1 }}>🕊️</motion.div>
-      ))}
-
-      {/* Growing Grass & Blooming Flowers */}
-      {flowers.map(f => (
-        <div key={f.id} style={{ 
-          position: "absolute", 
-          left: `${f.x}%`, 
-          top: `${f.y}%`, 
-          transform: "translate(-50%,-100%)", 
-          zIndex: 5,
+      {/* Massive Dawn Aura Bloom */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: phase === 2 ? 0.65 : 0, scale: phase === 2 ? 1 : 0.8 }}
+        transition={{ duration: 5, ease: "easeOut" }}
+        style={{
+          position: "absolute",
+          top: "40%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "140vw",
+          height: "140vw",
+          background: "radial-gradient(circle, rgba(255,210,140,0.35) 0%, rgba(255,90,140,0.15) 30%, transparent 65%)",
           pointerEvents: "none",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          zIndex: 0,
+        }}
+      />
+
+      {/* The Mystical Bare Tree Silhouette (Centered) */}
+      <div style={{
+        position: "absolute",
+        bottom: "-8%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "110vw",
+        maxWidth: "1000px",
+        pointerEvents: "none",
+        zIndex: 2,
+        opacity: phase >= 2 ? 0.95 : 0.85,
+        filter: phase >= 1 ? "drop-shadow(0 0 35px rgba(244,114,182,0.4))" : "drop-shadow(0 0 15px rgba(0,0,0,0.8))",
+        transition: "filter 4s ease, opacity 4s ease",
+      }}>
+        {/* Elegant Abstract Tree Silhouette */}
+        <svg viewBox="0 0 800 500" style={{ width: "100%", height: "auto" }}>
+          {/* Main trunk/ground */}
+          <path d="M 0 500 C 150 420, 250 400, 350 500 Z" fill={phase >= 2 ? "#1f1025" : "#080510"} style={{ transition: "fill 4s ease" }}/>
+          <path d="M 50 500 C 150 350, 350 200, 750 150 C 600 180, 300 300, 200 500 Z" fill={phase >= 2 ? "#28132e" : "#0b0614"} style={{ transition: "fill 4s ease" }}/>
+          
+          {/* Sweeping branches */}
+          <path d="M 350 200 Q 420 120 500 80" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="14" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+          <path d="M 500 170 Q 580 80 700 40" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="10" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+          <path d="M 700 145 Q 750 90 850 100" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="7" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+          
+          {/* Finer upward reaching branches */}
+          <path d="M 420 150 Q 380 90 320 60" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="5" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+          <path d="M 580 95 Q 540 50 490 20" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="4" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+          <path d="M 700 75 Q 670 30 620 10" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="3" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
+        </svg>
+      </div>
+
+      {/* The Glowing Blooms (Glassmorphic CSS Petals) */}
+      {blooms.map(b => (
+        <div key={b.id} style={{ 
+          position: "absolute", 
+          left: `${b.x}%`, 
+          top: `${b.y}%`, 
+          transform: "translate(-50%,-50%)", 
+          zIndex: 3,
+          pointerEvents: "none",
         }}>
-          {/* Dynamic growing stem */}
           <motion.div 
-            initial={{ height: 0 }}
-            animate={{ height: 16 }}
-            transition={{ duration: 0.5 }}
-            style={{ width: 2, background: "#22c55e", borderRadius: 1 }}
+            initial={{ scale: 0, opacity: 0, rotate: b.rotation - 60 }}
+            animate={{ scale: 1, opacity: 0.9, rotate: b.rotation }}
+            transition={{ duration: 1.8, delay: b.delay, ease: "easeOut" }}
+            style={{ 
+              width: b.size, 
+              height: b.size, 
+              background: `linear-gradient(135deg, hsl(${b.hue}, 100%, 85%) 0%, hsl(${b.hue}, 70%, 65%) 100%)`,
+              borderRadius: "0 60% 0 60%", // Creates an elegant leaf/petal shape
+              boxShadow: `0 0 ${b.size * 1.5}px hsl(${b.hue}, 80%, 60%), inset 2px 2px 6px rgba(255,255,255,0.7)`,
+              opacity: 0.85,
+            }}
           />
-          {/* Flower bloom effect */}
-          <motion.div 
-            initial={{ scale: 0, rotate: -25 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", damping: 12 }}
-            style={{ fontSize: "24px", marginTop: -6, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}
-          >
-            {f.emoji}
-          </motion.div>
         </div>
       ))}
 
-      {/* Fluttering Butterflies (SVG Wings) */}
-      {phase >= 1 && Array.from({ length: 4 }, (_, i) => {
-        const startX = 15 + i * 22;
-        const startY = 25 + i * 9;
-        return (
-          <motion.div key={i}
-            animate={{ 
-              x: [`${startX}%`, `${startX + 8}%`, `${startX}%`], 
-              y: [`${startY}%`, `${startY - 6}%`, `${startY}%`] 
-            }}
-            transition={{ duration: 5.5 + i * 1.2, repeat: Infinity, ease: "easeInOut" }}
-            style={{ position: "absolute", top: 0, left: 0, zIndex: 6, pointerEvents: "none" }}
-          >
-            <div style={{ display: "flex", gap: 0.5, position: "relative" }}>
-              {/* Left wing */}
-              <motion.div 
-                animate={{ rotateY: [0, 68, 0] }}
-                transition={{ duration: 0.22, repeat: Infinity, ease: "linear" }}
-                style={{ width: 11, height: 13, background: ["#ff73b3", "#4ade80", "#60a5fa", "#f59e0b"][i % 4], borderRadius: "8px 8px 0 8px", transformOrigin: "right center" }}
-              />
-              {/* Center body */}
-              <div style={{ width: 2, height: 12, background: "#1e293b", borderRadius: 1 }} />
-              {/* Right wing */}
-              <motion.div 
-                animate={{ rotateY: [0, 68, 0] }}
-                transition={{ duration: 0.22, repeat: Infinity, ease: "linear" }}
-                style={{ width: 11, height: 13, background: ["#ff73b3", "#4ade80", "#60a5fa", "#f59e0b"][i % 4], borderRadius: "8px 8px 8px 0", transformOrigin: "left center" }}
-              />
-            </div>
-          </motion.div>
-        );
-      })}
-
       {/* Helper / Progress overlay */}
       {phase === 0 && (
-        <motion.div animate={{ opacity: [.5, 1, .5] }} transition={{ duration: 2.2, repeat: Infinity }}
+        <motion.div animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           style={{ 
             position: "absolute", 
-            top: "40%", 
+            top: "45%", 
             left: "50%", 
-            transform: "translateX(-50%)", 
-            fontFamily: "'Caveat', cursive", 
+            transform: "translate(-50%, -50%)", 
+            fontFamily: "'Cormorant Garamond', serif", 
             fontSize: 24, 
-            color: "#4b5563", 
+            color: "#cbd5e1", 
             textAlign: "center", 
-            whiteSpace: "nowrap", 
+            letterSpacing: 2,
+            fontStyle: "italic",
             pointerEvents: "none",
-            textShadow: "0 1px 3px rgba(255,255,255,0.7)",
             zIndex: 10,
           }}
         >
-          move your cursor across the meadow to bring spring 🌱
+          touch the branches...
         </motion.div>
       )}
 
+      {/* Majestic Typographic Reveal */}
       {phase >= 2 && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .4 }}
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 2.5, delay: 0.8, ease: "easeOut" }}
           style={{ 
             position: "absolute", 
-            top: "10%", 
+            top: "22%", 
             left: "50%", 
             transform: "translateX(-50%)", 
             fontFamily: "'Cormorant Garamond', serif", 
-            fontSize: 28, 
-            color: "#0f2e1a", 
+            fontSize: "clamp(32px, 5vw, 54px)", 
+            color: "#fffbeb", 
             fontWeight: "bold",
-            letterSpacing: 1.5,
-            textShadow: "0 2px 12px rgba(255,255,255,0.85)", 
+            letterSpacing: 3,
+            textShadow: "0 2px 25px rgba(253,230,138,0.9), 0 5px 45px rgba(244,114,182,0.7)", 
             whiteSpace: "nowrap",
             zIndex: 10
           }}
@@ -2885,11 +2784,12 @@ function Ch8({ onNext }: { onNext: () => void }) {
       )}
 
       {phase >= 2 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}
-          style={{ position: "absolute", bottom: "7%", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.8, duration: 1.5 }}
+          style={{ position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
           <PageTab onClick={onNext} label="One last thing →" pos="center" />
         </motion.div>
       )}
+      
       <ChLabel text="Chapter VII · You Made Spring Come" />
     </div>
   );
