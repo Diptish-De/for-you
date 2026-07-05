@@ -1016,9 +1016,9 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
 //  CHAPTER 4 · Sayani's Little Room
 // ═════════════════════════════════════════════════════════════════════════════
 const POLARS = [
-  { id: 0, x: 14, y: 12, rot: -6, caption: "that afternoon that lasted forever", shade: "#fce8f0", img: sayani1 },
-  { id: 1, x: 43, y: 7, rot: 3, caption: "the café with the wobbly chair", shade: "#f0e8fc", img: sayani3 },
-  { id: 2, x: 68, y: 14, rot: -4, caption: "when you laughed and forgot to be sad", shade: "#e8f0fc", img: sayani2 },
+  { id: 0, x: 14, y: 12, rot: -6, caption: "I hope you never forget this version of yourself.", shade: "#fce8f0", img: sayani1 },
+  { id: 1, x: 43, y: 7, rot: 3, caption: "The best memories are usually the ones that make absolutely no sense.", shade: "#f0e8fc", img: sayani3 },
+  { id: 2, x: 68, y: 14, rot: -4, caption: "I don't remember what we were talking about. I only remember this smile.", shade: "#e8f0fc", img: sayani2 },
 ];
 
 function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory; setMemory: React.Dispatch<React.SetStateAction<Memory>> }) {
