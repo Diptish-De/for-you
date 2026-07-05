@@ -2897,7 +2897,92 @@ function Ch9({ memory }: { memory: Memory }) {
         zIndex: 1,
       }} />
 
-      {/* Live Camera Feed Container */}
+      {/* Floating Sparkles & Dandelion Seeds */}
+      {Array.from({ length: 18 }, (_, i) => (
+        <motion.div 
+          key={i} 
+          initial={{ y: "110vh", x: `${Math.random() * 100}vw`, opacity: 0 }}
+          animate={{ 
+            y: "-10vh",
+            x: [`${Math.random() * 100}vw`, `${Math.random() * 100 + (Math.random() - 0.5) * 10}vw`],
+            opacity: [0, 0.55, 0]
+          }}
+          transition={{ 
+            duration: 6 + Math.random() * 5, 
+            repeat: Infinity, 
+            delay: i * 0.5,
+            ease: "easeInOut"
+          }}
+          style={{ 
+            position: "absolute", 
+            fontSize: "14px", 
+            pointerEvents: "none",
+            zIndex: 1,
+            color: "#e9d5ff",
+          }}
+        >
+          {i % 2 === 0 ? "✨" : "🌸"}
+        </motion.div>
+      ))}
+
+      {/* Camera Shutter Screen Flash Overlay */}
+      <AnimatePresence>
+        {triggerFlash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "#ffffff",
+              zIndex: 10000,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="nb-lines" style={{ 
+        width: 480, 
+        maxWidth: "92vw", 
+        borderRadius: 12, 
+        boxShadow: "0 15px 45px rgba(0,0,0,0.55)", 
+        padding: "40px 30px", 
+        display: "flex", 
+        flexDirection: "column", 
+        alignItems: "center", 
+        gap: 20, 
+        position: "relative",
+        background: "#fdfbf7",
+        border: "1.5px solid #e2e8f0",
+        zIndex: 2,
+      }}>
+        {/* Decorative Washi Tape */}
+        <div className="washi" style={{ 
+          position: "absolute", 
+          top: -12, 
+          left: "38%", 
+          width: 100, 
+          height: 24, 
+          transform: "rotate(-2deg)", 
+          borderRadius: 3,
+          background: "rgba(224, 200, 150, 0.6)",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.08)",
+        }} />
+
+        {/* Writing phase */}
+        {(step === "writing" || step === "camera") && (<>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#3d2b1f", fontStyle: "italic", textAlign: "center", fontWeight: "bold" }}>
+            {l1.shown}{step === "writing" && !l1.done && <span style={{ borderRight: "2px solid #3d2b1f", animation: "blink .7s step-end infinite" }} />}
+          </div>
+          {l1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 21, color: "#5a3d2f", textAlign: "center", marginTop: 4 }}>
+            {l2.shown}{step === "writing" && !l2.done && <span style={{ borderRight: "2px solid #5a3d2f", animation: "blink .7s step-end infinite" }} />}
+          </div>}
+        </>)}
+
+        {/* Live Camera Feed Container */}
       {step === "camera" && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             
