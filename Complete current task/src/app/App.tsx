@@ -528,6 +528,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
         left: "50%",
         top: opened ? "50%" : "58%",
         transform: opened ? "translate3d(-50%, -50%, 0) scale(1)" : "translate3d(-75%, -50%, 0) scale(0.6)",
+        transformOrigin: "75% center",
         perspective: 1500,
         zIndex: 100,
         transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
