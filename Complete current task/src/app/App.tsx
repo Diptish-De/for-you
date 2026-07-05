@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import sayani1 from "../imports/sayani-1.png";
 import sayani2 from "../imports/sayani-2.jpg";
 import sayani3 from "../imports/sayani-3.jpg";
+import bgMusic from "../imports/music.mp3";
 
 
 // ─── Pre-computed stable random arrays ───────────────────────────────────────
@@ -2986,8 +2987,50 @@ export default function App() {
     watchedButterflies: false, foundFeather: false,
     selectedChocolate: "",
   });
+  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const next = () => setChapter(c => Math.min(c + 1, 6));
+
+  // Initialize audio and attempt autoplay on first click/interaction
+  useEffect(() => {
+    const audio = new Audio(bgMusic);
+    audio.loop = true;
+    audio.volume = 0.55; // Cozy background volume level
+    audioRef.current = audio;
+
+    const playAudio = () => {
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          // Remove listener once successfully started
+          window.removeEventListener("click", playAudio);
+        })
+        .catch(err => console.log("Autoplay waiting for interaction...", err));
+    };
+
+    window.addEventListener("click", playAudio);
+
+    return () => {
+      window.removeEventListener("click", playAudio);
+      audio.pause();
+    };
+  }, []);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(err => console.error("Play failed:", err));
+    }
+  };
 
   const chapters = [
     <Ch1 key={0} onNext={next} />,
@@ -3003,6 +3046,48 @@ export default function App() {
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden", position: "relative" }}>
       <style>{GCSS}</style>
       <Cursor />
+
+      {/* Floating Music Toggle Button */}
+      <motion.button
+        onClick={togglePlay}
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          width: 42,
+          height: 42,
+          borderRadius: "50%",
+          background: "rgba(255, 255, 255, 0.08)",
+          backdropFilter: "blur(8px)",
+          border: "1.5px solid rgba(255, 255, 255, 0.15)",
+          color: "rgba(255, 255, 255, 0.75)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          zIndex: 1000,
+          boxShadow: "0 4px 15px rgba(0,0,0,0.25)",
+          outline: "none",
+        }}
+        title={isPlaying ? "Mute music" : "Play music"}
+      >
+        {isPlaying ? (
+          /* Speaker icon with soundwaves */
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        ) : (
+          /* Muted speaker icon */
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        )}
+      </motion.button>
 
       {/* Progress dots */}
       <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 7, zIndex: 100, pointerEvents: "none" }}>
