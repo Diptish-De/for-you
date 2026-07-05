@@ -2289,7 +2289,7 @@ function Ch6({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
             zIndex: 4,
           }}
         >
-          {plays > 0 ? "turn again ✦" : "twist the handle ✦"}
+          twist for chocolate 🍫
         </motion.button>
       )}
 
@@ -2325,7 +2325,7 @@ function Ch6({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
             <div style={{ fontSize: 26, fontWeight: "bold", color: "#451a03", marginBottom: 12 }}>{prize}</div>
             
             <div style={{ marginTop: 20, display: "flex", gap: 14, justifyContent: "center" }}>
-              <button onClick={reset} style={{ background: "#efe1d1", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "#654020", fontWeight: "bold" }}>twist again</button>
+              <button onClick={reset} style={{ background: "#efe1d1", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "#654020", fontWeight: "bold" }}>twist for another chocolate 🍫</button>
               <button onClick={onNext} style={{ background: "#7c3aed", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "white", fontWeight: "bold" }}>to the stars →</button>
             </div>
           </motion.div>
