@@ -442,30 +442,29 @@ function Ch1({ onNext }: { onNext: () => void }) {
         position: "absolute",
         left: "50%",
         top: opened ? "50%" : "60%",
-        transform: "translate(-50%, -50%)",
+        transform: opened ? "translate3d(-50%, -50%, 0) scale(1)" : "translate3d(-75%, -50%, 0) scale(0.55)",
         perspective: 1500,
         zIndex: 100,
-        transition: "top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
       }}>
         <div style={{
           position: "relative",
-          width: opened ? 840 : 200,
-          height: opened ? 550 : 266,
-          transition: "width 1.8s cubic-bezier(0.4, 0, 0.2, 1), height 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
+          width: 840,
+          height: 550,
           transformStyle: "preserve-3d",
         }}>
           {/* Cover Plate (rotates left) */}
           <div style={{
             position: "absolute",
-            left: 0,
+            left: "50%",
             top: 0,
-            width: opened ? "50%" : "100%",
+            width: "50%",
             height: "100%",
             background: "linear-gradient(140deg, #7a3a50 0%, #9a4a65 100%)",
-            borderRadius: opened ? "12px 0 0 12px" : "3px 12px 12px 3px",
+            borderRadius: "3px 12px 12px 3px",
             transformOrigin: "left center",
             transform: opened ? "rotateY(-180deg)" : "rotateY(0deg)",
-            transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), width 1.8s ease, border-radius 1.8s ease",
+            transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
             transformStyle: "preserve-3d",
             zIndex: opened ? 5 : 10,
             boxShadow: opened ? "-12px 12px 40px rgba(0,0,0,.45)" : "5px 6px 28px rgba(0,0,0,.65)",
@@ -528,7 +527,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
               className="nb-lines"
               style={{
                 position: "absolute",
-                right: 0,
+                left: "50%",
                 top: 0,
                 width: "50%",
                 height: "100%",
@@ -552,7 +551,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 </div>
               )}
               {phase >= 2 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#3d2010", lineHeight: 1.7, maxWidth: 156 }}>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 24, color: "#3d2010", lineHeight: 1.7 }}>
                   {l2.shown}
                   {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
@@ -569,7 +568,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
           {flipping && (
             <div style={{
               position: "absolute",
-              right: 0,
+              left: "50%",
               top: 0,
               width: "50%",
               height: "100%",
