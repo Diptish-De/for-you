@@ -323,11 +323,15 @@ function PageTab({ onClick, label = "Turn the page →", pos = "right" }: {
 // ═════════════════════════════════════════════════════════════════════════════
 function Ch1({ onNext }: { onNext: () => void }) {
   const [opened, setOpened] = useState(false);
-  const [phase, setPhase] = useState(0); // 0 nothing, 1 line1, 2 line2, 3 tab
+  const [phase, setPhase] = useState(0); // 0 nothing, 1..6 lines, 7 button
   const [closing, setClosing] = useState(false);
 
-  const l1 = useTW("Hi Sayani.", 78, 0, phase >= 1 && !closing);
-  const l2 = useTW("I borrowed you from the world for a little while.", 60, 0, phase >= 2 && !closing);
+  const l1 = useTW("Hi, Sayani.", 70, 0, phase >= 1 && !closing);
+  const l2 = useTW("Before we begin...", 60, 0, phase >= 2 && !closing);
+  const l3 = useTW("I want you to forget, just for a little while,\nwhat today felt like.\n\nForget what was said.\nForget what hurt.\nForget the weight you've been carrying.", 38, 0, phase >= 3 && !closing);
+  const l4 = useTW("This little world isn't here to change who you are.\nIt's here to remind you.", 38, 0, phase >= 4 && !closing);
+  const l5 = useTW("Because sometimes...\nthe people who know us least\nspeak the loudest.", 38, 0, phase >= 5 && !closing);
+  const l6 = useTW("Let's spend the next few minutes\nlistening to someone\nwho sees you differently.", 38, 0, phase >= 6 && !closing);
 
   const handleOpen = () => {
     if (closing) return;
@@ -336,13 +340,17 @@ function Ch1({ onNext }: { onNext: () => void }) {
 
   useEffect(() => {
     if (opened && !closing) {
-      const t = setTimeout(() => setPhase(1), 1800);
+      const t = setTimeout(() => setPhase(1), 1200);
       return () => clearTimeout(t);
     }
   }, [opened, closing]);
 
-  useEffect(() => { if (phase === 1 && l1.done) { const t = setTimeout(() => setPhase(2), 900); return () => clearTimeout(t); } }, [phase, l1.done]);
-  useEffect(() => { if (phase === 2 && l2.done) { const t = setTimeout(() => setPhase(3), 1100); return () => clearTimeout(t); } }, [phase, l2.done]);
+  useEffect(() => { if (phase === 1 && l1.done) { const t = setTimeout(() => setPhase(2), 600); return () => clearTimeout(t); } }, [phase, l1.done]);
+  useEffect(() => { if (phase === 2 && l2.done) { const t = setTimeout(() => setPhase(3), 600); return () => clearTimeout(t); } }, [phase, l2.done]);
+  useEffect(() => { if (phase === 3 && l3.done) { const t = setTimeout(() => setPhase(4), 800); return () => clearTimeout(t); } }, [phase, l3.done]);
+  useEffect(() => { if (phase === 4 && l4.done) { const t = setTimeout(() => setPhase(5), 800); return () => clearTimeout(t); } }, [phase, l4.done]);
+  useEffect(() => { if (phase === 5 && l5.done) { const t = setTimeout(() => setPhase(6), 800); return () => clearTimeout(t); } }, [phase, l5.done]);
+  useEffect(() => { if (phase === 6 && l6.done) { const t = setTimeout(() => setPhase(7), 800); return () => clearTimeout(t); } }, [phase, l6.done]);
 
   const handleCloseBook = () => {
     setClosing(true);
@@ -706,21 +714,64 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 transformOrigin: "top center",
               }} />
 
-              {phase >= 1 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4, fontWeight: "bold" }}>
-                  {l1.shown}
-                  {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
-                </div>
-              )}
-              {phase >= 2 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>
-                  {l2.shown}
-                  {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
-                </div>
-              )}
-              {phase >= 3 && (
-                <div style={{ position: "absolute", bottom: 45, right: 45 }}>
-                  <PageTab onClick={handleCloseBook} label="Close the book →" />
+              {/* Letter Content Container */}
+              <div style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 13,
+                fontSize: 18,
+                color: "#2c1810",
+                lineHeight: 1.35,
+                maxHeight: "82%",
+                overflowY: "auto",
+                paddingRight: 10,
+              }}>
+                {phase >= 1 && (
+                  <div style={{ fontSize: 26, fontWeight: "bold" }}>
+                    {l1.shown}
+                    {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+                
+                {phase >= 2 && (
+                  <div style={{ fontStyle: "italic", color: "#5c4d46" }}>
+                    {l2.shown}
+                    {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+
+                {phase >= 3 && (
+                  <div style={{ whiteSpace: "pre-line", color: "#3d2010" }}>
+                    {l3.shown}
+                    {phase === 3 && !l3.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+
+                {phase >= 4 && (
+                  <div style={{ whiteSpace: "pre-line", fontWeight: "bold", color: "#2c1810" }}>
+                    {l4.shown}
+                    {phase === 4 && !l4.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+
+                {phase >= 5 && (
+                  <div style={{ whiteSpace: "pre-line", color: "#5c4d46" }}>
+                    {l5.shown}
+                    {phase === 5 && !l5.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+
+                {phase >= 6 && (
+                  <div style={{ whiteSpace: "pre-line", color: "#2c1810" }}>
+                    {l6.shown}
+                    {phase === 6 && !l6.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                  </div>
+                )}
+              </div>
+
+              {phase >= 7 && (
+                <div style={{ position: "absolute", bottom: 35, right: 35 }}>
+                  <PageTab onClick={handleCloseBook} label="🌸 Step Inside →" />
                 </div>
               )}
             </div>
