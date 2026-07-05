@@ -19,6 +19,7 @@ const STARS_BG = Array.from({ length: 55 }, (_, i) => ({
 const RAIN = Array.from({ length: 22 }, (_, i) => ({
   id: i,
   x: Math.random() * 100,
+  y: Math.random() * 100,
   dur: 0.42 + Math.random() * 0.55,
   delay: Math.random() * 2.5,
 }));
@@ -41,21 +42,16 @@ const KEEPSAKES = [
 ];
 
 const GACHA_PRIZES = [
-  "You are the main character. Act accordingly. 🌟",
-  "Certified Excellent Person™",
-  "Today's horoscope: You're going to be okay.",
-  "🌸 Rare drop: The ability to make people feel seen.",
-  "Alert: Your smile is a public service.",
-  "According to my calculations... you are wonderful.",
-  "Today's mission: rest. That's it. That's the mission.",
-  "✨ You have unlocked: Being loved.",
-  "Gentle reminder that you deserve nice things.",
-  "Secret discovered: you've been wonderful this whole time.",
-  "Loading warmth... found. Loading kindness... found. That's you.",
-  "Breaking news: Local person is incredibly lovely.",
-  "Fun fact: You make rooms feel warmer just by walking in.",
-  "🐰 Bonus bunny sends you good luck today.",
-  "The stars are rooting for you. Obviously.",
+  "Cadbury Dairy Milk 🍫",
+  "Hershey's Bar 🍫",
+  "Toblerone 🍫",
+  "Ferrero Rocher 🍫",
+  "Lindt Excellence 🍫",
+  "KitKat 🍫",
+  "Snickers 🍫",
+  "Amul Dark Chocolate 🍫",
+  "Bournville 🍫",
+  "Galaxy 🍫",
 ];
 
 // SAYANI dot-matrix (3×5 grid per letter, letter_index × 4 offset)
@@ -83,6 +79,7 @@ type Memory = {
   wateredFlowers: boolean;
   watchedButterflies: boolean;
   foundFeather: boolean;
+  selectedChocolate: string;
 };
 
 // ─── Global CSS injected via <style> ─────────────────────────────────────────
@@ -351,6 +348,14 @@ function Ch1({ onNext }: { onNext: () => void }) {
       onNext();
     }, 1300);
   };
+
+  useEffect(() => {
+    return () => {
+      setFlipping(false);
+      setOpened(false);
+      setPhase(0);
+    };
+  }, []);
 
   return (
     <div style={{
@@ -697,13 +702,13 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 transformOrigin: "top center",
               }} />
 
-              {phase >= 1 && (
+              {phase >= 1 && !flipping && (
                 <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4, fontWeight: "bold" }}>
                   {l1.shown}
                   {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
-              {phase >= 2 && (
+              {phase >= 2 && !flipping && (
                 <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>
                   {l2.shown}
                   {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
@@ -744,8 +749,8 @@ function Ch1({ onNext }: { onNext: () => void }) {
                   gap: 20,
                 }}
               >
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", opacity: 0.6, fontWeight: "bold" }}>Hi Sayani.</div>
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", opacity: 0.6, lineHeight: 1.75 }}>I borrowed you from the world for a little while.</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", fontWeight: "bold" }}>Hi Sayani.</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>I borrowed you from the world for a little while.</div>
               </div>
 
               {/* Back of flipping sheet */}
@@ -810,6 +815,35 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
       
+      {/* Gentle instruction hint — fades out after first cloud tap */}
+      <AnimatePresence>
+        {burst.size === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 15 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            style={{
+              position: "absolute",
+              bottom: "22%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              fontFamily: "'Caveat', cursive",
+              fontSize: 22,
+              color: "rgba(255,255,255,0.72)",
+              textAlign: "center",
+              zIndex: 10,
+              pointerEvents: "none",
+              textShadow: "0 2px 8px rgba(80, 40, 120, 0.4)",
+              letterSpacing: 1,
+              animation: "floatUp 3s ease-in-out infinite",
+            }}
+          >
+            ☁️ tap the clouds to set them free ☁️
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Ethereal Sky Nebula glow */}
       <div style={{
         position: "absolute",
@@ -1277,13 +1311,13 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
               onClick={() => devPolaroid(p.id)} 
               whileHover={{ scale: 1.05, y: -4, rotate: p.rot * 0.8 }}
               style={{
-                width: 116, height: 136,
+                width: 150, height: 175,
                 background: isDeveloped ? p.shade : "#FAF4E8",
                 border: "1px solid rgba(0,0,0,0.06)",
                 transform: `rotate(${p.rot}deg)`,
                 boxShadow: "4px 6px 20px rgba(0,0,0,0.22)",
                 cursor: "pointer", borderRadius: 2,
-                display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 22px",
+                display: "flex", flexDirection: "column", alignItems: "center", padding: "12px 12px 26px",
                 animation: isDeveloped ? "polarDev 1.5s ease-out forwards" : undefined,
                 transition: "box-shadow 0.3s ease",
               }}
@@ -1302,7 +1336,7 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
                 {!isDeveloped && "📷"}
               </div>
               {isDeveloped && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: "#4a3028", marginTop: 6, textAlign: "center", lineHeight: 1.3 }}>{p.caption}</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: "#4a3028", marginTop: 8, textAlign: "center", lineHeight: 1.3 }}>{p.caption}</div>
               )}
             </motion.div>
           </div>
@@ -1312,10 +1346,10 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       {/* Boho Patterned Area Rug under Kitten */}
       <div style={{
         position: "absolute",
-        right: "6%",
-        bottom: "-1%",
-        width: 180,
-        height: 60,
+        right: "4%",
+        bottom: "2%",
+        width: 220,
+        height: 70,
         borderRadius: "50%",
         background: "radial-gradient(circle, #ea580c 0%, #b45309 60%, #451a03 100%)",
         border: "3.5px dashed #fef3c7",
@@ -1324,14 +1358,15 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
         opacity: 0.9,
       }} />
 
-      {/* Cozy Plant & Copper Watering Can (left) */}
-      <div style={{ position: "absolute", left: "14%", bottom: "21%", zIndex: 3 }}>
+      {/* Cozy Plant & Copper Watering Can */}
+      <div style={{ position: "absolute", left: "12%", bottom: "16%", zIndex: 3, display: "flex", alignItems: "flex-end", gap: 6 }}>
+        {/* Plant */}
         <div onClick={waterPlant} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
-            {watered ? "🌿 green & happy!" : "🌱 water me?"}
+          <div style={{ fontSize: 20, color: "#4a3520", fontWeight: "bold", textAlign: "center", marginBottom: 6, textShadow: "0 1px 3px rgba(0,0,0,0.2)" }}>
+            {watered ? "🌿 green & happy!" : "🌱 click to water me"}
           </div>
           {/* Terracotta Pot */}
-          <svg width="56" height="70" viewBox="0 0 56 70" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
+          <svg width="80" height="100" viewBox="0 0 56 70" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.35))" }}>
             <polygon points="18,44 42,44 38,68 22,68" fill="#d97706" stroke="#b45309" strokeWidth="1" />
             <rect x="15" y="38" width="30" height="6" rx="1.5" fill="#d97706" stroke="#b45309" strokeWidth="1" />
             {watered ? (
@@ -1351,25 +1386,24 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
           </svg>
         </div>
 
-        {/* Copper Watering Can next to pot */}
+        {/* Copper Watering Can — positioned to the RIGHT of the plant */}
         <motion.div
           animate={isWatering ? {
-            y: [-10, -32, -32, -10],
-            x: [15, -10, -10, 15],
-            rotate: [0, -35, -35, 0],
-          } : { y: 0, x: 22, rotate: 0 }}
+            y: [-10, -60, -60, -10],
+            x: [0, -40, -40, 0],
+            rotate: [0, -45, -45, 0],
+          } : { y: 0, x: 0, rotate: 0 }}
           transition={{ duration: 1.4, ease: "easeInOut" }}
           onClick={waterPlant}
           style={{
-            position: "absolute",
-            bottom: 0,
             cursor: "pointer",
-            width: 40,
-            height: 30,
+            width: 52,
+            height: 40,
             zIndex: 4,
+            marginBottom: 8,
           }}
         >
-          <svg width="40" height="30" viewBox="0 0 40 30" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
+          <svg width="52" height="40" viewBox="0 0 40 30" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
             {/* Can Body */}
             <path d="M12 10 L28 10 L26 26 L14 26 Z" fill="#b45309" stroke="#78350f" strokeWidth="1" />
             {/* Spout */}
@@ -1380,19 +1414,19 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
             <path d="M16 10 C16 4, 24 4, 24 10" stroke="#b45309" strokeWidth="2" fill="none" />
           </svg>
 
-          {/* Water drops during animation */}
+          {/* Water drops during animation — fall toward the plant (to the left) */}
           {isWatering && (
-            <div style={{ position: "absolute", top: 12, left: -6 }}>
+            <div style={{ position: "absolute", top: 6, left: -2 }}>
               {[0, 0.3, 0.6].map((d, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 1, y: 0, x: 0 }}
-                  animate={{ opacity: 0, y: 22, x: -8 }}
+                  animate={{ opacity: 0, y: 30, x: -6 }}
                   transition={{ duration: 0.6, repeat: 2, delay: d }}
                   style={{
                     position: "absolute",
-                    width: 3.5,
-                    height: 6,
+                    width: 4,
+                    height: 7,
                     borderRadius: "50%",
                     background: "#38bdf8",
                   }}
@@ -1404,9 +1438,9 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       </div>
 
       {/* Sleeping/Petting Cat (right, resting on Boho Rug) */}
-      <div onClick={petCat} style={{ position: "absolute", right: "10%", bottom: "4%", cursor: "pointer", zIndex: 3 }}>
-        <div style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
-          {catPurring ? "purrrr~ 💕" : memory.pettedCat ? "sleeping 💤" : "pet me?"}
+      <div onClick={petCat} style={{ position: "absolute", right: "6%", bottom: "8%", cursor: "pointer", zIndex: 4 }}>
+        <div style={{ fontFamily: "'Caveat', cursive", fontSize: 20, color: "#4a3520", fontWeight: "bold", textAlign: "center", marginBottom: 6, textShadow: "0 1px 3px rgba(0,0,0,0.2)" }}>
+          {catPurring ? "purrrr~ 💕" : memory.pettedCat ? "sleeping 💤" : "🐱 click to pet me"}
         </div>
         <div style={{ position: "relative" }}>
           {/* Pulsing breathing animation */}
@@ -1414,16 +1448,63 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
             animate={{ scaleY: catPurring ? [1, 1.05, 1] : [1, 1.03, 1] }}
             transition={{ duration: catPurring ? 1.2 : 2.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <svg width="68" height="52" viewBox="0 0 68 52" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>
-              <ellipse cx="34" cy="36" rx="24" ry="14" fill="#a78bfa" />
-              <circle cx="34" cy="20" r="13" fill="#a78bfa" />
-              <polygon points="23,12 18,3 27,12" fill="#a78bfa" />
-              <polygon points="45,12 50,3 41,12" fill="#a78bfa" />
-              <path d="M26 21 Q29 24 32 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
-              <path d="M36 21 Q39 24 42 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
-              <polygon points="33,24 35,24 34,25.5" fill="#f43f5e" />
-              <path d="M54 38 C64 35, 60 48, 52 46 C48 45, 46 41, 48 38" stroke="#a78bfa" strokeWidth="6" fill="none" strokeLinecap="round"
-                style={{ transformOrigin: "50px 38px", animation: catPurring ? "catTail 1s ease-in-out infinite" : undefined }} />
+            <svg width="120" height="90" viewBox="0 0 120 90" style={{ filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.35))" }}>
+              {/* Body - rounded loaf shape */}
+              <ellipse cx="60" cy="62" rx="38" ry="22" fill="#c4b5fd" />
+              <ellipse cx="60" cy="62" rx="38" ry="22" fill="url(#catFur)" opacity="0.3" />
+              
+              {/* Head */}
+              <circle cx="60" cy="36" r="20" fill="#c4b5fd" />
+              <circle cx="60" cy="36" r="20" fill="url(#catFur)" opacity="0.2" />
+              
+              {/* Inner ears */}
+              <polygon points="42,22 34,6 50,18" fill="#c4b5fd" />
+              <polygon points="78,22 86,6 70,18" fill="#c4b5fd" />
+              <polygon points="43,21 37,10 49,19" fill="#ddd6fe" opacity="0.6" />
+              <polygon points="77,21 83,10 71,19" fill="#ddd6fe" opacity="0.6" />
+              
+              {/* Closed eyes - cute curved lines */}
+              <path d="M48 36 Q52 40 56 36" stroke="#4c1d95" strokeWidth="2" fill="none" strokeLinecap="round" />
+              <path d="M64 36 Q68 40 72 36" stroke="#4c1d95" strokeWidth="2" fill="none" strokeLinecap="round" />
+              
+              {/* Cute nose */}
+              <path d="M58 41 L60 43 L62 41" fill="#f9a8d4" stroke="#f472b6" strokeWidth="0.5" />
+              
+              {/* Small smile */}
+              <path d="M56 44 Q60 47 64 44" stroke="#7c3aed" strokeWidth="1" fill="none" strokeLinecap="round" />
+              
+              {/* Whiskers */}
+              <line x1="36" y1="38" x2="48" y2="40" stroke="#8b5cf6" strokeWidth="0.8" opacity="0.5" />
+              <line x1="36" y1="42" x2="48" y2="42" stroke="#8b5cf6" strokeWidth="0.8" opacity="0.5" />
+              <line x1="72" y1="40" x2="84" y2="38" stroke="#8b5cf6" strokeWidth="0.8" opacity="0.5" />
+              <line x1="72" y1="42" x2="84" y2="42" stroke="#8b5cf6" strokeWidth="0.8" opacity="0.5" />
+              
+              {/* Front paws tucked under */}
+              <ellipse cx="42" cy="74" rx="10" ry="6" fill="#ddd6fe" />
+              <ellipse cx="78" cy="74" rx="10" ry="6" fill="#ddd6fe" />
+              
+              {/* Paw toe beans */}
+              <circle cx="39" cy="73" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              <circle cx="43" cy="72" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              <circle cx="46" cy="73" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              <circle cx="75" cy="73" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              <circle cx="79" cy="72" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              <circle cx="82" cy="73" r="1.5" fill="#f9a8d4" opacity="0.6" />
+              
+              {/* Curled tail */}
+              <path d="M96 58 C108 52, 108 72, 98 68 C92 66, 90 60, 94 56" 
+                stroke="#c4b5fd" strokeWidth="7" fill="none" strokeLinecap="round"
+                style={{ transformOrigin: "96px 58px", animation: catPurring ? "catTail 1s ease-in-out infinite" : undefined }} />
+              
+              {/* Subtle belly highlight */}
+              <ellipse cx="60" cy="66" rx="22" ry="10" fill="#ede9fe" opacity="0.3" />
+              
+              {/* Fur texture pattern */}
+              <defs>
+                <pattern id="catFur" patternUnits="userSpaceOnUse" width="4" height="4">
+                  <circle cx="2" cy="2" r="0.5" fill="#8b5cf6" opacity="0.15" />
+                </pattern>
+              </defs>
             </svg>
           </motion.div>
           
@@ -1433,7 +1514,7 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
               initial={{ opacity: 1, y: 0, scale: 0.5 }}
               animate={{ opacity: 0, y: -45, scale: 1.3 }}
               transition={{ duration: 1.5 }}
-              style={{ position: "absolute", top: -15, left: 24, fontSize: 18, pointerEvents: "none" }}
+              style={{ position: "absolute", top: -15, left: 46, fontSize: 22, pointerEvents: "none" }}
             >
               💖
             </motion.div>
@@ -1442,7 +1523,7 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       </div>
 
       {/* Flickering Candle on Floor */}
-      <div style={{ position: "absolute", right: "26%", bottom: "17%", zIndex: 3 }}>
+      <div style={{ position: "absolute", right: "26%", bottom: "16%", zIndex: 3 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           <motion.div 
             animate={{ scaleY: [1, 1.2, 0.9, 1.15, 1], scaleX: [1, 0.9, 1.1, 0.95, 1], y: [0, -1, 0.5, 0] }}
@@ -1547,7 +1628,7 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       </AnimatePresence>
 
       {showNext && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%", zIndex: 3 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", left: "50%", transform: "translateX(-50%)", zIndex: 5 }}>
           <PageTab onClick={onNext} label="Open the box →" />
         </motion.div>
       )}
@@ -1564,14 +1645,24 @@ function Ch5({ onNext }: { onNext: () => void }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [opened, setOpened] = useState<Set<number>>(new Set());
   const [showNext, setShowNext] = useState(false);
-  const [burst, setBurst] = useState<Set<number>>(new Set());
 
-  const pick = (id: number) => {
+  // Position coordinates for items scattered on the desk (outside the box)
+  const [itemPositions, setItemPositions] = useState([
+    { id: 0, left: "15%", bottom: "14%", rot: -10 },
+    { id: 1, left: "28%", bottom: "8%", rot: 15 },
+    { id: 2, left: "38%", bottom: "16%", rot: -5 },
+    { id: 3, left: "58%", bottom: "12%", rot: 8 },
+    { id: 4, left: "68%", bottom: "6%", rot: -12 },
+    { id: 5, left: "80%", bottom: "18%", rot: 20 },
+  ]);
+
+  const dropItem = (id: number) => {
     setSelected(id);
     const nextOpened = new Set(opened).add(id);
     setOpened(nextOpened);
-    setBurst(new Set(nextOpened));
-    if (nextOpened.size >= 1) setTimeout(() => setShowNext(true), 500);
+    if (nextOpened.size >= 4) {
+      setShowNext(true);
+    }
   };
 
   return (
@@ -1630,7 +1721,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
       </div>
 
       {/* Antique Table Props (Left: Brass Oil Lamp) */}
-      <div style={{ position: "absolute", left: "10%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
+      <div style={{ position: "absolute", left: "6%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
         <svg width="44" height="95" viewBox="0 0 44 95">
           {/* Glass chimney */}
           <path d="M16 10 C16 0, 28 0, 28 10 L24 45 L20 45 Z" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.8" />
@@ -1647,7 +1738,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
       </div>
 
       {/* Antique Table Props (Right: Feather Quill & Stamp) */}
-      <div style={{ position: "absolute", right: "12%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
+      <div style={{ position: "absolute", right: "6%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
         <svg width="60" height="75" viewBox="0 0 60 75">
           {/* Ink pot */}
           <rect x="36" y="44" width="16" height="18" rx="2" fill="#1e293b" />
@@ -1656,40 +1747,35 @@ function Ch5({ onNext }: { onNext: () => void }) {
           {/* Feather Quill */}
           <path d="M18 10 C22 25, 34 38, 41 42" stroke="#e2e8f0" strokeWidth="1.2" fill="none" />
           <path d="M18 10 C26 15, 32 30, 42 41 C40 38, 32 25, 18 10 Z" fill="#f8fafc" opacity="0.85" />
-          
-          {/* Scattered Brass Key */}
-          <path d="M10 58 A 4 4 0 1 0 10 66 A 4 4 0 1 0 10 58 M14 62 L26 62 L26 66 L28 66 L28 62 L30 62 L30 58 L28 58 L26 58 L26 60 L14 60" fill="#ca8a04" stroke="#854d0e" strokeWidth="0.8" />
         </svg>
       </div>
 
       {/* Interactive Helper Text */}
-      {boxOpen && !showNext && (
+      {!boxOpen && (
         <motion.div 
-          animate={{ opacity: [0.55, 1, 0.55] }} 
-          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-          style={{
-            position: "absolute", 
-            top: "22%", 
-            left: "50%", 
-            transform: "translateX(-50%)", 
-            fontFamily: "'Caveat', cursive", 
-            fontSize: 20, 
-            color: "#fde68a", 
-            textShadow: "0 2px 6px rgba(0,0,0,0.7)",
-            whiteSpace: "nowrap",
-            zIndex: 4,
-          }}
+          animate={{ opacity: [0.6, 1, 0.6] }} 
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", fontFamily: "'Caveat', cursive", fontSize: 24, color: "#fde68a", textShadow: "0 2px 6px rgba(0,0,0,0.7)", zIndex: 4 }}
         >
-          look through the keepsakes in the box
+          🎁 click to open the keepsake box
         </motion.div>
       )}
 
+      {boxOpen && !showNext && (
+        <motion.div 
+          animate={{ opacity: [0.6, 1, 0.6] }} 
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", fontFamily: "'Caveat', cursive", fontSize: 22, color: "#fde68a", textShadow: "0 2px 6px rgba(0,0,0,0.7)", zIndex: 4, textAlign: "center" }}
+        >
+          🔍 drag the memories on the table into the box ({opened.size}/4)
+        </motion.div>
+      )}
 
-      {/* Ornate Keepsake Wooden Box */}
+      {/* Ornate Keepsake Wooden Box Chest */}
       <motion.div 
         animate={!boxOpen ? { y: [0, -4, 0] } : {}} 
         transition={{ duration: 3, repeat: boxOpen ? 0 : Infinity, ease: "easeInOut" }}
-        style={{ zIndex: 3 }}
+        style={{ zIndex: 3, marginTop: -60 }}
       >
         {/* Lid (rotates open) */}
         <motion.div animate={boxOpen ? { rotateX: -130, y: -24 } : { rotateX: 0 }} transition={{ duration: .75, ease: "easeOut" }}
@@ -1704,58 +1790,116 @@ function Ch5({ onNext }: { onNext: () => void }) {
             position: "relative", zIndex: 5,
             border: "1px solid #7c2d12",
           }}>
-          {/* Gold corner brackets */}
           <div style={{ position: "absolute", top: 4, left: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderLeft: "2px solid #fbbf24" }} />
           <div style={{ position: "absolute", top: 4, right: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderRight: "2px solid #fbbf24" }} />
-
           <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#fcd34d", letterSpacing: 2, textTransform: "uppercase" }}>
             {boxOpen ? "" : "click to open ✦"}
           </span>
-          {/* Brass lock latch */}
           <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 22, height: 12, background: "#d97706", border: "1px solid #b45309", borderRadius: "0 0 4px 4px" }} />
         </motion.div>
 
-        {/* Chest Box Body */}
+        {/* Chest Box Body - Droppable zone */}
         <div style={{
-          width: 320, height: 210,
+          width: 320, height: 180,
           background: boxOpen 
             ? "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)" // Crimson velvet interior
             : "linear-gradient(180deg, #451a03 0%, #301202 100%)",
           borderRadius: "0 0 8px 8px", 
           boxShadow: "0 12px 36px rgba(0,0,0,0.55), inset 0 4px 12px rgba(0,0,0,0.3)",
-          padding: 16, display: "flex", flexWrap: "wrap", gap: 12,
-          alignItems: "center", justifyContent: "center", overflow: "hidden",
+          display: "flex", alignItems: "center", justifyContent: "center",
           border: "1.5px solid #451a03",
           position: "relative",
           zIndex: 4,
-          transition: "background 0.5s ease",
         }}>
-          {/* Velvet shadows interior overlay */}
           {boxOpen && (
             <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 6px 15px rgba(0,0,0,0.8)", pointerEvents: "none" }} />
           )}
 
-          {boxOpen ? KEEPSAKES.map((k, i) => (
-            <motion.div key={k.id}
-              initial={{ opacity: 0, scale: 0.5, y: 15 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: i * 0.12, duration: 0.5, ease: "easeOut" }}
-              onClick={() => pick(k.id)}
-              whileHover={{ scale: 1.08 }}
-              style={{
-                width: 74, height: 74,
-                background: opened.has(k.id) ? "rgba(255, 255, 255, 0.22)" : "rgba(255, 255, 255, 0.08)",
-                borderRadius: 10, cursor: "pointer",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
-                border: `1.5px solid ${opened.has(k.id) ? "rgba(255,255,255,.35)" : "rgba(255,255,255,.15)"}`,
-                transition: "all .3s",
-              }}>
-              <span style={{ fontSize: 26 }}>{k.icon}</span>
-              <span style={{ fontSize: 10, color: "#f0d8b8", textAlign: "center", lineHeight: 1.2 }}>{k.label}</span>
-            </motion.div>
-          )) : <div style={{ color: "rgba(249,232,200,.32)", fontSize: 22 }}>✦ ✦ ✦</div>}
+          {boxOpen ? (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", padding: 12, zIndex: 5 }}>
+              {KEEPSAKES.map(k => {
+                const inside = opened.has(k.id);
+                return (
+                  <motion.div
+                    key={k.id}
+                    animate={inside ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0.2 }}
+                    style={{
+                      width: 58, height: 58,
+                      background: "rgba(255, 255, 255, 0.12)",
+                      borderRadius: 8,
+                      border: "1px dashed rgba(255,255,255,0.3)",
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                      cursor: inside ? "pointer" : "default"
+                    }}
+                    onClick={() => inside && setSelected(k.id)}
+                  >
+                    <span style={{ fontSize: 22 }}>{inside ? k.icon : "?"}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ color: "rgba(249,232,200,.32)", fontSize: 22, zIndex: 5 }}>✦ ✦ ✦</div>
+          )}
         </div>
       </motion.div>
+
+      {/* Scattered Draggable Items on the Desk */}
+      {boxOpen && itemPositions.map(pos => {
+        const isOpened = opened.has(pos.id);
+        const item = KEEPSAKES[pos.id];
+        if (isOpened) return null; // hide from table once dropped
+
+        return (
+          <motion.div
+            key={pos.id}
+            drag
+            dragConstraints={{ left: -300, right: 300, top: -400, bottom: 100 }}
+            dragElastic={0.1}
+            dragTransition={{ power: 0.2, timeConstant: 200 }}
+            onDragEnd={(e, info) => {
+              // Simple check if dropped near the box (middle center)
+              const screenWidth = window.innerWidth;
+              const screenHeight = window.innerHeight;
+              const dropX = info.point.x;
+              const dropY = info.point.y;
+              
+              // Box is in middle horizontally, and slightly above center vertically
+              const boxMinX = screenWidth / 2 - 180;
+              const boxMaxX = screenWidth / 2 + 180;
+              const boxMinY = screenHeight / 2 - 160;
+              const boxMaxY = screenHeight / 2 + 120;
+
+              if (dropX > boxMinX && dropX < boxMaxX && dropY > boxMinY && dropY < boxMaxY) {
+                dropItem(pos.id);
+              }
+            }}
+            whileHover={{ scale: 1.15, cursor: "grab" }}
+            whileDrag={{ scale: 1.2, cursor: "grabbing", zIndex: 100 }}
+            style={{
+              position: "absolute",
+              left: pos.left,
+              bottom: pos.bottom,
+              width: 80,
+              height: 80,
+              background: "rgba(255, 253, 246, 0.95)",
+              border: "1.5px solid #d4af37",
+              borderRadius: "12px",
+              boxShadow: "0 6px 14px rgba(0,0,0,0.3)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: `rotate(${pos.rot}deg)`,
+              zIndex: 10,
+              userSelect: "none",
+            }}
+          >
+            <span style={{ fontSize: 32 }}>{item.icon}</span>
+            <span style={{ fontSize: 11, color: "#665", fontWeight: "bold", marginTop: 4 }}>{item.label}</span>
+          </motion.div>
+        );
+      })}
 
       {/* Story popup */}
       <AnimatePresence>
@@ -1764,10 +1908,10 @@ function Ch5({ onNext }: { onNext: () => void }) {
             initial={{ opacity: 0, y: 20, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .92 }}
             className="paper"
             onClick={() => setSelected(null)}
-            style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", padding: "22px 30px", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,.18)", maxWidth: 360, textAlign: "center", fontFamily: "'Caveat', cursive", fontSize: 19, color: "#3d2b1f", lineHeight: 1.65, cursor: "pointer" }}>
-            <div style={{ fontSize: 30, marginBottom: 10 }}>{KEEPSAKES[selected].icon}</div>
+            style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", padding: "22px 30px", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,.18)", maxWidth: 360, textAlign: "center", fontFamily: "'Caveat', cursive", fontSize: 21, color: "#3d2b1f", lineHeight: 1.65, cursor: "pointer", zIndex: 100 }}>
+            <div style={{ fontSize: 34, marginBottom: 10 }}>{KEEPSAKES[selected].icon}</div>
             {KEEPSAKES[selected].story}
-            <div style={{ marginTop: 10, fontSize: 12, color: "#9a7060" }}>tap to close</div>
+            <div style={{ marginTop: 12, fontSize: 13, color: "#9a7060" }}>tap anywhere to close</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1787,7 +1931,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
 // ═════════════════════════════════════════════════════════════════════════════
 type ConfEl = { id: number; x: number; col: string; rot: number };
 
-function Ch6({ onNext }: { onNext: () => void }) {
+function Ch6({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispatch<React.SetStateAction<Memory>> }) {
   const [state, setState] = useState<"idle" | "turning" | "dropping" | "open">("idle");
   const [prize, setPrize] = useState<string | null>(null);
   const [conf, setConf] = useState<ConfEl[]>([]);
@@ -1807,7 +1951,9 @@ function Ch6({ onNext }: { onNext: () => void }) {
       setState("dropping");
       setTimeout(() => {
         setState("open");
-        setPrize(GACHA_PRIZES[Math.floor(Math.random() * GACHA_PRIZES.length)]);
+        const chocolate = GACHA_PRIZES[Math.floor(Math.random() * GACHA_PRIZES.length)];
+        setPrize(chocolate);
+        setMemory(m => ({ ...m, selectedChocolate: chocolate }));
         const newConf: ConfEl[] = Array.from({ length: 25 }, () => ({
           id: cid.current++,
           x: 40 + Math.random() * 20,
@@ -1968,7 +2114,7 @@ function Ch6({ onNext }: { onNext: () => void }) {
                 animate={state === "turning" ? {
                   x: [0, (Math.random() - 0.5) * 16, 0],
                   y: [0, (Math.random() - 0.5) * 16, 0],
-                  rotate: [rot, rot + 45, rot],
+                  rotate: [rot as number, (rot as number) + 45, rot as number],
                 } : {
                   y: [0, -3, 0],
                 }}
@@ -2198,10 +2344,11 @@ function Ch6({ onNext }: { onNext: () => void }) {
             <div style={{ position: "absolute", top: 8, left: 10, fontSize: 13, opacity: 0.4 }}>✦</div>
             <div style={{ position: "absolute", bottom: 8, right: 10, fontSize: 13, opacity: 0.4 }}>✦</div>
 
-            {prize}
+            <div style={{ fontSize: 16, color: "#78350f", marginBottom: 6 }}>You got:</div>
+            <div style={{ fontSize: 26, fontWeight: "bold", color: "#451a03", marginBottom: 12 }}>{prize}</div>
             
             <div style={{ marginTop: 20, display: "flex", gap: 14, justifyContent: "center" }}>
-              <button onClick={reset} style={{ background: "#efe1d1", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "#654020", fontWeight: "bold" }}>another coin</button>
+              <button onClick={reset} style={{ background: "#efe1d1", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "#654020", fontWeight: "bold" }}>twist again</button>
               <button onClick={onNext} style={{ background: "#7c3aed", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "white", fontWeight: "bold" }}>to the stars →</button>
             </div>
           </motion.div>
@@ -2575,222 +2722,11 @@ function Ch7({ onNext }: { onNext: () => void }) {
           animate={{ opacity: 1, y: 0 }} 
           style={{ position: "absolute", bottom: "14%", left: "50%", transform: "translateX(-50%)", zIndex: 4 }}
         >
-          <PageTab onClick={onNext} label="Bring the spring →" pos="center" />
-        </motion.div>
-      )}
-      
-      <ChLabel text="Chapter VI · A Universe That Remembers You" light />
-    </div>
-  );
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-//  CHAPTER 8 · You Made Spring Come (The Mystical Tree)
-// ═════════════════════════════════════════════════════════════════════════════
-type BloomEl = { id: number; x: number; y: number; size: number; rotation: number; hue: number; delay: number };
-
-function Ch8({ onNext }: { onNext: () => void }) {
-  const [blooms, setBlooms] = useState<BloomEl[]>([]);
-  const [phase, setPhase] = useState(0); // 0 winter night, 1 blooming aura, 2 dawn
-  const fid = useRef(0);
-  const count = useRef(0);
-
-  const grow = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Throttle blooming on mouse move to avoid clutter
-    if (e.type === "mousemove" && Math.random() > 0.15) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    const id = fid.current++;
-    const size = 10 + Math.random() * 25; // elegant small to medium petals
-    const rotation = Math.random() * 360;
-    // Hues ranging from soft cherry blossom pinks (330) to warm golds (45)
-    const hue = Math.random() > 0.6 ? 330 + Math.random() * 35 : 35 + Math.random() * 25;
-    const delay = e.type === "mousemove" ? 0 : Math.random() * 0.2;
-
-    setBlooms(fs => [...fs.slice(-80), { id, x, y, size, rotation, hue, delay }]);
-    count.current++;
-    
-    if (count.current === 1) setPhase(1);
-    if (count.current >= 35 && phase < 2) setPhase(2);
-  };
-
-  const bgGradient = phase === 0
-    ? "linear-gradient(to bottom, #030208 0%, #0a0715 40%, #150a21 100%)" // Deep mystical midnight
-    : phase === 1
-      ? "linear-gradient(to bottom, #0a071a 0%, #170d30 50%, #2b0e36 100%)" // Warming purple aura
-      : "linear-gradient(to bottom, #110934 0%, #3e1247 30%, #90215c 55%, #d95a53 80%, #ffb875 100%)"; // Breathtaking golden dawn
-
-  return (
-    <div onMouseMove={grow} onClick={grow} style={{
-      width: "100vw", height: "100vh",
-      background: bgGradient,
-      position: "relative", overflow: "hidden", fontFamily: "'Cormorant Garamond', serif",
-      transition: "background 4s ease-in-out",
-      cursor: "crosshair",
-    }}>
-      {/* Bioluminescent Stardust */}
-      {phase >= 1 && (
-        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1 }}>
-          {Array.from({ length: 45 }, (_, i) => (
-            <motion.div
-              key={i}
-              initial={{ x: `${Math.random() * 100}vw`, y: "110vh", opacity: 0 }}
-              animate={{ 
-                y: ["110vh", "-10vh"],
-                opacity: [0, 0.7, 0],
-                x: [`${Math.random() * 100}vw`, `${Math.random() * 100 + (Math.random() - 0.5) * 15}vw`]
-              }}
-              transition={{ 
-                duration: 9 + Math.random() * 10, 
-                repeat: Infinity, 
-                delay: Math.random() * 6,
-                ease: "linear"
-              }}
-              style={{
-                position: "absolute",
-                width: i % 4 === 0 ? 3 : 1.5,
-                height: i % 4 === 0 ? 3 : 1.5,
-                borderRadius: "50%",
-                background: i % 2 === 0 ? "#fef08a" : "#fbcfe8",
-                boxShadow: i % 2 === 0 ? "0 0 12px #fef08a" : "0 0 10px #fbcfe8",
-                filter: "blur(0.5px)"
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Massive Dawn Aura Bloom */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: phase === 2 ? 0.65 : 0, scale: phase === 2 ? 1 : 0.8 }}
-        transition={{ duration: 5, ease: "easeOut" }}
-        style={{
-          position: "absolute",
-          top: "40%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "140vw",
-          height: "140vw",
-          background: "radial-gradient(circle, rgba(255,210,140,0.35) 0%, rgba(255,90,140,0.15) 30%, transparent 65%)",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
-
-      {/* The Mystical Bare Tree Silhouette (Centered) */}
-      <div style={{
-        position: "absolute",
-        bottom: "-8%",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "110vw",
-        maxWidth: "1000px",
-        pointerEvents: "none",
-        zIndex: 2,
-        opacity: phase >= 2 ? 0.95 : 0.85,
-        filter: phase >= 1 ? "drop-shadow(0 0 35px rgba(244,114,182,0.4))" : "drop-shadow(0 0 15px rgba(0,0,0,0.8))",
-        transition: "filter 4s ease, opacity 4s ease",
-      }}>
-        {/* Elegant Abstract Tree Silhouette */}
-        <svg viewBox="0 0 800 500" style={{ width: "100%", height: "auto" }}>
-          {/* Main trunk/ground */}
-          <path d="M 0 500 C 150 420, 250 400, 350 500 Z" fill={phase >= 2 ? "#1f1025" : "#080510"} style={{ transition: "fill 4s ease" }}/>
-          <path d="M 50 500 C 150 350, 350 200, 750 150 C 600 180, 300 300, 200 500 Z" fill={phase >= 2 ? "#28132e" : "#0b0614"} style={{ transition: "fill 4s ease" }}/>
-          
-          {/* Sweeping branches */}
-          <path d="M 350 200 Q 420 120 500 80" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="14" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-          <path d="M 500 170 Q 580 80 700 40" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="10" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-          <path d="M 700 145 Q 750 90 850 100" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="7" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-          
-          {/* Finer upward reaching branches */}
-          <path d="M 420 150 Q 380 90 320 60" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="5" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-          <path d="M 580 95 Q 540 50 490 20" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="4" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-          <path d="M 700 75 Q 670 30 620 10" stroke={phase >= 2 ? "#28132e" : "#0b0614"} strokeWidth="3" strokeLinecap="round" fill="none" style={{ transition: "stroke 4s ease" }} />
-        </svg>
-      </div>
-
-      {/* The Glowing Blooms (Glassmorphic CSS Petals) */}
-      {blooms.map(b => (
-        <div key={b.id} style={{ 
-          position: "absolute", 
-          left: `${b.x}%`, 
-          top: `${b.y}%`, 
-          transform: "translate(-50%,-50%)", 
-          zIndex: 3,
-          pointerEvents: "none",
-        }}>
-          <motion.div 
-            initial={{ scale: 0, opacity: 0, rotate: b.rotation - 60 }}
-            animate={{ scale: 1, opacity: 0.9, rotate: b.rotation }}
-            transition={{ duration: 1.8, delay: b.delay, ease: "easeOut" }}
-            style={{ 
-              width: b.size, 
-              height: b.size, 
-              background: `linear-gradient(135deg, hsl(${b.hue}, 100%, 85%) 0%, hsl(${b.hue}, 70%, 65%) 100%)`,
-              borderRadius: "0 60% 0 60%", // Creates an elegant leaf/petal shape
-              boxShadow: `0 0 ${b.size * 1.5}px hsl(${b.hue}, 80%, 60%), inset 2px 2px 6px rgba(255,255,255,0.7)`,
-              opacity: 0.85,
-            }}
-          />
-        </div>
-      ))}
-
-      {/* Helper / Progress overlay */}
-      {phase === 0 && (
-        <motion.div animate={{ opacity: [0.2, 0.7, 0.2] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          style={{ 
-            position: "absolute", 
-            top: "45%", 
-            left: "50%", 
-            transform: "translate(-50%, -50%)", 
-            fontFamily: "'Cormorant Garamond', serif", 
-            fontSize: 24, 
-            color: "#cbd5e1", 
-            textAlign: "center", 
-            letterSpacing: 2,
-            fontStyle: "italic",
-            pointerEvents: "none",
-            zIndex: 10,
-          }}
-        >
-          touch the branches...
-        </motion.div>
-      )}
-
-      {/* Majestic Typographic Reveal */}
-      {phase >= 2 && (
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 2.5, delay: 0.8, ease: "easeOut" }}
-          style={{ 
-            position: "absolute", 
-            top: "22%", 
-            left: "50%", 
-            transform: "translateX(-50%)", 
-            fontFamily: "'Cormorant Garamond', serif", 
-            fontSize: "clamp(32px, 5vw, 54px)", 
-            color: "#fffbeb", 
-            fontWeight: "bold",
-            letterSpacing: 3,
-            textShadow: "0 2px 25px rgba(253,230,138,0.9), 0 5px 45px rgba(244,114,182,0.7)", 
-            whiteSpace: "nowrap",
-            zIndex: 10
-          }}
-        >
-          you made spring come ✦
-        </motion.div>
-      )}
-
-      {phase >= 2 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.8, duration: 1.5 }}
-          style={{ position: "absolute", bottom: "10%", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
           <PageTab onClick={onNext} label="One last thing →" pos="center" />
         </motion.div>
       )}
       
-      <ChLabel text="Chapter VII · You Made Spring Come" />
+      <ChLabel text="Chapter VI · A Universe That Remembers You" light />
     </div>
   );
 }
@@ -2802,6 +2738,10 @@ function Ch9({ memory }: { memory: Memory }) {
   const [step, setStep] = useState<"writing" | "camera" | "countdown" | "photo" | "final">("writing");
   const [count, setCount] = useState(3);
   const [triggerFlash, setTriggerFlash] = useState(false);
+  const [capturedImg, setCapturedImg] = useState<string | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const l1 = useTW("Before you go...", 75, 0, step === "writing");
   const l2 = useTW("I have one tiny request.", 75, 0, step === "writing" && l1.done);
@@ -2815,6 +2755,28 @@ function Ch9({ memory }: { memory: Memory }) {
     }
   }, [step, l2.done]);
 
+  // Request webcam access when step changes to 'camera'
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    if (step === "camera" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400, facingMode: "user" } })
+        .then((s) => {
+          stream = s;
+          if (videoRef.current) {
+            videoRef.current.srcObject = s;
+          }
+        })
+        .catch((err) => {
+          console.error("Camera access error: ", err);
+        });
+    }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [step]);
+
   const clickCamera = () => {
     if (step !== "camera") return;
     setStep("countdown"); 
@@ -2822,6 +2784,27 @@ function Ch9({ memory }: { memory: Memory }) {
     const tick = (n: number) => {
       setCount(n);
       if (n <= 0) { 
+        // Capture frame from video stream
+        if (videoRef.current && canvasRef.current) {
+          const video = videoRef.current;
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            // Draw a square cropped from the video center
+            const size = Math.min(video.videoWidth, video.videoHeight);
+            const sx = (video.videoWidth - size) / 2;
+            const sy = (video.videoHeight - size) / 2;
+            canvas.width = 400;
+            canvas.height = 400;
+            ctx.translate(400, 0);
+            ctx.scale(-1, 1); // Mirror effect for front camera
+            ctx.drawImage(video, sx, sy, size, size, 0, 0, 400, 400);
+            
+            const dataUrl = canvas.toDataURL("image/png");
+            setCapturedImg(dataUrl);
+          }
+        }
+        
         // Trigger visual screen flash
         setTriggerFlash(true);
         setTimeout(() => setTriggerFlash(false), 600);
@@ -2833,6 +2816,56 @@ function Ch9({ memory }: { memory: Memory }) {
       setTimeout(() => tick(n - 1), 950);
     };
     setTimeout(() => tick(2), 950);
+  };
+
+  const downloadPolaroid = () => {
+    if (!capturedImg) return;
+    
+    const downloadCanvas = document.createElement("canvas");
+    downloadCanvas.width = 440;
+    downloadCanvas.height = 540;
+    const ctx = downloadCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // Fill white card background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, 440, 540);
+
+    // Draw polaroid border shadow lines or soft inner borders
+    ctx.strokeStyle = "rgba(0,0,0,0.08)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, 438, 538);
+
+    // Load captured image and draw it inside
+    const img = new Image();
+    img.src = capturedImg;
+    img.onload = () => {
+      // Photo offset inside polaroid
+      ctx.drawImage(img, 28, 28, 384, 384);
+      
+      // Draw inner border around the photo
+      ctx.strokeStyle = "rgba(0,0,0,0.1)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(28, 28, 384, 384);
+
+      // Add cute hand-drawn style caption text
+      ctx.fillStyle = "#4c1d95";
+      ctx.font = "bold 26px 'Caveat', cursive, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("♡ there she is.", 220, 452);
+
+      if (memory.selectedChocolate) {
+        ctx.fillStyle = "#7c2d12";
+        ctx.font = "bold 22px 'Caveat', cursive, sans-serif";
+        ctx.fillText(`chocolate: ${memory.selectedChocolate}`, 220, 492);
+      }
+
+      // Trigger actual download link
+      const link = document.createElement("a");
+      link.download = `sayani_memory_${Date.now()}.png`;
+      link.href = downloadCanvas.toDataURL("image/png");
+      link.click();
+    };
   };
 
   const personalNote = [
@@ -2848,6 +2881,9 @@ function Ch9({ memory }: { memory: Memory }) {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
     }}>
+      {/* Hidden canvas helper for photo capture */}
+      <canvas ref={canvasRef} style={{ display: "none" }} />
+
       {/* Volumetric ambient background glow */}
       <div style={{
         position: "absolute",
@@ -2861,133 +2897,39 @@ function Ch9({ memory }: { memory: Memory }) {
         zIndex: 1,
       }} />
 
-      {/* Floating Sparkles & Dandelion Seeds */}
-      {Array.from({ length: 18 }, (_, i) => (
-        <motion.div 
-          key={i} 
-          initial={{ y: "110vh", x: `${Math.random() * 100}vw`, opacity: 0 }}
-          animate={{ 
-            y: "-10vh",
-            x: [`${Math.random() * 100}vw`, `${Math.random() * 100 + (Math.random() - 0.5) * 10}vw`],
-            opacity: [0, 0.55, 0]
-          }}
-          transition={{ 
-            duration: 6 + Math.random() * 5, 
-            repeat: Infinity, 
-            delay: i * 0.5,
-            ease: "easeInOut"
-          }}
-          style={{ 
-            position: "absolute", 
-            fontSize: "14px", 
-            pointerEvents: "none",
-            zIndex: 1,
-            color: "#e9d5ff",
-          }}
-        >
-          {i % 2 === 0 ? "✨" : "🌸"}
-        </motion.div>
-      ))}
-
-      {/* Camera Shutter Screen Flash Overlay */}
-      <AnimatePresence>
-        {triggerFlash && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "#ffffff",
-              zIndex: 10000,
-              pointerEvents: "none",
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      <div className="nb-lines" style={{ 
-        width: 460, 
-        maxWidth: "92vw", 
-        borderRadius: 12, 
-        boxShadow: "0 15px 45px rgba(0,0,0,0.55)", 
-        padding: "48px 40px", 
-        display: "flex", 
-        flexDirection: "column", 
-        alignItems: "center", 
-        gap: 20, 
-        position: "relative",
-        background: "#fdfbf7",
-        border: "1.5px solid #e2e8f0",
-        zIndex: 2,
-      }}>
-        {/* Decorative Washi Tape */}
-        <div className="washi" style={{ 
-          position: "absolute", 
-          top: -12, 
-          left: "32%", 
-          width: 100, 
-          height: 24, 
-          transform: "rotate(-2deg)", 
-          borderRadius: 3,
-          background: "rgba(224, 200, 150, 0.6)",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.08)",
-        }} />
-
-        {/* Writing phase */}
-        {(step === "writing" || step === "camera") && (<>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#3d2b1f", fontStyle: "italic", textAlign: "center", fontWeight: "bold" }}>
-            {l1.shown}{step === "writing" && !l1.done && <span style={{ borderRight: "2px solid #3d2b1f", animation: "blink .7s step-end infinite" }} />}
-          </div>
-          {l1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 21, color: "#5a3d2f", textAlign: "center", marginTop: 4 }}>
-            {l2.shown}{step === "writing" && !l2.done && <span style={{ borderRight: "2px solid #5a3d2f", animation: "blink .7s step-end infinite" }} />}
-          </div>}
-        </>)}
-
-        {/* Instax Camera (Violet / Pastel Pink) */}
-        {step === "camera" && (
-          <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-            onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <svg width="150" height="120" viewBox="0 0 150 120" style={{ animation: "floatUp 3s infinite ease-in-out", filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.3))" }}>
-              {/* Instax Body */}
-              <rect x="12" y="24" width="126" height="84" rx="16" fill="#ddd6fe" stroke="#c4b5fd" strokeWidth="1.5" />
-              <rect x="12" y="24" width="126" height="14" fill="#a78bfa" rx="4" />
-              
-              {/* Camera Lens ring outer */}
-              <circle cx="75" cy="72" r="32" fill="#8b5cf6" />
-              <circle cx="75" cy="72" r="27" fill="#4c1d95" />
-              {/* Lens glass elements */}
-              <circle cx="75" cy="72" r="21" fill="#1e1b4b" />
-              <circle cx="75" cy="72" r="14" fill="#030712" />
-              {/* Glass reflections */}
-              <circle cx="68" cy="65" r="4" fill="rgba(255,255,255,0.35)" />
-              <circle cx="81" cy="78" r="2" fill="rgba(255,255,255,0.18)" />
-
-              {/* Viewfinder */}
-              <rect x="22" y="32" width="22" height="14" rx="3" fill="#1e293b" stroke="#fcd34d" strokeWidth="1" />
-              <circle cx="26" cy="38" r="2" fill="#10b981" />
-
-              {/* Shutter Button */}
-              <circle cx="118" cy="38" r="8" fill="#ec4899" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
-              <circle cx="118" cy="38" r="5" fill="#f472b6" />
-
-              {/* Flash window */}
-              <rect x="94" y="14" width="28" height="14" rx="4" fill="#fef08a" stroke="#eab308" strokeWidth="1" />
-              
-              {/* Floral Cute Sticker decoration */}
-              <circle cx="34" cy="94" r="7" fill="#fbcfe8" />
-              {[0, 72, 144, 216, 288].map((rot, idx) => (
-                <ellipse key={idx} cx="34" cy="88" rx="2.5" ry="4.5" fill="#f472b6" transform={`rotate(${rot} 34 94)`} />
-              ))}
-              <circle cx="34" cy="94" r="2.5" fill="#fef08a" />
-            </svg>
-            <div style={{ fontFamily: "'Caveat', cursive", fontSize: 18, color: "#4a3025", marginTop: 12, lineHeight: 1.6, padding: "0 10px" }}>
-              “I know today tried to steal your smile.”<br />
-              <span style={{ fontWeight: "bold", color: "#6d28d9" }}>“Could I borrow one?”</span>
+      {/* Live Camera Feed Container */}
+      {step === "camera" && (
+          <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            
+            {/* Live Video Circle Viewfinder */}
+            <div style={{
+              width: 180,
+              height: 180,
+              borderRadius: "50%",
+              overflow: "hidden",
+              border: "4px solid #c4b5fd",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+              background: "#1e1e24",
+              transform: "scaleX(-1)", // Mirror viewfinder
+            }}>
+              <video ref={videoRef} autoPlay playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
-            <div style={{ marginTop: 10, fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#6d28d9", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1 }}>click the camera to snap ✦</div>
+
+            {/* Click to Snap Camera Widget */}
+            <div onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <svg width="60" height="52" viewBox="0 0 150 120" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.25))" }}>
+                <rect x="12" y="24" width="126" height="84" rx="16" fill="#ddd6fe" stroke="#c4b5fd" strokeWidth="1.5" />
+                <rect x="12" y="24" width="126" height="14" fill="#a78bfa" rx="4" />
+                <circle cx="75" cy="72" r="28" fill="#8b5cf6" />
+                <circle cx="75" cy="72" r="20" fill="#1e1b4b" />
+                <circle cx="68" cy="65" r="4" fill="rgba(255,255,255,0.35)" />
+                <circle cx="118" cy="38" r="8" fill="#ec4899" />
+              </svg>
+              <div style={{ marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#6d28d9", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1.5 }}>
+                click camera to snap live photo 📸
+              </div>
+            </div>
+
           </motion.div>
         )}
 
@@ -2999,7 +2941,7 @@ function Ch9({ memory }: { memory: Memory }) {
           </motion.div>
         )}
 
-        {/* Developing Polaroid Photo of Sayani */}
+        {/* Developing Polaroid Photo */}
         {(step === "photo" || step === "final") && (
           <motion.div 
             initial={{ opacity: 0, y: -40, rotate: -6 }} 
@@ -3021,15 +2963,26 @@ function Ch9({ memory }: { memory: Memory }) {
             {/* Washi Tape holding the polaroid */}
             <div className="washi" style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 56, height: 18, borderRadius: 2, background: "rgba(244, 114, 182, 0.45)" }} />
             
-            {/* Image develops (fade-in, filter adjustments) */}
-            <div style={{ 
-              width: "100%", 
-              flex: 1, 
-              background: `url(${sayani2}) center/cover no-repeat`,
-              borderRadius: 1.5,
-              border: "1px solid rgba(0,0,0,0.06)",
-              animation: "photoDevelop 4s ease-out forwards",
-            }} />
+            {/* Image develops */}
+            {capturedImg ? (
+              <div style={{ 
+                width: "100%", 
+                flex: 1, 
+                background: `url(${capturedImg}) center/cover no-repeat`,
+                borderRadius: 1.5,
+                border: "1px solid rgba(0,0,0,0.06)",
+                animation: "photoDevelop 4s ease-out forwards",
+              }} />
+            ) : (
+              <div style={{ 
+                width: "100%", 
+                flex: 1, 
+                background: `url(${sayani2}) center/cover no-repeat`,
+                borderRadius: 1.5,
+                border: "1px solid rgba(0,0,0,0.06)",
+                animation: "photoDevelop 4s ease-out forwards",
+              }} />
+            )}
             
             {/* Caption appears on final step */}
             {step === "final" && (
@@ -3037,18 +2990,24 @@ function Ch9({ memory }: { memory: Memory }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1.5 }}
-                style={{ fontFamily: "'Caveat', cursive", fontSize: 15, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
+                style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
               >
                 ♡ there she is.
+                {memory.selectedChocolate && (
+                  <div style={{ fontSize: 14, color: "#7c2d12", marginTop: 4 }}>
+                    and here is your chocolate: {memory.selectedChocolate}
+                  </div>
+                )}
               </motion.div>
             )}
           </motion.div>
         )}
 
-        {/* Final Letter Message */}
+        {/* Final Letter Message & Actions */}
         {step === "final" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}
-            style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, maxWidth: 360, marginTop: 10 }}>
+            style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, maxWidth: 360, marginTop: 10, alignItems: "center" }}>
+            
             <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, color: "#3d2b1f", fontStyle: "italic", fontWeight: "bold" }}>
               {lf1.shown}
             </div>
@@ -3072,14 +3031,37 @@ function Ch9({ memory }: { memory: Memory }) {
             )}
             
             {lf2.done && (
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                transition={{ delay: 1.8 }}
-                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: "#a78bfa", marginTop: 12, fontWeight: "bold", textTransform: "uppercase", letterSpacing: 2 }}
-              >
-                — with love, always.
-              </motion.div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginTop: 14 }}>
+                {/* Download Button */}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={downloadPolaroid}
+                  style={{
+                    background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                    border: "none",
+                    padding: "10px 24px",
+                    borderRadius: 24,
+                    fontFamily: "'Caveat', cursive",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    color: "white",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.3)",
+                  }}
+                >
+                  📥 Download Polaroid Card
+                </motion.button>
+
+                <motion.div 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }} 
+                  transition={{ delay: 1.2 }}
+                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: "#a78bfa", marginTop: 12, fontWeight: "bold", textTransform: "uppercase", letterSpacing: 2 }}
+                >
+                  — with love, always.
+                </motion.div>
+              </div>
             )}
           </motion.div>
         )}
@@ -3097,19 +3079,19 @@ export default function App() {
   const [memory, setMemory] = useState<Memory>({
     pettedCat: false, wateredFlowers: false,
     watchedButterflies: false, foundFeather: false,
+    selectedChocolate: "",
   });
 
-  const next = () => setChapter(c => Math.min(c + 1, 7));
+  const next = () => setChapter(c => Math.min(c + 1, 6));
 
   const chapters = [
     <Ch1 key={0} onNext={next} />,
     <Ch3 key={1} onNext={next} setMemory={setMemory} />,
     <Ch4 key={2} onNext={next} memory={memory} setMemory={setMemory} />,
     <Ch5 key={3} onNext={next} />,
-    <Ch6 key={4} onNext={next} />,
+    <Ch6 key={4} onNext={next} setMemory={setMemory} />,
     <Ch7 key={5} onNext={next} />,
-    <Ch8 key={6} onNext={next} />,
-    <Ch9 key={7} memory={memory} />,
+    <Ch9 key={6} memory={memory} />,
   ];
 
   return (
@@ -3119,7 +3101,7 @@ export default function App() {
 
       {/* Progress dots */}
       <div style={{ position: "fixed", bottom: 14, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 7, zIndex: 100, pointerEvents: "none" }}>
-        {Array.from({ length: 8 }, (_, i) => (
+        {Array.from({ length: 7 }, (_, i) => (
           <div key={i} style={{
             width: i === chapter ? 22 : 7, height: 7, borderRadius: 4,
             background: i <= chapter ? "rgba(255,255,255,.72)" : "rgba(255,255,255,.2)",

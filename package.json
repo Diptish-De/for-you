@@ -1,0 +1,9 @@
+{
+  "name": "for-you",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix \"Complete current task\"",
+    "build": "npm run build --prefix \"Complete current task\"",
+    "preview": "npm run preview --prefix \"Complete current task\""
+  }
+}
