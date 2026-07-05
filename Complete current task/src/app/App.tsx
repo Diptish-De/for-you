@@ -323,35 +323,37 @@ function PageTab({ onClick, label = "Turn the page →", pos = "right" }: {
 function Ch1({ onNext }: { onNext: () => void }) {
   const [opened, setOpened] = useState(false);
   const [phase, setPhase] = useState(0); // 0 nothing, 1 line1, 2 line2, 3 tab
-  const [flipping, setFlipping] = useState(false);
+  const [closing, setClosing] = useState(false);
 
-  const l1 = useTW("Hi Sayani.", 78, 0, phase >= 1);
-  const l2 = useTW("I borrowed you from the world for a little while.", 60, 0, phase >= 2);
+  const l1 = useTW("Hi Sayani.", 78, 0, phase >= 1 && !closing);
+  const l2 = useTW("I borrowed you from the world for a little while.", 60, 0, phase >= 2 && !closing);
 
   const handleOpen = () => {
+    if (closing) return;
     setOpened(true);
   };
 
   useEffect(() => {
-    if (opened) {
+    if (opened && !closing) {
       const t = setTimeout(() => setPhase(1), 1800);
       return () => clearTimeout(t);
     }
-  }, [opened]);
+  }, [opened, closing]);
 
   useEffect(() => { if (phase === 1 && l1.done) { const t = setTimeout(() => setPhase(2), 900); return () => clearTimeout(t); } }, [phase, l1.done]);
   useEffect(() => { if (phase === 2 && l2.done) { const t = setTimeout(() => setPhase(3), 1100); return () => clearTimeout(t); } }, [phase, l2.done]);
 
-  const handleTurnPage = () => {
-    setFlipping(true);
+  const handleCloseBook = () => {
+    setClosing(true);
+    setOpened(false);
     setTimeout(() => {
       onNext();
-    }, 1300);
+    }, 1900); // Wait for the cover close animation to finish
   };
 
   useEffect(() => {
     return () => {
-      setFlipping(false);
+      setClosing(false);
       setOpened(false);
       setPhase(0);
     };
@@ -702,70 +704,23 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 transformOrigin: "top center",
               }} />
 
-              {phase >= 1 && !flipping && (
+              {phase >= 1 && (
                 <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4, fontWeight: "bold" }}>
                   {l1.shown}
                   {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
-              {phase >= 2 && !flipping && (
+              {phase >= 2 && (
                 <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>
                   {l2.shown}
                   {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
-              {phase >= 3 && !flipping && (
+              {phase >= 3 && (
                 <div style={{ position: "absolute", bottom: 45, right: 45 }}>
-                  <PageTab onClick={handleTurnPage} />
+                  <PageTab onClick={handleCloseBook} label="Close the book →" />
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Flipping Page Overlay */}
-          {flipping && (
-            <div style={{
-              position: "absolute",
-              left: "50%",
-              top: 0,
-              width: "50%",
-              height: "100%",
-              transformOrigin: "left center",
-              animation: "pageFlip 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
-              transformStyle: "preserve-3d",
-              zIndex: 99,
-            }}>
-              {/* Front of flipping sheet */}
-              <div 
-                className="nb-lines"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backfaceVisibility: "hidden",
-                  borderRadius: "0 14px 14px 0",
-                  padding: "65px 50px 50px 65px",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 20,
-                }}
-              >
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", fontWeight: "bold" }}>Hi Sayani.</div>
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>I borrowed you from the world for a little while.</div>
-              </div>
-
-              {/* Back of flipping sheet */}
-              <div 
-                className="paper"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  backfaceVisibility: "hidden",
-                  transform: "rotateY(-180deg)",
-                  borderRadius: "14px 0 0 14px",
-                  background: "#FAF4E8",
-                  boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
-                }}
-              />
             </div>
           )}
         </div>
