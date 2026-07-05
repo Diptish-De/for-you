@@ -2391,30 +2391,15 @@ function Ch7({ onNext }: { onNext: () => void }) {
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(to bottom, #070913 0%, #0d1222 55%, #1b172a 82%, #2d2033 100%)",
+      background: "linear-gradient(to bottom, #05060f 0%, #0a0d1d 55%, #151126 80%, #201429 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
       
-      {/* Classic Serif header in upper left */}
-      <div style={{
-        position: "absolute",
-        left: "8%",
-        top: "14%",
-        fontFamily: "'Cormorant Garamond', serif",
-        fontSize: 32,
-        color: "rgba(255, 255, 255, 0.5)",
-        letterSpacing: 2,
-        pointerEvents: "none",
-        zIndex: 4,
-      }}>
-        Chapter VI · A Guiding Light
-      </div>
-
       {/* Deep Space Nebulous dust */}
       <div style={{
         position: "absolute",
         inset: 0,
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(139, 92, 246, 0.07) 0%, transparent 100%)",
+        background: "radial-gradient(ellipse 70% 50% at 50% 35%, rgba(139, 92, 246, 0.12) 0%, rgba(251, 191, 36, 0.03) 60%, transparent 100%)",
         pointerEvents: "none",
       }} />
 
@@ -2437,54 +2422,73 @@ function Ch7({ onNext }: { onNext: () => void }) {
       <div style={{
         position: "absolute",
         left: "50%",
-        top: "35%",
+        top: clicked ? "24%" : "40%",
         transform: "translate(-50%, -50%)",
         zIndex: 10,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        transition: "top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
       }}>
-        {/* Glowing Pulsing Outer rings */}
+        {/* Deep Radiant Star Glow */}
         <motion.div
-          animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.7, 0.3] }}
+          animate={{ scale: clicked ? [1, 1.2, 1] : [1, 1.3, 1], opacity: clicked ? [0.4, 0.8, 0.4] : [0.3, 0.65, 0.3] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: "absolute",
-            width: 70,
-            height: 70,
+            width: 140,
+            height: 140,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(253, 224, 71, 0.3) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(254, 240, 138, 0.4) 0%, rgba(251, 191, 36, 0.08) 50%, transparent 70%)",
+            pointerEvents: "none",
+            transform: "translateY(-54px)",
           }}
         />
 
-        {/* The Star itself */}
+        {/* Elegant layered SVG Star */}
         <motion.div
-          whileHover={{ scale: 1.2 }}
+          whileHover={{ scale: 1.25 }}
           onClick={handleStarClick}
           animate={{ rotate: 360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: clicked ? 60 : 35, repeat: Infinity, ease: "linear" }}
           style={{
-            width: 32,
-            height: 32,
-            background: "#fde047",
-            clipPath: "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
-            boxShadow: "0 0 25px #fef08a, 0 0 45px rgba(253,224,71,0.8)",
-            cursor: "pointer",
+            width: 80,
+            height: 80,
+            cursor: clicked ? "default" : "pointer",
             position: "relative",
             zIndex: 12,
+            filter: "drop-shadow(0 0 15px rgba(254, 240, 138, 0.8))",
           }}
-        />
+        >
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <defs>
+              <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffffff" />
+                <stop offset="35%" stopColor="#fef08a" />
+                <stop offset="70%" stopColor="#eab308" />
+                <stop offset="100%" stopColor="transparent" />
+              </radialGradient>
+            </defs>
+            {/* Long Starlight Flares */}
+            <path d="M 50 10 Q 50 50 10 50 Q 50 50 50 90 Q 50 50 90 50 Q 50 50 50 10 Z" fill="url(#starGlow)" opacity="0.6" />
+            {/* Star Body */}
+            <polygon points="50,15 59,38 84,38 64,53 71,78 50,63 29,78 36,53 16,38 41,38" fill="#fef08a" />
+            <circle cx="50" cy="50" r="8" fill="#ffffff" filter="blur(1px)" />
+          </svg>
+        </motion.div>
 
         {!clicked && (
           <motion.div
-            animate={{ y: [0, 4, 0], opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            animate={{ y: [0, 4, 0], opacity: [0.4, 0.85, 0.4] }}
+            transition={{ duration: 2.2, repeat: Infinity }}
             style={{
-              marginTop: 18,
-              fontSize: 20,
-              color: "#fef08a",
-              textShadow: "0 2px 4px rgba(0,0,0,0.6)",
-              textAlign: "center",
+              marginTop: 12,
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 16,
+              color: "#fde047",
+              letterSpacing: 2,
+              textTransform: "uppercase",
+              textShadow: "0 0 8px rgba(254,240,138,0.5)",
               pointerEvents: "none",
             }}
           >
@@ -2497,60 +2501,64 @@ function Ch7({ onNext }: { onNext: () => void }) {
       <AnimatePresence>
         {showText && (
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 1.4, ease: "easeOut" }}
             style={{
               position: "absolute",
-              top: "55%",
+              top: "43%",
               left: "50%",
               transform: "translateX(-50%)",
               textAlign: "center",
               width: "90%",
-              maxWidth: 440,
+              maxWidth: 460,
               zIndex: 8,
-              background: "rgba(15, 10, 25, 0.45)",
-              padding: "24px 30px",
-              borderRadius: 16,
-              border: "1px solid rgba(253, 224, 71, 0.15)",
-              backdropFilter: "blur(6px)",
-              boxShadow: "0 10px 30px rgba(0,0,0,0.45)",
+              background: "rgba(10, 8, 22, 0.72)",
+              backdropFilter: "blur(12px)",
+              padding: "30px 34px",
+              borderRadius: 20,
+              border: "1px solid rgba(254, 240, 138, 0.22)",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 15,
             }}
           >
             <div style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: 24,
-              color: "#fef08a",
+              fontSize: 26,
+              color: "#fde047",
               fontStyle: "italic",
               fontWeight: "bold",
-              letterSpacing: 1.2,
-              marginBottom: 10,
+              letterSpacing: 1.5,
+              textShadow: "0 0 10px rgba(254,240,138,0.3)",
             }}>
               He is always with you...
             </div>
             
             <div style={{
               fontFamily: "'Caveat', cursive",
-              fontSize: 20,
-              color: "#e2e8f0",
+              fontSize: 22,
+              color: "#f1f5f9",
               lineHeight: 1.6,
+              letterSpacing: 0.5,
             }}>
               Looking down from the quiet cosmos, he shines bright to guide your steps, protecting you from every evil and giving you the strength to stand tall. You are never, ever alone. ✦
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Navigation Tab to move next */}
-      <AnimatePresence>
-        {showButton && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0 }}
-            style={{ position: "absolute", bottom: "12%", left: "50%", transform: "translateX(-50%)", zIndex: 12 }}
-          >
-            <PageTab onClick={onNext} label="Take his blessing & continue →" pos="center" />
+            {/* Centered proceed button integrated inside the glass card */}
+            {showButton && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                transition={{ duration: 0.6, delay: 0.3 }}
+                style={{ marginTop: 10 }}
+              >
+                <PageTab onClick={onNext} label="Take his blessing & continue →" pos="center" />
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
