@@ -787,7 +787,6 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
 
   const burstCloud = (c: typeof CLOUDS_DATA[0]) => {
     if (burst.has(c.id)) return;
-    playSound("chime");
     const next = new Set(burst).add(c.id);
     setBurst(next);
     if (c.msg) setMsg(c.msg);
@@ -862,7 +861,8 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
           zIndex: 3,
           filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
           animation: "floatUp 4s ease-in-out infinite",
-          animationDelay: `${i * 0.25}s`
+          animationDelay: `${i * 0.25}s`,
+          pointerEvents: "none",
         }}>{f}</div>
       ))}
 
