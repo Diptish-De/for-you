@@ -723,18 +723,28 @@ function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
               position: "absolute",
               left: `${f.x}%`,
               top: `${f.y}%`,
+              width: 54, // Large invisible hit box
+              height: 54,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              transform: "translate(-50%, -50%)",
+              willChange: "left, top",
+              zIndex: 500, // Make sure it sits above all background elements
+            }}
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 1.2 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
+          >
+            {/* The visible glowing firefly particle */}
+            <div style={{
               width: 14 * f.scale,
               height: 14 * f.scale,
               borderRadius: "50%",
               background: "radial-gradient(circle, rgba(253,224,71,1) 0%, rgba(234,179,8,0.5) 40%, transparent 70%)",
               boxShadow: "0 0 16px rgba(253, 224, 71, 0.9)",
-              cursor: "pointer",
-              transform: "translate(-50%, -50%)",
-              willChange: "left, top",
-            }}
-            animate={{ scale: [1, 1.25, 1] }}
-            transition={{ duration: 1 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
-          />
+            }} />
+          </motion.div>
         );
       })}
 
