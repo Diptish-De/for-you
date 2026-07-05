@@ -203,14 +203,20 @@ const SPARK_COLORS = ["#f9c8e8", "#c8d8f9", "#f9f0c8", "#d8c8f9", "#c8f9e8", "#f
 type Spark = { id: number; x: number; y: number; c: string; s: number };
 
 function Cursor() {
-  const [pos, setPos] = useState({ x: -200, y: -200 });
+  const containerRef = useRef<HTMLDivElement>(null);
   const [sparks, setSparks] = useState<Spark[]>([]);
   const sid = useRef(0);
   const lt = useRef(0);
 
   useEffect(() => {
+    let mouseX = -200;
+    let mouseY = -200;
+    let currentX = -200;
+    let currentY = -200;
+
     const h = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
       if (Date.now() - lt.current < 75) return;
       lt.current = Date.now();
       const id = sid.current++;
@@ -223,13 +229,40 @@ function Cursor() {
       }]);
       setTimeout(() => setSparks(s => s.filter(sp => sp.id !== id)), 650);
     };
+
     window.addEventListener("mousemove", h);
-    return () => window.removeEventListener("mousemove", h);
+
+    let rafId: number;
+    const updateCursor = () => {
+      const lerpFactor = 0.22; // smooth lag effect
+      currentX += (mouseX - currentX) * lerpFactor;
+      currentY += (mouseY - currentY) * lerpFactor;
+
+      if (containerRef.current) {
+        containerRef.current.style.transform = `translate3d(${currentX - 11}px, ${currentY - 10}px, 0)`;
+      }
+      rafId = requestAnimationFrame(updateCursor);
+    };
+    rafId = requestAnimationFrame(updateCursor);
+
+    return () => {
+      window.removeEventListener("mousemove", h);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
     <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 9999 }}>
-      <div style={{ position: "absolute", left: pos.x - 11, top: pos.y - 10, transition: "left .04s, top .04s" }}>
+      <div 
+        ref={containerRef} 
+        style={{ 
+          position: "absolute", 
+          left: 0, 
+          top: 0, 
+          willChange: "transform",
+          transform: "translate3d(-200px, -200px, 0)" 
+        }}
+      >
         <svg width="22" height="20" viewBox="0 0 22 20">
           <ellipse cx="6" cy="8" rx="6" ry="4.5" fill="#f9c8e8" opacity=".9" transform="rotate(-20 6 8)" />
           <ellipse cx="6" cy="13" rx="4.5" ry="3" fill="#e8a8cc" opacity=".8" transform="rotate(-20 6 13)" />
