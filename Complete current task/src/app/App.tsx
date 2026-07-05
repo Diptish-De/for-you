@@ -986,12 +986,19 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
   const [developed, setDeveloped] = useState<Set<number>>(new Set());
   const [catPurring, setCatPurring] = useState(false);
   const [watered, setWatered] = useState(false);
+  const [isWatering, setIsWatering] = useState(false);
+  const [zoomPolaroid, setZoomPolaroid] = useState<number | null>(null);
   const [showNext, setShowNext] = useState(false);
 
   const devPolaroid = (id: number) => {
-    const next = new Set(developed).add(id);
-    setDeveloped(next);
-    if (next.size >= 2) setTimeout(() => setShowNext(true), 600);
+    if (!developed.has(id)) {
+      const next = new Set(developed).add(id);
+      setDeveloped(next);
+      if (next.size >= 2) setTimeout(() => setShowNext(true), 600);
+    } else {
+      // If already developed, zoom in on click
+      setZoomPolaroid(id);
+    }
   };
 
   const petCat = () => {
@@ -1000,7 +1007,15 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
     setTimeout(() => setCatPurring(false), 2200);
   };
 
-  const waterPlant = () => { setWatered(true); setMemory(m => ({ ...m, wateredFlowers: true })); };
+  const waterPlant = () => {
+    if (isWatering || watered) return;
+    setIsWatering(true);
+    setTimeout(() => {
+      setWatered(true);
+      setIsWatering(false);
+      setMemory(m => ({ ...m, wateredFlowers: true }));
+    }, 1400);
+  };
 
   return (
     <div style={{
@@ -1008,7 +1023,35 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       background: "linear-gradient(180deg, #ebdcd6 0%, #dec8c0 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
-      {/* Polished Hardwood Parquet Floor */}
+      {/* Wall Panel Pattern (subtle vertical wallpaper stripes) */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: "linear-gradient(to right, rgba(0,0,0,0.015) 50%, transparent 50%)",
+        backgroundSize: "20px 100%",
+        pointerEvents: "none",
+      }} />
+
+      {/* Dual Tone Lighting: Fireplace Warmth Overlay (Left) */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(circle at 10% 80%, rgba(249, 115, 22, 0.16) 0%, rgba(249, 115, 22, 0.04) 50%, transparent 80%)",
+        pointerEvents: "none",
+        mixBlendMode: "screen",
+        zIndex: 2,
+      }} />
+
+      {/* Dual Tone Lighting: Cool Moonlight Beam Overlay (Right) */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "linear-gradient(135deg, transparent 40%, rgba(186, 230, 253, 0.12) 80%, rgba(186, 230, 253, 0.22) 100%)",
+        pointerEvents: "none",
+        zIndex: 2,
+      }} />
+
+      {/* Polished Hardwood Floor */}
       <div style={{ 
         position: "absolute", 
         bottom: 0, 
@@ -1016,12 +1059,14 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
         right: 0, 
         height: "18%", 
         background: "linear-gradient(180deg, #7c4f30 0%, #4f2d18 100%)",
-        boxShadow: "inset 0 6px 15px rgba(0,0,0,0.5)",
+        boxShadow: "inset 0 6px 15px rgba(0,0,0,0.65)",
         zIndex: 2,
       }}>
-        {/* Soft shadow gradients under cat, plant and table items */}
-        <div style={{ position: "absolute", top: 0, left: "4%", width: 100, height: 20, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)" }} />
-        <div style={{ position: "absolute", top: 0, right: "10%", width: 110, height: 20, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)" }} />
+        {/* Planks reflection/seams */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.08)" }} />
+        {Array.from({ length: 8 }, (_, i) => (
+          <div key={i} style={{ position: "absolute", left: `${i * 12.5}%`, top: 0, bottom: 0, width: 1, background: "rgba(0,0,0,0.15)" }} />
+        ))}
       </div>
 
       {/* Wood Baseboard */}
@@ -1036,32 +1081,133 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
         zIndex: 2,
       }} />
 
-      {/* Scenic Arched Window */}
+      {/* Scenic Arched Window with Moonlight & Curtains */}
       <div style={{
-        position: "absolute", left: "6%", top: "8%",
+        position: "absolute", right: "7%", top: "8%",
         width: 130, height: 172,
         border: "7px solid #4a2815",
         borderRadius: "65px 65px 4px 4px",
-        background: "linear-gradient(to bottom, #090b14 0%, #131726 60%, #221c2e 100%)",
+        background: "linear-gradient(to bottom, #060810 0%, #0d1120 60%, #1c182c 100%)",
         boxShadow: "inset 0 0 15px rgba(0,0,0,0.85), 0 6px 20px rgba(0,0,0,0.3)",
         overflow: "hidden",
         zIndex: 2,
       }}>
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 28, background: "#050609" }} />
-        {/* Window grid */}
+        {/* Soft landscape horizon silhouette */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 28, background: "#030406" }} />
         <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 4, background: "#4a2815", transform: "translateX(-50%)" }} />
         <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 4, background: "#4a2815", transform: "translateY(-50%)" }} />
         
+        {/* Glowing Full Moon */}
+        <div style={{
+          position: "absolute",
+          top: "22%",
+          left: "24%",
+          width: 26,
+          height: 26,
+          borderRadius: "50%",
+          background: "#fffde7",
+          boxShadow: "0 0 15px #fffde7, 0 0 30px rgba(255,253,231,0.6)",
+        }} />
+
         {/* Twinkling stars */}
-        {RAIN.slice(0, 8).map(d => (
+        {RAIN.slice(0, 10).map(d => (
           <div key={d.id} style={{
             position: "absolute", left: `${d.x}%`, top: `${Math.abs(d.y) * 0.7}%`,
-            width: 2, height: 2, background: "#fff",
-            opacity: 0.65,
+            width: 1.8, height: 1.8, background: "#fff",
+            opacity: 0.55,
             animation: "twinkle 2.5s infinite alternate",
             animationDelay: `${d.delay}s`
           }} />
         ))}
+      </div>
+
+      {/* Swaying Window Curtain lace */}
+      <motion.div 
+        animate={{ rotate: [0, 2, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          right: "6%",
+          top: "7%",
+          width: 42,
+          height: 176,
+          background: "linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))",
+          borderLeft: "1px dashed rgba(255,255,255,0.25)",
+          borderRadius: "0 0 0 20px",
+          transformOrigin: "top right",
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Brick Fireplace (Left Wall) */}
+      <div style={{
+        position: "absolute",
+        left: 0,
+        bottom: "16%",
+        width: 120,
+        height: 180,
+        background: "linear-gradient(135deg, #4b3621 0%, #36220f 100%)",
+        borderRadius: "0 16px 16px 0",
+        borderRight: "8px solid #5a3825",
+        boxShadow: "5px 10px 25px rgba(0,0,0,0.5)",
+        zIndex: 3,
+        padding: "35px 10px 0 0",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}>
+        {/* Mantel top */}
+        <div style={{ position: "absolute", top: 12, left: 0, right: -6, height: 14, background: "#6b4226", borderRadius: "0 4px 4px 0", boxShadow: "0 3px 6px rgba(0,0,0,0.4)" }} />
+        
+        {/* Firebox cavity */}
+        <div style={{
+          width: 78,
+          height: 95,
+          background: "#1c120c",
+          borderRadius: "12px 12px 0 0",
+          boxShadow: "inset 0 4px 12px rgba(0,0,0,0.85)",
+          position: "relative",
+          overflow: "hidden",
+          marginTop: 15,
+          border: "4px solid #2d1e15",
+        }}>
+          {/* Glowing Coals */}
+          <div style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 24,
+            background: "radial-gradient(ellipse at center, #ea580c 0%, #7c2d12 70%, #000 100%)",
+            boxShadow: "0 -2px 10px #ea580c",
+          }} />
+
+          {/* Dancing Flames */}
+          {Array.from({ length: 4 }, (_, i) => (
+            <motion.div
+              key={i}
+              animate={{ 
+                scaleY: [1, 1.4, 0.9, 1.25, 1],
+                scaleX: [1, 0.85, 1.1, 0.9, 1],
+                y: [0, -4, 2, 0]
+              }}
+              transition={{ duration: 0.15 + i * 0.04, repeat: Infinity, ease: "linear" }}
+              style={{
+                position: "absolute",
+                bottom: 6,
+                left: `${18 + i * 14}px`,
+                width: 14,
+                height: 38,
+                borderRadius: "50% 50% 30% 30%",
+                background: `radial-gradient(circle at center, #ffffff 10%, #f97316 55%, #dc2626 100%)`,
+                boxShadow: "0 0 10px #f97316, 0 0 18px #dc2626",
+                transformOrigin: "bottom center",
+                mixBlendMode: "screen",
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Fairy Lights String */}
@@ -1107,66 +1253,87 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
       </div>
 
       {/* Polaroids hanging from string pins */}
-      {POLARS.map(p => (
-        <div key={p.id} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y + 6}%`, zIndex: 3 }}>
-          {/* Black string line */}
-          <div style={{ width: 1.5, height: 26, background: "#4a3525", margin: "0 auto" }} />
-          
-          {/* Cute Clothespin */}
-          <div style={{ 
-            width: 8, height: 14, 
-            background: "#d97706", 
-            border: "1px solid #b45309",
-            margin: "0 auto -5px", 
-            borderRadius: 1.5, 
-            position: "relative", 
-            zIndex: 4,
-            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
-          }} />
-
-          {/* Polaroid Card */}
-          <div onClick={() => devPolaroid(p.id)} style={{
-            width: 116, height: 136,
-            background: developed.has(p.id) ? p.shade : "#FAF4E8",
-            border: "1px solid rgba(0,0,0,0.06)",
-            transform: `rotate(${p.rot}deg)`,
-            boxShadow: "4px 6px 20px rgba(0,0,0,0.22)",
-            cursor: "pointer", borderRadius: 2,
-            display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 22px",
-            animation: developed.has(p.id) ? "polarDev 1.5s ease-out forwards" : undefined,
-          }}>
+      {POLARS.map(p => {
+        const isDeveloped = developed.has(p.id);
+        return (
+          <div key={p.id} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y + 6}%`, zIndex: 3 }}>
+            {/* Black string line */}
+            <div style={{ width: 1.5, height: 26, background: "#4a3525", margin: "0 auto" }} />
+            
+            {/* Cute Clothespin */}
             <div style={{ 
-              width: "100%", 
-              flex: 1, 
-              background: developed.has(p.id) ? `url(${p.img}) center/cover no-repeat` : "#d4c8c4", 
-              borderRadius: 1, 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              fontSize: 28,
-              transition: "background 1.2s ease",
-            }}>
-              {!developed.has(p.id) && "📷"}
-            </div>
-            {developed.has(p.id) && (
-              <div style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: "#4a3028", marginTop: 6, textAlign: "center", lineHeight: 1.3 }}>{p.caption}</div>
-            )}
-          </div>
-        </div>
-      ))}
+              width: 8, height: 14, 
+              background: "#d97706", 
+              border: "1px solid #b45309",
+              margin: "0 auto -5px", 
+              borderRadius: 1.5, 
+              position: "relative", 
+              zIndex: 4,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+            }} />
 
-      {/* Cozy Plant (left) */}
-      <div style={{ position: "absolute", left: "6%", bottom: "21%", cursor: "pointer", zIndex: 3 }} onClick={waterPlant}>
-        <div style={{ fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
-          {watered ? "🌿 green & happy!" : "🌱 water me?"}
-        </div>
-        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          {/* Detailed terracotta plant pot */}
+            {/* Polaroid Card */}
+            <motion.div 
+              onClick={() => devPolaroid(p.id)} 
+              whileHover={{ scale: 1.05, y: -4, rotate: p.rot * 0.8 }}
+              style={{
+                width: 116, height: 136,
+                background: isDeveloped ? p.shade : "#FAF4E8",
+                border: "1px solid rgba(0,0,0,0.06)",
+                transform: `rotate(${p.rot}deg)`,
+                boxShadow: "4px 6px 20px rgba(0,0,0,0.22)",
+                cursor: "pointer", borderRadius: 2,
+                display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 22px",
+                animation: isDeveloped ? "polarDev 1.5s ease-out forwards" : undefined,
+                transition: "box-shadow 0.3s ease",
+              }}
+            >
+              <div style={{ 
+                width: "100%", 
+                flex: 1, 
+                background: isDeveloped ? `url(${p.img}) center/cover no-repeat` : "#d4c8c4", 
+                borderRadius: 1, 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center", 
+                fontSize: 28,
+                transition: "background 1.2s ease",
+              }}>
+                {!isDeveloped && "📷"}
+              </div>
+              {isDeveloped && (
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: "#4a3028", marginTop: 6, textAlign: "center", lineHeight: 1.3 }}>{p.caption}</div>
+              )}
+            </motion.div>
+          </div>
+        );
+      })}
+
+      {/* Boho Patterned Area Rug under Kitten */}
+      <div style={{
+        position: "absolute",
+        right: "6%",
+        bottom: "-1%",
+        width: 180,
+        height: 60,
+        borderRadius: "50%",
+        background: "radial-gradient(circle, #ea580c 0%, #b45309 60%, #451a03 100%)",
+        border: "3.5px dashed #fef3c7",
+        boxShadow: "0 6px 12px rgba(0,0,0,0.45)",
+        zIndex: 2,
+        opacity: 0.9,
+      }} />
+
+      {/* Cozy Plant & Copper Watering Can (left) */}
+      <div style={{ position: "absolute", left: "14%", bottom: "21%", zIndex: 3 }}>
+        <div onClick={waterPlant} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
+            {watered ? "🌿 green & happy!" : "🌱 water me?"}
+          </div>
+          {/* Terracotta Pot */}
           <svg width="56" height="70" viewBox="0 0 56 70" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
-            {/* Clay pot */}
             <polygon points="18,44 42,44 38,68 22,68" fill="#d97706" stroke="#b45309" strokeWidth="1" />
             <rect x="15" y="38" width="30" height="6" rx="1.5" fill="#d97706" stroke="#b45309" strokeWidth="1" />
-            {/* Foliage */}
             {watered ? (
               <>
                 <ellipse cx="28" cy="22" rx="18" ry="11" fill="#15803d" />
@@ -1183,43 +1350,88 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
             )}
           </svg>
         </div>
+
+        {/* Copper Watering Can next to pot */}
+        <motion.div
+          animate={isWatering ? {
+            y: [-10, -32, -32, -10],
+            x: [15, -10, -10, 15],
+            rotate: [0, -35, -35, 0],
+          } : { y: 0, x: 22, rotate: 0 }}
+          transition={{ duration: 1.4, ease: "easeInOut" }}
+          onClick={waterPlant}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            cursor: "pointer",
+            width: 40,
+            height: 30,
+            zIndex: 4,
+          }}
+        >
+          <svg width="40" height="30" viewBox="0 0 40 30" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>
+            {/* Can Body */}
+            <path d="M12 10 L28 10 L26 26 L14 26 Z" fill="#b45309" stroke="#78350f" strokeWidth="1" />
+            {/* Spout */}
+            <path d="M12 18 L2 12 L2 15 L12 21" fill="#b45309" stroke="#78350f" strokeWidth="1" />
+            {/* Handle */}
+            <path d="M28 14 C34 14, 34 22, 28 22" stroke="#b45309" strokeWidth="2.5" fill="none" />
+            {/* Top Loop Handle */}
+            <path d="M16 10 C16 4, 24 4, 24 10" stroke="#b45309" strokeWidth="2" fill="none" />
+          </svg>
+
+          {/* Water drops during animation */}
+          {isWatering && (
+            <div style={{ position: "absolute", top: 12, left: -6 }}>
+              {[0, 0.3, 0.6].map((d, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 1, y: 0, x: 0 }}
+                  animate={{ opacity: 0, y: 22, x: -8 }}
+                  transition={{ duration: 0.6, repeat: 2, delay: d }}
+                  style={{
+                    position: "absolute",
+                    width: 3.5,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: "#38bdf8",
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
 
-      {/* Sleeping/Petting Cat (right) */}
-      <div onClick={petCat} style={{ position: "absolute", right: "11%", bottom: "20%", cursor: "pointer", zIndex: 3 }}>
+      {/* Sleeping/Petting Cat (right, resting on Boho Rug) */}
+      <div onClick={petCat} style={{ position: "absolute", right: "10%", bottom: "4%", cursor: "pointer", zIndex: 3 }}>
         <div style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
           {catPurring ? "purrrr~ 💕" : memory.pettedCat ? "sleeping 💤" : "pet me?"}
         </div>
         <div style={{ position: "relative" }}>
-          {/* Pulsing breathing animation for cat */}
+          {/* Pulsing breathing animation */}
           <motion.div
             animate={{ scaleY: catPurring ? [1, 1.05, 1] : [1, 1.03, 1] }}
             transition={{ duration: catPurring ? 1.2 : 2.5, repeat: Infinity, ease: "easeInOut" }}
           >
             <svg width="68" height="52" viewBox="0 0 68 52" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>
-              {/* Fluffy body */}
               <ellipse cx="34" cy="36" rx="24" ry="14" fill="#a78bfa" />
-              {/* Head */}
               <circle cx="34" cy="20" r="13" fill="#a78bfa" />
-              {/* Ears */}
               <polygon points="23,12 18,3 27,12" fill="#a78bfa" />
               <polygon points="45,12 50,3 41,12" fill="#a78bfa" />
-              {/* Sleeping eyes */}
               <path d="M26 21 Q29 24 32 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
               <path d="M36 21 Q39 24 42 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
-              {/* Nose */}
               <polygon points="33,24 35,24 34,25.5" fill="#f43f5e" />
-              {/* Tail wrapped around */}
               <path d="M54 38 C64 35, 60 48, 52 46 C48 45, 46 41, 48 38" stroke="#a78bfa" strokeWidth="6" fill="none" strokeLinecap="round"
                 style={{ transformOrigin: "50px 38px", animation: catPurring ? "catTail 1s ease-in-out infinite" : undefined }} />
             </svg>
           </motion.div>
           
-          {/* Floating hearts when petted */}
+          {/* Floating hearts */}
           {catPurring && (
             <motion.div
               initial={{ opacity: 1, y: 0, scale: 0.5 }}
-              animate={{ opacity: 0, y: -40, scale: 1.2 }}
+              animate={{ opacity: 0, y: -45, scale: 1.3 }}
               transition={{ duration: 1.5 }}
               style={{ position: "absolute", top: -15, left: 24, fontSize: 18, pointerEvents: "none" }}
             >
@@ -1229,10 +1441,9 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
         </div>
       </div>
 
-      {/* Flickering Candle */}
-      <div style={{ position: "absolute", right: "26%", bottom: "21%", zIndex: 3 }}>
+      {/* Flickering Candle on Floor */}
+      <div style={{ position: "absolute", right: "26%", bottom: "17%", zIndex: 3 }}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          {/* Flame */}
           <motion.div 
             animate={{ scaleY: [1, 1.2, 0.9, 1.15, 1], scaleX: [1, 0.9, 1.1, 0.95, 1], y: [0, -1, 0.5, 0] }}
             transition={{ duration: 0.16, repeat: Infinity, ease: "linear" }}
@@ -1245,7 +1456,6 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
               marginBottom: -1,
             }}
           />
-          {/* Wax body */}
           <div style={{
             width: 10,
             height: 22,
@@ -1255,6 +1465,86 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
           }} />
         </div>
       </div>
+
+      {/* Polaroid Zoom Lightbox Overlay */}
+      <AnimatePresence>
+        {zoomPolaroid !== null && (() => {
+          const p = POLARS.find(x => x.id === zoomPolaroid);
+          if (!p) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setZoomPolaroid(null)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(15, 10, 25, 0.8)",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+                cursor: "zoom-out",
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.85, y: 30, rotate: -2 }}
+                animate={{ scale: 1.0, y: 0, rotate: 0 }}
+                exit={{ scale: 0.85, y: 30, rotate: 2 }}
+                transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  width: 320,
+                  height: 380,
+                  background: p.shade,
+                  borderRadius: 6,
+                  padding: "16px 16px 35px",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.65)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                }}
+              >
+                {/* Image */}
+                <div style={{
+                  width: "100%",
+                  flex: 1,
+                  background: `url(${p.img}) center/cover no-repeat`,
+                  borderRadius: 3,
+                  boxShadow: "inset 0 0 10px rgba(0,0,0,0.1)",
+                }} />
+                {/* Handwritten Memory */}
+                <div style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 18,
+                  fontStyle: "italic",
+                  fontWeight: "bold",
+                  color: "#3f2d20",
+                  marginTop: 18,
+                  textAlign: "center",
+                  lineHeight: 1.4,
+                  letterSpacing: 0.5,
+                  padding: "0 10px",
+                }}>
+                  “{p.caption}”
+                </div>
+                {/* Close instruction */}
+                <div style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: 13,
+                  color: "rgba(63,45,32,0.5)",
+                  marginTop: 12,
+                }}>
+                  click anywhere to close
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
 
       {showNext && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%", zIndex: 3 }}>
