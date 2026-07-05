@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
+import sayani1 from "../imports/sayani-1.png";
+import sayani2 from "../imports/sayani-2.jpg";
+import sayani3 from "../imports/sayani-3.jpg";
+
+
 // ─── Pre-computed stable random arrays ───────────────────────────────────────
 const STARS_BG = Array.from({ length: 55 }, (_, i) => ({
   id: i,
@@ -728,9 +733,9 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
 //  CHAPTER 4 · Sayani's Little Room
 // ═════════════════════════════════════════════════════════════════════════════
 const POLARS = [
-  { id: 0, x: 14, y: 12, rot: -6, caption: "that afternoon that lasted forever", shade: "#fce8f0" },
-  { id: 1, x: 43, y: 7, rot: 3, caption: "the café with the wobbly chair", shade: "#f0e8fc" },
-  { id: 2, x: 68, y: 14, rot: -4, caption: "when you laughed and forgot to be sad", shade: "#e8f0fc" },
+  { id: 0, x: 14, y: 12, rot: -6, caption: "that afternoon that lasted forever", shade: "#fce8f0", img: sayani1 },
+  { id: 1, x: 43, y: 7, rot: 3, caption: "the café with the wobbly chair", shade: "#f0e8fc", img: sayani3 },
+  { id: 2, x: 68, y: 14, rot: -4, caption: "when you laughed and forgot to be sad", shade: "#e8f0fc", img: sayani2 },
 ];
 
 function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory; setMemory: React.Dispatch<React.SetStateAction<Memory>> }) {
@@ -805,8 +810,18 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
             display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 20px",
             animation: developed.has(p.id) ? "polarDev 1.5s ease-out forwards" : undefined,
           }}>
-            <div style={{ width: "100%", flex: 1, background: developed.has(p.id) ? "rgba(0,0,0,.06)" : "#b8aca8", borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>
-              {developed.has(p.id) ? "📷" : ""}
+            <div style={{ 
+              width: "100%", 
+              flex: 1, 
+              background: developed.has(p.id) ? `url(${p.img}) center/cover no-repeat` : "#b8aca8", 
+              borderRadius: 1, 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center", 
+              fontSize: 28,
+              transition: "background 1s ease",
+            }}>
+              {!developed.has(p.id) && "📷"}
             </div>
             {developed.has(p.id) && (
               <div style={{ fontFamily: "'Caveat', cursive", fontSize: 11, color: "#4a3028", marginTop: 6, textAlign: "center", lineHeight: 1.3 }}>{p.caption}</div>
