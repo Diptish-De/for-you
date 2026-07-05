@@ -337,7 +337,6 @@ function Ch1({ onNext }: { onNext: () => void }) {
 
   useEffect(() => {
     if (opened) {
-      // Delay phase 1 typing until cover has opened fully (1.8s)
       const t = setTimeout(() => setPhase(1), 1800);
       return () => clearTimeout(t);
     }
@@ -350,105 +349,178 @@ function Ch1({ onNext }: { onNext: () => void }) {
     setFlipping(true);
     setTimeout(() => {
       onNext();
-    }, 1300); // match pageFlip duration
+    }, 1300);
   };
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #060e1c 0%, #0a1628 55%, #0d2035 100%)",
+      background: "linear-gradient(180deg, #050a14 0%, #0a1122 60%, #12182c 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
-      {/* Stars */}
+      {/* Twinkling ambient stars */}
       {STARS_BG.map(s => (
         <div key={s.id} style={{
           position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
           width: s.size, height: s.size, borderRadius: "50%", background: "white",
           opacity: .3 + Math.random() * .7,
           animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s`,
+          pointerEvents: "none",
         }} />
       ))}
 
-      {/* Moon */}
-      <div style={{ position: "absolute", top: "7%", left: "20%" }}>
-        <svg width="52" height="52" viewBox="0 0 52 52">
-          <circle cx="26" cy="26" r="22" fill="#fff8d0" opacity=".92" />
-          <circle cx="35" cy="18" r="18" fill="#0a1628" />
+      {/* Cozy soft moon */}
+      <div style={{ position: "absolute", top: "7%", left: "16%", pointerEvents: "none", opacity: 0.85 }}>
+        <svg width="44" height="44" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="#fffbe3" style={{ filter: "drop-shadow(0 0 10px rgba(255,251,227,0.6))" }} />
+          <circle cx="29" cy="15" r="15" fill="#050a14" />
         </svg>
       </div>
 
-      {/* Rainy window */}
+      {/* Cozy Glassmorphic Window with trickling rain */}
       <div style={{
-        position: "absolute", right: "8%", top: "6%",
-        width: 168, height: 212, background: "rgba(18,38,78,.5)",
-        border: "11px solid #5c3d1e", borderRadius: 3, overflow: "hidden",
-        boxShadow: "inset 0 0 20px rgba(0,0,0,.4), 0 0 30px rgba(80,120,200,.1)",
+        position: "absolute", right: "7%", top: "7%",
+        width: 154, height: 200, 
+        background: "rgba(255, 255, 255, 0.03)",
+        border: "10px solid #3c2415", 
+        borderRadius: 4, 
+        overflow: "hidden",
+        backdropFilter: "blur(3px)",
+        boxShadow: "inset 0 0 20px rgba(0,0,0,0.6), 0 8px 30px rgba(0,0,0,0.5)",
+        zIndex: 1,
       }}>
-        <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 8, background: "#5c3d1e", transform: "translateX(-50%)" }} />
-        <div style={{ position: "absolute", top: "48%", left: 0, right: 0, height: 8, background: "#5c3d1e", transform: "translateY(-50%)" }} />
+        {/* Frame lines */}
+        <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 6, background: "#3c2415", transform: "translateX(-50%)" }} />
+        <div style={{ position: "absolute", top: "48%", left: 0, right: 0, height: 6, background: "#3c2415", transform: "translateY(-50%)" }} />
+        
+        {/* Rain droplets */}
         {RAIN.map(d => (
           <div key={d.id} style={{
             position: "absolute", left: `${d.x}%`, top: -16,
-            width: 1, height: 13, background: "rgba(180,210,255,.4)",
+            width: 1, height: 12, background: "rgba(186,218,255,0.35)",
             animation: `rainFall ${d.dur}s linear infinite`, animationDelay: `${d.delay}s`,
           }} />
         ))}
       </div>
 
-      {/* Lamp */}
-      <div style={{ position: "absolute", left: "10%", top: "18%" }}>
-        <svg width="68" height="134" viewBox="0 0 68 134">
-          <path d="M20 47L9 79L59 79L48 47Z" fill="#c8a060" />
-          <ellipse cx="34" cy="78" rx="28" ry="7" fill="rgba(255,200,80,.18)" />
-          <rect x="30" y="79" width="8" height="44" fill="#8b5e2a" />
-          <rect x="18" y="121" width="32" height="10" rx="4" fill="#8b5e2a" />
+      {/* Banker's Lamp casting warm yellow light */}
+      <div style={{ position: "absolute", left: "8%", top: "20%", zIndex: 3 }}>
+        {/* Lamp drawing */}
+        <svg width="60" height="120" viewBox="0 0 60 120" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
+          {/* Emerald green shade */}
+          <path d="M12 40 L48 40 L54 62 L6 62 Z" fill="#065f46" stroke="#047857" strokeWidth="1" />
+          <ellipse cx="30" cy="62" rx="24" ry="4" fill="#047857" />
+          
+          {/* Golden inner shade glow */}
+          <ellipse cx="30" cy="62" rx="20" ry="3" fill="#fbbf24" opacity="0.8" />
+
+          {/* Brass rod stand */}
+          <path d="M30 62 L30 110" stroke="#ca8a04" strokeWidth="4" />
+          <path d="M28 62 C20 62, 20 85, 28 92" stroke="#ca8a04" strokeWidth="2.5" fill="none" />
+          
+          {/* Base */}
+          <rect x="18" y="108" width="24" height="8" rx="2" fill="#ca8a04" stroke="#854d0e" strokeWidth="1" />
         </svg>
+
+        {/* Banker's Lamp radial light beam projection */}
         <div style={{
-          position: "absolute", top: 30, left: -90, width: 240, height: 240,
-          borderRadius: "50%", background: "radial-gradient(circle, rgba(255,200,80,.11) 0%, transparent 70%)",
-          pointerEvents: "none", animation: "glowPulse 3.5s ease-in-out infinite",
+          position: "absolute", top: 40, left: -140, width: 340, height: 340,
+          borderRadius: "50%", 
+          background: "radial-gradient(circle, rgba(253,224,71,0.2) 0%, rgba(253,224,71,0.06) 45%, transparent 70%)",
+          pointerEvents: "none", 
+          mixBlendMode: "screen",
+          animation: "glowPulse 4s ease-in-out infinite",
         }} />
       </div>
 
-      {/* Mug */}
-      <div style={{ position: "absolute", left: "26%", bottom: "35%" }}>
-        <svg width="54" height="60" viewBox="0 0 54 60">
-          <path d="M8 20L8 47Q8 53 15 53L37 53Q44 53 44 47L44 20Z" fill="#d4856a" />
-          <path d="M44 27Q58 27 58 35Q58 43 44 43" stroke="#b86a50" strokeWidth="4.5" fill="none" />
-          <rect x="6" y="17" width="40" height="5" rx="2.5" fill="#c07050" />
-          {[0, .7, 1.4].map((d, i) => (
-            <path key={i} d={`M${16 + i * 7} 16Q${18 + i * 7} 9 ${16 + i * 7} 2`}
-              stroke="rgba(255,255,255,.5)" strokeWidth="1.5" fill="none"
+      {/* Steaming Mug on Desk */}
+      <div style={{ position: "absolute", left: "24%", bottom: "32%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.35))" }}>
+        <svg width="48" height="52" viewBox="0 0 48 52">
+          {/* Cup */}
+          <path d="M6 16 L6 42 Q6 48, 12 48 L30 48 Q36 48, 36 42 L36 16 Z" fill="#b45309" />
+          {/* Handle */}
+          <path d="M36 22 Q46 22, 46 30 Q46 38, 36 38" stroke="#92400e" strokeWidth="4" fill="none" />
+          {/* Lid/Rim */}
+          <ellipse cx="21" cy="16" rx="15" ry="3" fill="#d97706" />
+          
+          {/* Steam loops */}
+          {[0, 0.7, 1.4].map((d, i) => (
+            <path key={i} d={`M${13 + i * 8} 11 Q${15 + i * 8} 5 ${13 + i * 8} 0`}
+              stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" fill="none"
               style={{ animation: `steam 2s ease-out infinite`, animationDelay: `${d}s` }} />
           ))}
         </svg>
       </div>
 
-      {/* Plant */}
-      <div style={{ position: "absolute", right: "5%", bottom: "35%" }}>
-        <svg width="66" height="92" viewBox="0 0 66 92">
-          <rect x="23" y="59" width="20" height="33" rx="3" fill="#7a5c2a" />
-          <ellipse cx="23" cy="46" rx="14" ry="8" fill="#4a8a40" transform="rotate(-25 23 46)" />
-          <ellipse cx="43" cy="46" rx="13" ry="7" fill="#5aa050" transform="rotate(25 43 46)" />
-          <ellipse cx="33" cy="38" rx="13" ry="10" fill="#4a8a40" />
-          <ellipse cx="20" cy="32" rx="10" ry="6" fill="#5aa050" transform="rotate(-30 20 32)" />
-          <path d="M33 70L33 30" stroke="#3a6a30" strokeWidth="2" />
+      {/* Cozy Flickering Candle */}
+      <div style={{ position: "absolute", left: "34%", bottom: "32%", zIndex: 3, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {/* Pulsing Flame */}
+        <motion.div 
+          animate={{ scaleY: [1, 1.25, 0.95, 1.15, 1], scaleX: [1, 0.9, 1.1, 0.95, 1], y: [0, -1, 1, 0] }}
+          transition={{ duration: 0.18, repeat: Infinity, ease: "linear" }}
+          style={{
+            width: 8,
+            height: 16,
+            borderRadius: "50% 50% 35% 35%",
+            background: "radial-gradient(circle at center, #ffffff 15%, #f59e0b 60%, #ef4444 100%)",
+            boxShadow: "0 0 10px #f59e0b, 0 0 20px #ef4444",
+            marginBottom: -2,
+          }}
+        />
+        {/* Wax base */}
+        <div style={{
+          width: 14,
+          height: 28,
+          background: "linear-gradient(90deg, #fef3c7, #fde68a, #fcd34d)",
+          borderRadius: 2,
+          borderBottom: "1px solid #d97706",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+        }} />
+      </div>
+
+      {/* Potted Ivy Plant */}
+      <div style={{ position: "absolute", right: "6%", bottom: "32%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
+        <svg width="56" height="80" viewBox="0 0 56 80">
+          {/* Terracotta pot */}
+          <polygon points="17,54 39,54 35,76 21,76" fill="#ca8a04" stroke="#854d0e" strokeWidth="1" />
+          <rect x="14" y="48" width="28" height="6" rx="1.5" fill="#ca8a04" stroke="#854d0e" strokeWidth="1" />
+          
+          {/* Leaves */}
+          <ellipse cx="16" cy="38" rx="12" ry="7" fill="#047857" transform="rotate(-15 16 38)" />
+          <ellipse cx="38" cy="38" rx="11" ry="6" fill="#059669" transform="rotate(15 38 38)" />
+          <ellipse cx="27" cy="28" rx="12" ry="9" fill="#047857" />
+          <ellipse cx="14" cy="24" rx="9" ry="5" fill="#059669" transform="rotate(-25 14 24)" />
+          <ellipse cx="40" cy="24" rx="8" ry="5" fill="#10b981" transform="rotate(25 40 24)" />
         </svg>
       </div>
 
-      {/* Desk surface */}
+      {/* Polished Wooden Desk Surface */}
       <div style={{
-        position: "absolute", bottom: 0, left: 0, right: 0, height: "36%",
-        background: "linear-gradient(180deg, #4a2e0a 0%, #3a2008 100%)",
-        boxShadow: "0 -6px 30px rgba(0,0,0,.6)",
-      }} />
+        position: "absolute", bottom: 0, left: 0, right: 0, height: "34%",
+        background: "linear-gradient(180deg, #301d14 0%, #1e110b 100%)",
+        borderTop: "5px solid #42281c",
+        boxShadow: "0 -8px 30px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.06)",
+        zIndex: 2,
+      }}>
+        {/* Soft shadow cast by the notebook */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: opened ? 860 : 480,
+          height: 40,
+          background: "radial-gradient(ellipse at center, rgba(0,0,0,0.65) 0%, transparent 80%)",
+          transition: "width 1.8s ease",
+        }} />
+      </div>
 
       {/* THE NOTEBOOK CONTAINER */}
       <div style={{
         position: "absolute",
         left: "50%",
-        top: opened ? "50%" : "60%",
-        transform: opened ? "translate3d(-50%, -50%, 0) scale(1)" : "translate3d(-75%, -50%, 0) scale(0.55)",
+        top: opened ? "50%" : "58%",
+        transform: opened ? "translate3d(-50%, -50%, 0) scale(1)" : "translate3d(-75%, -50%, 0) scale(0.6)",
         perspective: 1500,
         zIndex: 100,
         transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -459,6 +531,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
           height: 550,
           transformStyle: "preserve-3d",
         }}>
+          
           {/* Cover Plate (rotates left) */}
           <div style={{
             position: "absolute",
@@ -466,15 +539,19 @@ function Ch1({ onNext }: { onNext: () => void }) {
             top: 0,
             width: "50%",
             height: "100%",
-            background: "linear-gradient(140deg, #7a3a50 0%, #9a4a65 100%)",
-            borderRadius: "3px 12px 12px 3px",
+            background: "linear-gradient(135deg, #7c2d12 0%, #451a03 100%)",
+            borderRadius: "3px 14px 14px 3px",
             transformOrigin: "left center",
             transform: opened ? "rotateY(-180deg)" : "rotateY(0deg)",
             transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
             transformStyle: "preserve-3d",
             zIndex: opened ? 5 : 10,
-            boxShadow: opened ? "-12px 12px 40px rgba(0,0,0,.45)" : "5px 6px 28px rgba(0,0,0,.65)",
+            boxShadow: opened 
+              ? "-12px 16px 45px rgba(0,0,0,0.5)" 
+              : "6px 10px 32px rgba(0,0,0,0.7), inset 0 2px 4px rgba(255,255,255,0.15)",
+            border: "1px solid #7c2d12",
           }}>
+            
             {/* Front Cover artwork */}
             <div 
               onClick={handleOpen}
@@ -489,43 +566,96 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 cursor: opened ? "default" : "pointer",
               }}
             >
-              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 18, background: "linear-gradient(90deg, #5a2a3a, #7a3a50)", borderRadius: "3px 0 0 3px" }} />
-              {/* Pressed flower */}
-              <div style={{ position: "absolute", top: 28, right: 26 }}>
-                <svg width="40" height="40" viewBox="0 0 40 40">
+              {/* Spine edge thickness */}
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 22, background: "linear-gradient(90deg, #451a03, #7c2d12)", borderRadius: "3px 0 0 3px", boxShadow: "inset -2px 0 5px rgba(0,0,0,0.3)" }} />
+              
+              {/* Gold Foiled Corner Protection Brackets */}
+              <div style={{ position: "absolute", top: 12, right: 12, width: 24, height: 24, borderTop: "3px solid #fbbf24", borderRight: "3px solid #fbbf24", borderRadius: "0 4px 0 0", opacity: 0.8 }} />
+              <div style={{ position: "absolute", bottom: 12, right: 12, width: 24, height: 24, borderBottom: "3px solid #fbbf24", borderRight: "3px solid #fbbf24", borderRadius: "0 0 4px 0", opacity: 0.8 }} />
+
+              {/* Embossed flower emblem */}
+              <div style={{ position: "absolute", top: 40, right: 38, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.25))" }}>
+                <svg width="44" height="44" viewBox="0 0 40 40">
                   {[0, 60, 120, 180, 240, 300].map((a, i) => (
                     <ellipse key={i} cx="20" cy="10" rx="5.5" ry="9.5"
-                      fill={["#f9c8d0","#f0d0c8","#f9d8c0","#e8c8d8","#f0c0d0","#f8d0e0"][i]}
-                      opacity=".83" transform={`rotate(${a} 20 20)`} />
+                      fill={["#fbcfe8","#fecdd3","#fde2e4","#f0e6ef","#fae0e4","#f7cad0"][i]}
+                      opacity=".9" transform={`rotate(${a} 20 20)`} />
                   ))}
-                  <circle cx="20" cy="20" r="5.5" fill="#f9e880" />
+                  <circle cx="20" cy="20" r="5.5" fill="#fef08a" />
                 </svg>
               </div>
-              <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#f9e8d0", transform: "rotate(-4deg)", marginLeft: 14, textShadow: "1px 1px 5px rgba(0,0,0,.35)", letterSpacing: 2 }}>
-                Sayani
+
+              {/* Gold foiled header */}
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 32,
+                fontStyle: "italic",
+                color: "#fef08a",
+                textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+                letterSpacing: 2,
+                marginLeft: 14,
+                textAlign: "center",
+              }}>
+                A Little Corner<br/>
+                <span style={{ fontSize: 20, letterSpacing: 3, opacity: 0.9 }}>of the Universe</span>
               </div>
-              <div style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: "rgba(249,232,200,.5)", marginTop: 10, marginLeft: 14, transform: "rotate(-2deg)" }}>
+
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 18,
+                fontWeight: "bold",
+                color: "#ffffff",
+                letterSpacing: 1.5,
+                marginTop: 24,
+                marginLeft: 14,
+                borderBottom: "1px solid rgba(255,255,255,0.2)",
+                paddingBottom: 4,
+              }}>
+                SAYANI
+              </div>
+
+              <div style={{ fontFamily: "'Caveat', cursive", fontSize: 15, color: "rgba(254,240,138,0.65)", marginTop: 14, marginLeft: 14, animation: "glowPulse 2s ease-in-out infinite" }}>
                 click to open ✦
               </div>
             </div>
 
-            {/* Back of cover (inside layout) */}
+            {/* Back of cover (inside left notebook flap) */}
             <div style={{
               position: "absolute",
               inset: 0,
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
               background: "#ebd2d8",
-              borderRadius: "12px 0 0 12px",
+              borderRadius: "14px 0 0 14px",
               boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}>
-              <div style={{ color: "#7a3a50", fontFamily: "'Caveat', cursive", fontSize: 36, transform: "rotate(-8deg)" }}>For Sayani 🌸</div>
-              <div style={{ position: "absolute", right: 2, top: 0, bottom: 0, width: 3, background: "rgba(0,0,0,0.1)" }} />
+              <div style={{ 
+                color: "#7a3a50", 
+                fontFamily: "'Caveat', cursive", 
+                fontSize: 36, 
+                transform: "rotate(-8deg)",
+                textShadow: "1px 1px 2px rgba(255,255,255,0.6)",
+              }}>
+                For Sayani 🌸
+              </div>
+              
+              {/* Left page botanical doodle sketch */}
+              <div style={{ position: "absolute", bottom: 20, left: 30, opacity: 0.15, fontSize: 80, transform: "rotate(-10deg)", userSelect: "none" }}>🌿</div>
+              
+              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 3, background: "rgba(0,0,0,0.12)" }} />
             </div>
           </div>
+
+          {/* Paper stacks beneath the right page to give thickness */}
+          {opened && (
+            <>
+              <div style={{ position: "absolute", left: "50%", top: 2, width: "49.6%", height: "99%", background: "#e5d8cb", borderRadius: "0 10px 10px 0", zIndex: 1, boxShadow: "4px 4px 10px rgba(0,0,0,0.1)" }} />
+              <div style={{ position: "absolute", left: "50%", top: 4, width: "49.2%", height: "98%", background: "#dbcca5", borderRadius: "0 8px 8px 0", zIndex: 2, boxShadow: "8px 8px 15px rgba(0,0,0,0.15)" }} />
+            </>
+          )}
 
           {/* Right Page (lined sheet) */}
           {opened && (
@@ -537,33 +667,50 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 top: 0,
                 width: "50%",
                 height: "100%",
-                borderRadius: "0 12px 12px 0",
-                boxShadow: "12px 12px 40px rgba(0,0,0,.25)",
-                padding: "60px 45px 45px 60px",
+                borderRadius: "0 14px 14px 0",
+                boxShadow: "12px 12px 40px rgba(0,0,0,0.25)",
+                padding: "65px 50px 50px 65px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 20,
                 opacity: opened ? 1 : 0,
-                transition: "opacity 1s ease",
+                transition: "opacity 1.2s ease",
+                zIndex: 3,
               }}
             >
-              {/* Central Spine Shadow */}
-              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 22, background: "linear-gradient(90deg, rgba(0,0,0,0.1), transparent)" }} />
+              {/* Central Spine shadow crease */}
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 26, background: "linear-gradient(90deg, rgba(0,0,0,0.14), transparent)" }} />
+
+              {/* Bookmark Leather/Fabric Ribbon hanging down onto the desk */}
+              <div style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: 14,
+                height: 590, // extends past book bottom
+                background: "linear-gradient(90deg, #991b1b, #ef4444)",
+                boxShadow: "2px 4px 8px rgba(0,0,0,0.3)",
+                zIndex: 4,
+                borderRadius: "0 0 3px 3px",
+                pointerEvents: "none",
+                transform: "translateX(-50%) rotate(2deg)",
+                transformOrigin: "top center",
+              }} />
 
               {phase >= 1 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4 }}>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4, fontWeight: "bold" }}>
                   {l1.shown}
                   {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
               {phase >= 2 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 24, color: "#3d2010", lineHeight: 1.7 }}>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", lineHeight: 1.75 }}>
                   {l2.shown}
                   {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
               {phase >= 3 && !flipping && (
-                <div style={{ position: "absolute", bottom: 40, right: 40 }}>
+                <div style={{ position: "absolute", bottom: 45, right: 45 }}>
                   <PageTab onClick={handleTurnPage} />
                 </div>
               )}
@@ -590,15 +737,15 @@ function Ch1({ onNext }: { onNext: () => void }) {
                   position: "absolute",
                   inset: 0,
                   backfaceVisibility: "hidden",
-                  borderRadius: "0 12px 12px 0",
-                  padding: "60px 45px 45px 60px",
+                  borderRadius: "0 14px 14px 0",
+                  padding: "65px 50px 50px 65px",
                   display: "flex",
                   flexDirection: "column",
                   gap: 20,
                 }}
               >
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", opacity: 0.6 }}>Hi Sayani.</div>
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 24, color: "#3d2010", opacity: 0.6 }}>I borrowed you from the world for a little while.</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", opacity: 0.6, fontWeight: "bold" }}>Hi Sayani.</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 25, color: "#3d2010", opacity: 0.6, lineHeight: 1.75 }}>I borrowed you from the world for a little while.</div>
               </div>
 
               {/* Back of flipping sheet */}
@@ -609,7 +756,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
                   inset: 0,
                   backfaceVisibility: "hidden",
                   transform: "rotateY(-180deg)",
-                  borderRadius: "12px 0 0 12px",
+                  borderRadius: "14px 0 0 14px",
                   background: "#FAF4E8",
                   boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
                 }}
