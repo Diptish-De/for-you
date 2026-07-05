@@ -2537,7 +2537,7 @@ function Ch9({ memory }: { memory: Memory }) {
   // Request webcam access when step changes to 'camera'
   useEffect(() => {
     let stream: MediaStream | null = null;
-    if (step === "camera" && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    if ((step === "camera" || step === "countdown") && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 400, facingMode: "user" } })
         .then((s) => {
           stream = s;
@@ -2569,10 +2569,11 @@ function Ch9({ memory }: { memory: Memory }) {
           const canvas = canvasRef.current;
           const ctx = canvas.getContext("2d");
           if (ctx) {
-            // Draw a square cropped from the video center
-            const size = Math.min(video.videoWidth, video.videoHeight);
-            const sx = (video.videoWidth - size) / 2;
-            const sy = (video.videoHeight - size) / 2;
+            const vWidth = video.videoWidth || 400;
+            const vHeight = video.videoHeight || 400;
+            const size = Math.min(vWidth, vHeight);
+            const sx = (vWidth - size) / 2;
+            const sy = (vHeight - size) / 2;
             canvas.width = 400;
             canvas.height = 400;
             ctx.translate(400, 0);
@@ -2590,7 +2591,7 @@ function Ch9({ memory }: { memory: Memory }) {
         
         setStep("photo"); 
         setTimeout(() => setStep("final"), 2500); 
-        return; 
+        return;
       }
       setTimeout(() => tick(n - 1), 950);
     };
@@ -2761,8 +2762,8 @@ function Ch9({ memory }: { memory: Memory }) {
           </div>}
         </>)}
 
-        {/* Live Camera Feed Container */}
-      {step === "camera" && (
+        {/* Live Camera Feed Container (visible during camera and countdown steps) */}
+        {(step === "camera" || step === "countdown") && (
           <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
             
             {/* Live Video Circle Viewfinder */}
@@ -2775,33 +2776,58 @@ function Ch9({ memory }: { memory: Memory }) {
               boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
               background: "#1e1e24",
               transform: "scaleX(-1)", // Mirror viewfinder
+              position: "relative",
             }}>
               <video ref={videoRef} autoPlay playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+
+              {/* Countdown Overlay (overlaid directly on top of mirrored stream) */}
+              {step === "countdown" && (
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0, 0, 0, 0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transform: "scaleX(-1)", // Un-mirror the text so numbers aren't reversed
+                }}>
+                  <motion.div 
+                    key={count} 
+                    initial={{ scale: 0.3, opacity: 0 }} 
+                    animate={{ scale: 1.2, opacity: 1 }} 
+                    exit={{ scale: 2.0, opacity: 0 }}
+                    transition={{ duration: 0.8 }}
+                    style={{ 
+                      fontFamily: "'Cormorant Garamond', serif", 
+                      fontSize: 80, 
+                      color: "#fbbf24", 
+                      fontWeight: "bold",
+                      textShadow: "0 0 10px rgba(251,191,36,0.6)"
+                    }}
+                  >
+                    {count > 0 ? count : "✦"}
+                  </motion.div>
+                </div>
+              )}
             </div>
 
-            {/* Click to Snap Camera Widget */}
-            <div onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <svg width="60" height="52" viewBox="0 0 150 120" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.25))" }}>
-                <rect x="12" y="24" width="126" height="84" rx="16" fill="#ddd6fe" stroke="#c4b5fd" strokeWidth="1.5" />
-                <rect x="12" y="24" width="126" height="14" fill="#a78bfa" rx="4" />
-                <circle cx="75" cy="72" r="28" fill="#8b5cf6" />
-                <circle cx="75" cy="72" r="20" fill="#1e1b4b" />
-                <circle cx="68" cy="65" r="4" fill="rgba(255,255,255,0.35)" />
-                <circle cx="118" cy="38" r="8" fill="#ec4899" />
-              </svg>
-              <div style={{ marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#6d28d9", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1.5 }}>
-                click camera to snap live photo 📸
+            {/* Click to Snap Camera Widget (hidden during countdown) */}
+            {step === "camera" && (
+              <div onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <svg width="60" height="52" viewBox="0 0 150 120" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.25))" }}>
+                  <rect x="12" y="24" width="126" height="84" rx="16" fill="#ddd6fe" stroke="#c4b5fd" strokeWidth="1.5" />
+                  <rect x="12" y="24" width="126" height="14" fill="#a78bfa" rx="4" />
+                  <circle cx="75" cy="72" r="28" fill="#8b5cf6" />
+                  <circle cx="75" cy="72" r="20" fill="#1e1b4b" />
+                  <circle cx="68" cy="65" r="4" fill="rgba(255,255,255,0.35)" />
+                  <circle cx="118" cy="38" r="8" fill="#ec4899" />
+                </svg>
+                <div style={{ marginTop: 6, fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#6d28d9", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1.5 }}>
+                  click camera to snap live photo 📸
+                </div>
               </div>
-            </div>
+            )}
 
-          </motion.div>
-        )}
-
-        {/* Countdown */}
-        {step === "countdown" && (
-          <motion.div key={count} initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1.4, opacity: 1 }} exit={{ scale: 2.2, opacity: 0 }}
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 95, color: "#8b5cf6", fontWeight: "bold", textAlign: "center", lineHeight: 1, margin: "25px 0" }}>
-            {count > 0 ? count : "✦"}
           </motion.div>
         )}
 
