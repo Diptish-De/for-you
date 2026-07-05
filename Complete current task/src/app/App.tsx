@@ -1564,56 +1564,165 @@ function Ch5({ onNext }: { onNext: () => void }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [opened, setOpened] = useState<Set<number>>(new Set());
   const [showNext, setShowNext] = useState(false);
+  const [burst, setBurst] = useState<Set<number>>(new Set());
 
   const pick = (id: number) => {
     setSelected(id);
-    const next = new Set(opened).add(id);
-    setOpened(next);
-    if (next.size >= 4) setTimeout(() => setShowNext(true), 500);
+    const nextOpened = new Set(opened).add(id);
+    setOpened(nextOpened);
+    setBurst(new Set(nextOpened));
+    if (nextOpened.size >= KEEPSAKES.length) setTimeout(() => setShowNext(true), 500);
   };
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #fef5e4 0%, #fdf0d8 100%)",
+      background: "linear-gradient(180deg, #1f140e 0%, #120a07 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
     }}>
-      {/* Table */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "38%", background: "linear-gradient(180deg, #c4935a 0%, #b07840 100%)", boxShadow: "0 -3px 14px rgba(0,0,0,.12)" }} />
+      {/* Subtle Wallpaper Stripe Pattern */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.01) 50%, transparent 50%)",
+        backgroundSize: "24px 100%",
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
 
-      <motion.div animate={!boxOpen ? { y: [0, -5, 0] } : {}} transition={{ duration: 2.8, repeat: boxOpen ? 0 : Infinity, ease: "easeInOut" }}>
-        {/* Lid */}
-        <motion.div animate={boxOpen ? { rotateX: -130, y: -22 } : { rotateX: 0 }} transition={{ duration: .65 }}
+      {/* Cozy Warm Lamp Glow Projection */}
+      <div style={{
+        position: "absolute",
+        left: "10%",
+        top: "40%",
+        width: 320,
+        height: 320,
+        borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(253, 224, 71, 0.16) 0%, rgba(253, 224, 71, 0.04) 50%, transparent 70%)",
+        pointerEvents: "none",
+        zIndex: 2,
+        mixBlendMode: "screen",
+      }} />
+
+      {/* Detailed Parquet Table Top */}
+      <div style={{ 
+        position: "absolute", 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        height: "36%", 
+        background: "linear-gradient(180deg, #42281c 0%, #25130b 100%)", 
+        borderTop: "5px solid #5a3825",
+        boxShadow: "0 -8px 25px rgba(0,0,0,0.6)",
+        zIndex: 2,
+      }}>
+        {/* Soft shadow directly underneath the box */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 350,
+          height: 30,
+          background: "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, transparent 80%)",
+        }} />
+      </div>
+
+      {/* Antique Table Props (Left: Brass Oil Lamp) */}
+      <div style={{ position: "absolute", left: "10%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
+        <svg width="44" height="95" viewBox="0 0 44 95">
+          {/* Glass chimney */}
+          <path d="M16 10 C16 0, 28 0, 28 10 L24 45 L20 45 Z" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.8" />
+          <ellipse cx="22" cy="10" rx="6" ry="1.5" fill="rgba(255,255,255,0.3)" />
+          
+          {/* Flame */}
+          <ellipse cx="22" cy="38" rx="3.5" ry="7" fill="#f59e0b" style={{ filter: "drop-shadow(0 0 8px #f59e0b)" }} />
+
+          {/* Brass Burner & base */}
+          <rect x="17" y="45" width="10" height="8" fill="#ca8a04" />
+          <path d="M12 53 L32 53 L36 78 L8 78 Z" fill="#b45309" stroke="#78350f" strokeWidth="1" />
+          <rect x="6" y="78" width="32" height="6" rx="1.5" fill="#ca8a04" />
+        </svg>
+      </div>
+
+      {/* Antique Table Props (Right: Feather Quill & Stamp) */}
+      <div style={{ position: "absolute", right: "12%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
+        <svg width="60" height="75" viewBox="0 0 60 75">
+          {/* Ink pot */}
+          <rect x="36" y="44" width="16" height="18" rx="2" fill="#1e293b" />
+          <rect x="39" y="38" width="10" height="6" fill="#ca8a04" />
+          
+          {/* Feather Quill */}
+          <path d="M18 10 C22 25, 34 38, 41 42" stroke="#e2e8f0" strokeWidth="1.2" fill="none" />
+          <path d="M18 10 C26 15, 32 30, 42 41 C40 38, 32 25, 18 10 Z" fill="#f8fafc" opacity="0.85" />
+          
+          {/* Scattered Brass Key */}
+          <path d="M10 58 A 4 4 0 1 0 10 66 A 4 4 0 1 0 10 58 M14 62 L26 62 L26 66 L28 66 L28 62 L30 62 L30 58 L28 58 L26 58 L26 60 L14 60" fill="#ca8a04" stroke="#854d0e" strokeWidth="0.8" />
+        </svg>
+      </div>
+
+      {/* Ornate Keepsake Wooden Box */}
+      <motion.div 
+        animate={!boxOpen ? { y: [0, -4, 0] } : {}} 
+        transition={{ duration: 3, repeat: boxOpen ? 0 : Infinity, ease: "easeInOut" }}
+        style={{ zIndex: 3 }}
+      >
+        {/* Lid (rotates open) */}
+        <motion.div animate={boxOpen ? { rotateX: -130, y: -24 } : { rotateX: 0 }} transition={{ duration: .75, ease: "easeOut" }}
           onClick={() => setBoxOpen(true)}
           style={{
             width: 320, height: 42,
-            background: "linear-gradient(135deg, #8b5e2a 0%, #a06030 100%)",
-            borderRadius: "6px 6px 0 0", boxShadow: "0 -3px 12px rgba(0,0,0,.2)",
+            background: "linear-gradient(135deg, #7c2d12 0%, #451a03 100%)",
+            borderRadius: "6px 6px 0 0", 
+            boxShadow: "0 -4px 15px rgba(0,0,0,0.35)",
             transformOrigin: "top center", cursor: boxOpen ? "default" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            position: "relative", zIndex: 2,
+            position: "relative", zIndex: 5,
+            border: "1px solid #7c2d12",
           }}>
-          <span style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: "#f9e8d0", letterSpacing: 3 }}>{boxOpen ? "" : "click to open ✦"}</span>
-          <div style={{ position: "absolute", bottom: -5, left: "50%", transform: "translateX(-50%)", width: 22, height: 10, background: "#c8a040", borderRadius: 3 }} />
+          {/* Gold corner brackets */}
+          <div style={{ position: "absolute", top: 4, left: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderLeft: "2px solid #fbbf24" }} />
+          <div style={{ position: "absolute", top: 4, right: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderRight: "2px solid #fbbf24" }} />
+
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#fcd34d", letterSpacing: 2, textTransform: "uppercase" }}>
+            {boxOpen ? "" : "click to open ✦"}
+          </span>
+          {/* Brass lock latch */}
+          <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 22, height: 12, background: "#d97706", border: "1px solid #b45309", borderRadius: "0 0 4px 4px" }} />
         </motion.div>
-        {/* Body */}
+
+        {/* Chest Box Body */}
         <div style={{
           width: 320, height: 210,
-          background: "linear-gradient(180deg, #7a5020 0%, #8b5e2a 100%)",
-          borderRadius: "0 0 8px 8px", boxShadow: "0 8px 30px rgba(0,0,0,.3), inset 0 4px 12px rgba(0,0,0,.15)",
-          padding: 18, display: "flex", flexWrap: "wrap", gap: 12,
+          background: boxOpen 
+            ? "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)" // Crimson velvet interior
+            : "linear-gradient(180deg, #451a03 0%, #301202 100%)",
+          borderRadius: "0 0 8px 8px", 
+          boxShadow: "0 12px 36px rgba(0,0,0,0.55), inset 0 4px 12px rgba(0,0,0,0.3)",
+          padding: 16, display: "flex", flexWrap: "wrap", gap: 12,
           alignItems: "center", justifyContent: "center", overflow: "hidden",
+          border: "1.5px solid #451a03",
+          position: "relative",
+          zIndex: 4,
+          transition: "background 0.5s ease",
         }}>
+          {/* Velvet shadows interior overlay */}
+          {boxOpen && (
+            <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 6px 15px rgba(0,0,0,0.8)", pointerEvents: "none" }} />
+          )}
+
           {boxOpen ? KEEPSAKES.map((k, i) => (
             <motion.div key={k.id}
-              initial={{ opacity: 0, scale: .4 }} animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * .1, duration: .4 }}
+              initial={{ opacity: 0, scale: 0.5, y: 15 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: i * 0.12, duration: 0.5, ease: "easeOut" }}
               onClick={() => pick(k.id)}
+              whileHover={{ scale: 1.08 }}
               style={{
-                width: 72, height: 72,
-                background: opened.has(k.id) ? "rgba(255,255,255,.28)" : "rgba(255,255,255,.12)",
-                borderRadius: 8, cursor: "pointer",
+                width: 74, height: 74,
+                background: opened.has(k.id) ? "rgba(255, 255, 255, 0.22)" : "rgba(255, 255, 255, 0.08)",
+                borderRadius: 10, cursor: "pointer",
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
                 border: `1.5px solid ${opened.has(k.id) ? "rgba(255,255,255,.35)" : "rgba(255,255,255,.15)"}`,
                 transition: "all .3s",
