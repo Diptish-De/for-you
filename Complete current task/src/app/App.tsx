@@ -2632,7 +2632,7 @@ function Ch9({ memory }: { memory: Memory }) {
       ctx.fillStyle = "#4c1d95";
       ctx.font = "bold 26px 'Caveat', cursive, sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("♡ there she is.", 220, 452);
+      ctx.fillText("♡ there she is, the precious one.", 220, 452);
 
       if (memory.selectedChocolate) {
         ctx.fillStyle = "#7c2d12";
@@ -2890,7 +2890,7 @@ function Ch9({ memory }: { memory: Memory }) {
                   transition={{ duration: 1.5 }}
                   style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
                 >
-                  ♡ there she is.
+                  ♡ there she is, the precious one.
                   {memory.selectedChocolate && (
                     <div style={{ fontSize: 14, color: "#7c2d12", marginTop: 4 }}>
                       and here is your chocolate: {memory.selectedChocolate}
