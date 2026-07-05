@@ -1571,7 +1571,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
     const nextOpened = new Set(opened).add(id);
     setOpened(nextOpened);
     setBurst(new Set(nextOpened));
-    if (nextOpened.size >= KEEPSAKES.length) setTimeout(() => setShowNext(true), 500);
+    if (nextOpened.size >= 4) setTimeout(() => setShowNext(true), 500);
   };
 
   return (
@@ -1661,6 +1661,28 @@ function Ch5({ onNext }: { onNext: () => void }) {
           <path d="M10 58 A 4 4 0 1 0 10 66 A 4 4 0 1 0 10 58 M14 62 L26 62 L26 66 L28 66 L28 62 L30 62 L30 58 L28 58 L26 58 L26 60 L14 60" fill="#ca8a04" stroke="#854d0e" strokeWidth="0.8" />
         </svg>
       </div>
+
+      {/* Interactive Helper Text */}
+      {boxOpen && !showNext && (
+        <motion.div 
+          animate={{ opacity: [0.55, 1, 0.55] }} 
+          transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute", 
+            top: "22%", 
+            left: "50%", 
+            transform: "translateX(-50%)", 
+            fontFamily: "'Caveat', cursive", 
+            fontSize: 20, 
+            color: "#fde68a", 
+            textShadow: "0 2px 6px rgba(0,0,0,0.7)",
+            whiteSpace: "nowrap",
+            zIndex: 4,
+          }}
+        >
+          look through the keepsakes in the box ({opened.size}/4)
+        </motion.div>
+      )}
 
       {/* Ornate Keepsake Wooden Box */}
       <motion.div 
