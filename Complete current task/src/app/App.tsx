@@ -1005,65 +1005,146 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #f5d0e0 0%, #fce4ee 50%, #fff0f5 100%)",
+      background: "linear-gradient(180deg, #ebdcd6 0%, #dec8c0 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
-      {/* Walls */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "40%", background: "linear-gradient(180deg, #e8c4b8 0%, #d4b0a0 100%)" }} />
-      {/* Floor */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "18%", background: "linear-gradient(180deg, #c4956a 0%, #b07850 100%)" }} />
+      {/* Polished Hardwood Parquet Floor */}
+      <div style={{ 
+        position: "absolute", 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        height: "18%", 
+        background: "linear-gradient(180deg, #7c4f30 0%, #4f2d18 100%)",
+        boxShadow: "inset 0 6px 15px rgba(0,0,0,0.5)",
+        zIndex: 2,
+      }}>
+        {/* Soft shadow gradients under cat, plant and table items */}
+        <div style={{ position: "absolute", top: 0, left: "4%", width: 100, height: 20, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", top: 0, right: "10%", width: 110, height: 20, background: "radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, transparent 70%)" }} />
+      </div>
 
-      {/* Window */}
-      <div style={{ position: "absolute", left: "7%", top: "7%", width: 132, height: 162, border: "10px solid #c4907a", borderRadius: 3, background: "linear-gradient(180deg, #c8e4f8, #a8d0f0)", overflow: "hidden" }}>
-        <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 8, background: "#c4907a", transform: "translateX(-50%)" }} />
-        <div style={{ position: "absolute", top: "45%", left: 0, right: 0, height: 8, background: "#c4907a" }} />
-        {RAIN.slice(0, 12).map(d => (
-          <div key={d.id} style={{ position: "absolute", left: `${d.x}%`, top: -10, width: 1, height: 10, background: "rgba(180,210,255,.5)", animation: `rainFall ${d.dur}s linear infinite`, animationDelay: `${d.delay}s` }} />
+      {/* Wood Baseboard */}
+      <div style={{
+        position: "absolute",
+        bottom: "18%",
+        left: 0,
+        right: 0,
+        height: 10,
+        background: "linear-gradient(to bottom, #59351e 0%, #3b1f10 100%)",
+        boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+        zIndex: 2,
+      }} />
+
+      {/* Scenic Arched Window */}
+      <div style={{
+        position: "absolute", left: "6%", top: "8%",
+        width: 130, height: 172,
+        border: "7px solid #4a2815",
+        borderRadius: "65px 65px 4px 4px",
+        background: "linear-gradient(to bottom, #090b14 0%, #131726 60%, #221c2e 100%)",
+        boxShadow: "inset 0 0 15px rgba(0,0,0,0.85), 0 6px 20px rgba(0,0,0,0.3)",
+        overflow: "hidden",
+        zIndex: 2,
+      }}>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 28, background: "#050609" }} />
+        {/* Window grid */}
+        <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 4, background: "#4a2815", transform: "translateX(-50%)" }} />
+        <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 4, background: "#4a2815", transform: "translateY(-50%)" }} />
+        
+        {/* Twinkling stars */}
+        {RAIN.slice(0, 8).map(d => (
+          <div key={d.id} style={{
+            position: "absolute", left: `${d.x}%`, top: `${Math.abs(d.y) * 0.7}%`,
+            width: 2, height: 2, background: "#fff",
+            opacity: 0.65,
+            animation: "twinkle 2.5s infinite alternate",
+            animationDelay: `${d.delay}s`
+          }} />
         ))}
       </div>
 
-      {/* String lights */}
-      <div style={{ position: "absolute", top: "4%", left: "4%", right: "4%", height: 26 }}>
-        {Array.from({ length: 16 }, (_, i) => (
-          <div key={i} style={{ position: "absolute", left: `${i * 6.5}%` }}>
-            <div style={{ width: 2, height: 14 + Math.sin(i) * 4, background: "#9a7060", margin: "0 auto" }} />
-            <div style={{ width: 10, height: 14, borderRadius: "0 0 6px 6px", background: ["#f9c8a0","#c8f9d8","#f9c8f0","#c8d8f9","#f9f0c8"][i % 5], boxShadow: `0 0 8px ${["rgba(249,200,160,.8)","rgba(200,249,216,.8)","rgba(249,200,240,.8)","rgba(200,216,249,.8)","rgba(249,240,200,.8)"][i % 5]}` }} />
+      {/* Fairy Lights String */}
+      <div style={{ position: "absolute", top: "4%", left: "2%", right: "2%", height: 35, zIndex: 3, pointerEvents: "none" }}>
+        <svg width="100%" height="100%" viewBox="0 0 1000 30" preserveAspectRatio="none" style={{ position: "absolute", top: 0, left: 0 }}>
+          <path d="M 0 10 Q 125 35, 250 15 Q 375 35, 500 15 Q 625 35, 750 15 Q 875 35, 1000 10" fill="none" stroke="#5a3820" strokeWidth="1.5" />
+        </svg>
+        {Array.from({ length: 14 }, (_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            left: `${3.5 + i * 7.1}%`,
+            top: `${14 + Math.sin(i * 1.4) * 4}px`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}>
+            <div style={{ width: 1.5, height: 7, background: "#5a3820" }} />
+            <div style={{
+              width: 8, height: 11,
+              borderRadius: "50% 50% 50% 50% / 60% 60% 40% 40%",
+              background: ["#fff176", "#f8bbd0", "#e1bee7", "#b2dfdb", "#bbdefb"][i % 5],
+              boxShadow: `0 0 10px ${["#fbc02d", "#ec407a", "#ab47bc", "#26a69a", "#29b6f6"][i % 5]}`,
+              animation: "glowPulse 3s infinite ease-in-out",
+              animationDelay: `${i * 0.22}s`,
+            }} />
           </div>
         ))}
       </div>
 
-      {/* Bookshelf */}
-      <div style={{ position: "absolute", right: "5%", top: "14%", width: 88, height: 135 }}>
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 10, background: "#9a6040", borderRadius: "0 0 3px 3px" }} />
-        {["#d08060","#8070c0","#60a080","#c07060","#708090"].map((c, i) => (
-          <div key={i} style={{ position: "absolute", bottom: 10, left: i * 16 + 2, width: 14, height: 38 + i * 6, background: c, borderRadius: "3px 3px 0 0", boxShadow: "inset -2px 0 4px rgba(0,0,0,.14)" }} />
-        ))}
+      {/* Cozy Hanging Bookshelf */}
+      <div style={{ position: "absolute", right: "6%", top: "14%", width: 95, height: 110, zIndex: 3 }}>
+        {/* Wood Board */}
+        <div style={{ position: "absolute", bottom: 12, left: 0, right: 0, height: 8, background: "#6b4226", borderRadius: 2, boxShadow: "0 4px 6px rgba(0,0,0,0.3)" }} />
+        
+        {/* Shaded Vintage Books */}
+        <div style={{ position: "absolute", bottom: 20, left: 12, width: 14, height: 55, background: "#a52a2a", borderLeft: "3px solid #7c1c1c", borderRadius: "2px 2px 0 0", boxShadow: "1px 0 3px rgba(0,0,0,0.2)", transform: "rotate(-6deg)" }} />
+        <div style={{ position: "absolute", bottom: 20, left: 24, width: 12, height: 62, background: "#0284c7", borderLeft: "3px solid #0369a1", borderRadius: "2px 2px 0 0", boxShadow: "1px 0 3px rgba(0,0,0,0.2)" }} />
+        <div style={{ position: "absolute", bottom: 20, left: 38, width: 15, height: 50, background: "#059669", borderLeft: "3px solid #047857", borderRadius: "2px 2px 0 0", boxShadow: "1px 0 3px rgba(0,0,0,0.2)", transform: "rotate(4deg)" }} />
+        <div style={{ position: "absolute", bottom: 20, left: 54, width: 13, height: 58, background: "#d97706", borderLeft: "3px solid #b45309", borderRadius: "2px 2px 0 0", boxShadow: "1px 0 3px rgba(0,0,0,0.2)" }} />
+
+        {/* Hanging vine leaf */}
+        <div style={{ position: "absolute", bottom: -8, right: 10, fontSize: 13, opacity: 0.85, animation: "sway 4s infinite alternate ease-in-out" }}>🌿</div>
       </div>
 
-      {/* Polaroids */}
+      {/* Polaroids hanging from string pins */}
       {POLARS.map(p => (
-        <div key={p.id} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y + 8}%` }}>
-          <div style={{ width: 2, height: 22, background: "#9a7060", margin: "0 auto" }} />
-          <div className="washi" style={{ width: 32, height: 13, margin: "0 auto -5px", transform: `rotate(${p.rot * .5}deg)`, borderRadius: 2, position: "relative", zIndex: 1 }} />
+        <div key={p.id} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y + 6}%`, zIndex: 3 }}>
+          {/* Black string line */}
+          <div style={{ width: 1.5, height: 26, background: "#4a3525", margin: "0 auto" }} />
+          
+          {/* Cute Clothespin */}
+          <div style={{ 
+            width: 8, height: 14, 
+            background: "#d97706", 
+            border: "1px solid #b45309",
+            margin: "0 auto -5px", 
+            borderRadius: 1.5, 
+            position: "relative", 
+            zIndex: 4,
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+          }} />
+
+          {/* Polaroid Card */}
           <div onClick={() => devPolaroid(p.id)} style={{
-            width: 112, height: 132,
-            background: developed.has(p.id) ? p.shade : "#d4c8c0",
+            width: 116, height: 136,
+            background: developed.has(p.id) ? p.shade : "#FAF4E8",
+            border: "1px solid rgba(0,0,0,0.06)",
             transform: `rotate(${p.rot}deg)`,
-            boxShadow: "3px 4px 18px rgba(0,0,0,.25)",
+            boxShadow: "4px 6px 20px rgba(0,0,0,0.22)",
             cursor: "pointer", borderRadius: 2,
-            display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 20px",
+            display: "flex", flexDirection: "column", alignItems: "center", padding: "10px 10px 22px",
             animation: developed.has(p.id) ? "polarDev 1.5s ease-out forwards" : undefined,
           }}>
             <div style={{ 
               width: "100%", 
               flex: 1, 
-              background: developed.has(p.id) ? `url(${p.img}) center/cover no-repeat` : "#b8aca8", 
+              background: developed.has(p.id) ? `url(${p.img}) center/cover no-repeat` : "#d4c8c4", 
               borderRadius: 1, 
               display: "flex", 
               alignItems: "center", 
               justifyContent: "center", 
               fontSize: 28,
-              transition: "background 1s ease",
+              transition: "background 1.2s ease",
             }}>
               {!developed.has(p.id) && "📷"}
             </div>
@@ -1074,57 +1155,109 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
         </div>
       ))}
 
-      {/* Plant (left) */}
-      <div style={{ position: "absolute", left: "5%", bottom: "20%", cursor: "pointer" }} onClick={waterPlant}>
-        <div style={{ fontSize: 13, color: "#6a4a30", textAlign: "center", marginBottom: 2 }}>{watered ? "🌿 happy!" : "🌱 water me?"}</div>
-        <svg width="56" height="76" viewBox="0 0 56 76">
-          <rect x="18" y="50" width="20" height="26" rx="3" fill="#9a7060" />
-          {watered ? <>
-            <ellipse cx="28" cy="30" rx="16" ry="10" fill="#5aa050" />
-            <ellipse cx="15" cy="38" rx="12" ry="7" fill="#4a9040" transform="rotate(-25 15 38)" />
-            <ellipse cx="40" cy="38" rx="12" ry="7" fill="#5aa050" transform="rotate(25 40 38)" />
-            <ellipse cx="28" cy="20" rx="10" ry="8" fill="#60b055" />
-          </> : <>
-            <ellipse cx="28" cy="34" rx="12" ry="8" fill="#6a9060" />
-            <ellipse cx="18" cy="40" rx="9" ry="5" fill="#5a8050" transform="rotate(-20 18 40)" />
-          </>}
-          <path d="M28 62L28 28" stroke="#3a6030" strokeWidth="2" />
-        </svg>
-      </div>
-
-      {/* Cat */}
-      <div onClick={petCat} style={{ position: "absolute", right: "11%", bottom: "19%", cursor: "pointer" }}>
-        <div style={{ fontFamily: "'Caveat', cursive", fontSize: 12, color: "#7a5a4a", textAlign: "center", marginBottom: 2 }}>
-          {catPurring ? "purrrr~ 💕" : memory.pettedCat ? "zzzz 💤" : "pet me?"}
+      {/* Cozy Plant (left) */}
+      <div style={{ position: "absolute", left: "6%", bottom: "21%", cursor: "pointer", zIndex: 3 }} onClick={waterPlant}>
+        <div style={{ fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
+          {watered ? "🌿 green & happy!" : "🌱 water me?"}
         </div>
-        <svg width="70" height="56" viewBox="0 0 70 56">
-          <ellipse cx="35" cy="39" rx="26" ry="16" fill="#d4a880" />
-          <circle cx="35" cy="21" r="16" fill="#d4a880" />
-          <polygon points="22,9 18,1 28,11" fill="#d4a880" /><polygon points="22,9 20,4 27,10" fill="#f0b8a0" />
-          <polygon points="48,9 52,1 42,11" fill="#d4a880" /><polygon points="48,9 50,4 43,10" fill="#f0b8a0" />
-          <ellipse cx="29" cy="20" rx="3" ry="3.5" fill="#3a2010" />
-          <ellipse cx="41" cy="20" rx="3" ry="3.5" fill="#3a2010" />
-          <path d="M32 27Q35 30 38 27" stroke="#c08070" strokeWidth="1.5" fill="none" />
-          <line x1="13" y1="22" x2="25" y2="23" stroke="#9a7060" strokeWidth=".8" />
-          <line x1="13" y1="25" x2="25" y2="25" stroke="#9a7060" strokeWidth=".8" />
-          <line x1="45" y1="23" x2="57" y2="22" stroke="#9a7060" strokeWidth=".8" />
-          <line x1="45" y1="25" x2="57" y2="25" stroke="#9a7060" strokeWidth=".8" />
-          <path d="M61 41Q75 36 69 51Q63 59 59 53" stroke="#d4a880" strokeWidth="7" fill="none" strokeLinecap="round"
-            style={{ animation: catPurring ? "catTail 1s ease-in-out infinite" : undefined }} />
-        </svg>
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* Detailed terracotta plant pot */}
+          <svg width="56" height="70" viewBox="0 0 56 70" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
+            {/* Clay pot */}
+            <polygon points="18,44 42,44 38,68 22,68" fill="#d97706" stroke="#b45309" strokeWidth="1" />
+            <rect x="15" y="38" width="30" height="6" rx="1.5" fill="#d97706" stroke="#b45309" strokeWidth="1" />
+            {/* Foliage */}
+            {watered ? (
+              <>
+                <ellipse cx="28" cy="22" rx="18" ry="11" fill="#15803d" />
+                <ellipse cx="14" cy="29" rx="13" ry="7" fill="#16a34a" transform="rotate(-25 14 29)" />
+                <ellipse cx="42" cy="29" rx="13" ry="7" fill="#22c55e" transform="rotate(25 42 29)" />
+                <circle cx="28" cy="12" r="9" fill="#4ade80" />
+              </>
+            ) : (
+              <>
+                <ellipse cx="28" cy="26" rx="11" ry="8" fill="#166534" opacity="0.85" />
+                <ellipse cx="18" cy="31" rx="9" ry="5" fill="#15803d" transform="rotate(-20 18 31)" opacity="0.85" />
+                <ellipse cx="38" cy="31" rx="9" ry="5" fill="#16a34a" transform="rotate(20 38 31)" opacity="0.85" />
+              </>
+            )}
+          </svg>
+        </div>
       </div>
 
-      {/* Candle */}
-      <div style={{ position: "absolute", right: "27%", bottom: "20%" }}>
-        <svg width="22" height="46" viewBox="0 0 22 46">
-          <rect x="7" y="20" width="8" height="26" rx="2" fill="#f0e8d0" />
-          <rect x="9" y="18" width="4" height="4" fill="#e8d0b0" />
-          <ellipse cx="11" cy="15" rx="3" ry="5" fill="#f9b040" opacity=".9" style={{ animation: "floatUp 1.5s ease-in-out infinite" }} />
-        </svg>
+      {/* Sleeping/Petting Cat (right) */}
+      <div onClick={petCat} style={{ position: "absolute", right: "11%", bottom: "20%", cursor: "pointer", zIndex: 3 }}>
+        <div style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: "#fef3c7", textAlign: "center", marginBottom: 3, textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}>
+          {catPurring ? "purrrr~ 💕" : memory.pettedCat ? "sleeping 💤" : "pet me?"}
+        </div>
+        <div style={{ position: "relative" }}>
+          {/* Pulsing breathing animation for cat */}
+          <motion.div
+            animate={{ scaleY: catPurring ? [1, 1.05, 1] : [1, 1.03, 1] }}
+            transition={{ duration: catPurring ? 1.2 : 2.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <svg width="68" height="52" viewBox="0 0 68 52" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>
+              {/* Fluffy body */}
+              <ellipse cx="34" cy="36" rx="24" ry="14" fill="#a78bfa" />
+              {/* Head */}
+              <circle cx="34" cy="20" r="13" fill="#a78bfa" />
+              {/* Ears */}
+              <polygon points="23,12 18,3 27,12" fill="#a78bfa" />
+              <polygon points="45,12 50,3 41,12" fill="#a78bfa" />
+              {/* Sleeping eyes */}
+              <path d="M26 21 Q29 24 32 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
+              <path d="M36 21 Q39 24 42 21" stroke="#312e81" strokeWidth="1.5" fill="none" />
+              {/* Nose */}
+              <polygon points="33,24 35,24 34,25.5" fill="#f43f5e" />
+              {/* Tail wrapped around */}
+              <path d="M54 38 C64 35, 60 48, 52 46 C48 45, 46 41, 48 38" stroke="#a78bfa" strokeWidth="6" fill="none" strokeLinecap="round"
+                style={{ transformOrigin: "50px 38px", animation: catPurring ? "catTail 1s ease-in-out infinite" : undefined }} />
+            </svg>
+          </motion.div>
+          
+          {/* Floating hearts when petted */}
+          {catPurring && (
+            <motion.div
+              initial={{ opacity: 1, y: 0, scale: 0.5 }}
+              animate={{ opacity: 0, y: -40, scale: 1.2 }}
+              transition={{ duration: 1.5 }}
+              style={{ position: "absolute", top: -15, left: 24, fontSize: 18, pointerEvents: "none" }}
+            >
+              💖
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Flickering Candle */}
+      <div style={{ position: "absolute", right: "26%", bottom: "21%", zIndex: 3 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {/* Flame */}
+          <motion.div 
+            animate={{ scaleY: [1, 1.2, 0.9, 1.15, 1], scaleX: [1, 0.9, 1.1, 0.95, 1], y: [0, -1, 0.5, 0] }}
+            transition={{ duration: 0.16, repeat: Infinity, ease: "linear" }}
+            style={{
+              width: 6,
+              height: 12,
+              borderRadius: "50% 50% 35% 35%",
+              background: "radial-gradient(circle at center, #ffffff 20%, #f59e0b 70%, #ef4444 100%)",
+              boxShadow: "0 0 8px #f59e0b, 0 0 16px #ef4444",
+              marginBottom: -1,
+            }}
+          />
+          {/* Wax body */}
+          <div style={{
+            width: 10,
+            height: 22,
+            background: "linear-gradient(90deg, #fef3c7, #fde68a, #fcd34d)",
+            borderRadius: 1.5,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          }} />
+        </div>
       </div>
 
       {showNext && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%" }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%", zIndex: 3 }}>
           <PageTab onClick={onNext} label="Open the box →" />
         </motion.div>
       )}
