@@ -127,25 +127,9 @@ const GCSS = `
     30%       { transform: rotate(12deg); }
     70%       { transform: rotate(-12deg); }
   }
-  @keyframes glowPulse {
-    0%, 100% { opacity: 0.13; } 50% { opacity: 0.28; }
-  }
-  @keyframes capFall {
-    0%   { transform: translateY(-220px) rotate(-5deg); }
-    68%  { transform: translateY(12px); }
-    84%  { transform: translateY(-6px); }
-    100% { transform: translateY(0); }
-  }
   @keyframes sparkFade {
     from { transform: scale(0) rotate(0deg); opacity: 1; }
     to   { transform: scale(1.6) rotate(90deg); opacity: 0; }
-  }
-  @keyframes birdHop {
-    0%   { transform: translateX(0) translateY(0); opacity: 1; }
-    25%  { transform: translateX(20px) translateY(-12px); }
-    50%  { transform: translateX(40px) translateY(0); }
-    75%  { transform: translateX(60px) translateY(-12px); }
-    100% { transform: translateX(300px) translateY(-120px); opacity: 0; }
   }
   @keyframes handleTurn {
     from { transform: rotate(0deg); }
@@ -154,6 +138,10 @@ const GCSS = `
   @keyframes springGrow {
     from { transform: scaleY(0); transform-origin: bottom center; }
     to   { transform: scaleY(1); transform-origin: bottom center; }
+  }
+  @keyframes pageFlip {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(-180deg); }
   }
 
   .nb-lines {
@@ -165,6 +153,14 @@ const GCSS = `
   .paper {
     background-color: #fdf8ef;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+  }
+  .washi {
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(255,182,193,.55), rgba(255,182,193,.55) 4px,
+      rgba(255,220,232,.55) 4px, rgba(255,220,232,.55) 8px
+    );
+  }s='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
   }
   .washi {
     background: repeating-linear-gradient(
@@ -324,13 +320,32 @@ function PageTab({ onClick, label = "Turn the page →", pos = "right" }: {
 function Ch1({ onNext }: { onNext: () => void }) {
   const [opened, setOpened] = useState(false);
   const [phase, setPhase] = useState(0); // 0 nothing, 1 line1, 2 line2, 3 tab
+  const [flipping, setFlipping] = useState(false);
 
   const l1 = useTW("Hi Sayani.", 78, 0, phase >= 1);
   const l2 = useTW("I borrowed you from the world for a little while.", 60, 0, phase >= 2);
 
-  useEffect(() => { if (opened) { const t = setTimeout(() => setPhase(1), 700); return () => clearTimeout(t); } }, [opened]);
+  const handleOpen = () => {
+    setOpened(true);
+  };
+
+  useEffect(() => {
+    if (opened) {
+      // Delay phase 1 typing until cover has opened fully (1.8s)
+      const t = setTimeout(() => setPhase(1), 1800);
+      return () => clearTimeout(t);
+    }
+  }, [opened]);
+
   useEffect(() => { if (phase === 1 && l1.done) { const t = setTimeout(() => setPhase(2), 900); return () => clearTimeout(t); } }, [phase, l1.done]);
   useEffect(() => { if (phase === 2 && l2.done) { const t = setTimeout(() => setPhase(3), 1100); return () => clearTimeout(t); } }, [phase, l2.done]);
+
+  const handleTurnPage = () => {
+    setFlipping(true);
+    setTimeout(() => {
+      onNext();
+    }, 1300); // match pageFlip duration
+  };
 
   return (
     <div style={{
@@ -422,22 +437,53 @@ function Ch1({ onNext }: { onNext: () => void }) {
         boxShadow: "0 -6px 30px rgba(0,0,0,.6)",
       }} />
 
-      {/* THE NOTEBOOK */}
-      <div style={{ position: "absolute", left: "50%", bottom: "27%", transform: "translateX(-50%)", perspective: 900 }}>
-        {!opened ? (
-          <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-            onClick={() => setOpened(true)}
-            style={{ cursor: "pointer" }}>
-            <div style={{
-              width: 178, height: 238,
-              background: "linear-gradient(140deg, #7a3a50 0%, #9a4a65 100%)",
-              borderRadius: "3px 12px 12px 3px",
-              boxShadow: "5px 6px 28px rgba(0,0,0,.65), inset -2px 0 8px rgba(0,0,0,.3)",
-              position: "relative", display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
-            }}>
+      {/* THE NOTEBOOK CONTAINER */}
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        top: opened ? "50%" : "60%",
+        transform: "translate(-50%, -50%)",
+        perspective: 1500,
+        zIndex: 100,
+        transition: "top 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
+      }}>
+        <div style={{
+          position: "relative",
+          width: opened ? 840 : 200,
+          height: opened ? 550 : 266,
+          transition: "width 1.8s cubic-bezier(0.4, 0, 0.2, 1), height 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
+          transformStyle: "preserve-3d",
+        }}>
+          {/* Cover Plate (rotates left) */}
+          <div style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: opened ? "50%" : "100%",
+            height: "100%",
+            background: "linear-gradient(140deg, #7a3a50 0%, #9a4a65 100%)",
+            borderRadius: opened ? "12px 0 0 12px" : "3px 12px 12px 3px",
+            transformOrigin: "left center",
+            transform: opened ? "rotateY(-180deg)" : "rotateY(0deg)",
+            transition: "transform 1.8s cubic-bezier(0.4, 0, 0.2, 1), width 1.8s ease, border-radius 1.8s ease",
+            transformStyle: "preserve-3d",
+            zIndex: opened ? 5 : 10,
+            boxShadow: opened ? "-12px 12px 40px rgba(0,0,0,.45)" : "5px 6px 28px rgba(0,0,0,.65)",
+          }}>
+            {/* Front Cover artwork */}
+            <div 
+              onClick={handleOpen}
+              style={{
+                position: "absolute",
+                inset: 0,
+                backfaceVisibility: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: opened ? "default" : "pointer",
+              }}
+            >
               <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 18, background: "linear-gradient(90deg, #5a2a3a, #7a3a50)", borderRadius: "3px 0 0 3px" }} />
               {/* Pressed flower */}
               <div style={{ position: "absolute", top: 28, right: 26 }}>
@@ -457,21 +503,50 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 click to open ✦
               </div>
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ rotateY: -90, opacity: 0 }}
-            animate={{ rotateY: 0, opacity: 1 }}
-            transition={{ duration: .65, ease: "easeOut" }}
-            style={{ width: 344, height: 422, display: "flex", borderRadius: 4, boxShadow: "0 12px 55px rgba(0,0,0,.72)" }}>
-            {/* Cover */}
-            <div style={{ width: "44%", height: "100%", background: "linear-gradient(140deg, #7a3a50, #9a4a65)", borderRadius: "3px 0 0 3px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ color: "#f9e8d0", fontFamily: "'Caveat', cursive", fontSize: 28, transform: "rotate(-5deg)" }}>Sayani</div>
+
+            {/* Back of cover (inside layout) */}
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              backfaceVisibility: "hidden",
+              transform: "rotateY(180deg)",
+              background: "#ebd2d8",
+              borderRadius: "12px 0 0 12px",
+              boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}>
+              <div style={{ color: "#7a3a50", fontFamily: "'Caveat', cursive", fontSize: 36, transform: "rotate(-8deg)" }}>For Sayani 🌸</div>
+              <div style={{ position: "absolute", right: 2, top: 0, bottom: 0, width: 3, background: "rgba(0,0,0,0.1)" }} />
             </div>
-            {/* Page */}
-            <div className="nb-lines" style={{ width: "56%", height: "100%", borderRadius: "0 4px 4px 0", padding: "30px 18px 18px 30px", display: "flex", flexDirection: "column", gap: 16, position: "relative" }}>
+          </div>
+
+          {/* Right Page (lined sheet) */}
+          {opened && (
+            <div 
+              className="nb-lines"
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 0,
+                width: "50%",
+                height: "100%",
+                borderRadius: "0 12px 12px 0",
+                boxShadow: "12px 12px 40px rgba(0,0,0,.25)",
+                padding: "60px 45px 45px 60px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+                opacity: opened ? 1 : 0,
+                transition: "opacity 1s ease",
+              }}
+            >
+              {/* Central Spine Shadow */}
+              <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 22, background: "linear-gradient(90deg, rgba(0,0,0,0.1), transparent)" }} />
+
               {phase >= 1 && (
-                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 24, color: "#2c1810", lineHeight: 1.4 }}>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", lineHeight: 1.4 }}>
                   {l1.shown}
                   {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
@@ -482,14 +557,61 @@ function Ch1({ onNext }: { onNext: () => void }) {
                   {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #3d2010", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
                 </div>
               )}
-              {phase >= 3 && (
-                <div style={{ position: "absolute", bottom: 18, right: -46 }}>
-                  <PageTab onClick={onNext} />
+              {phase >= 3 && !flipping && (
+                <div style={{ position: "absolute", bottom: 40, right: 40 }}>
+                  <PageTab onClick={handleTurnPage} />
                 </div>
               )}
             </div>
-          </motion.div>
-        )}
+          )}
+
+          {/* Flipping Page Overlay */}
+          {flipping && (
+            <div style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              width: "50%",
+              height: "100%",
+              transformOrigin: "left center",
+              animation: "pageFlip 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+              transformStyle: "preserve-3d",
+              zIndex: 99,
+            }}>
+              {/* Front of flipping sheet */}
+              <div 
+                className="nb-lines"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  backfaceVisibility: "hidden",
+                  borderRadius: "0 12px 12px 0",
+                  padding: "60px 45px 45px 60px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 20,
+                }}
+              >
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 36, color: "#2c1810", opacity: 0.6 }}>Hi Sayani.</div>
+                <div style={{ fontFamily: "'Caveat', cursive", fontSize: 24, color: "#3d2010", opacity: 0.6 }}>I borrowed you from the world for a little while.</div>
+              </div>
+
+              {/* Back of flipping sheet */}
+              <div 
+                className="paper"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  backfaceVisibility: "hidden",
+                  transform: "rotateY(-180deg)",
+                  borderRadius: "12px 0 0 12px",
+                  background: "#FAF4E8",
+                  boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <ChLabel text="A Little Corner of the Universe" light />
