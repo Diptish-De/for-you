@@ -2901,6 +2901,7 @@ function Ch8({ onNext }: { onNext: () => void }) {
 function Ch9({ memory }: { memory: Memory }) {
   const [step, setStep] = useState<"writing" | "camera" | "countdown" | "photo" | "final">("writing");
   const [count, setCount] = useState(3);
+  const [triggerFlash, setTriggerFlash] = useState(false);
 
   const l1 = useTW("Before you go...", 75, 0, step === "writing");
   const l2 = useTW("I have one tiny request.", 75, 0, step === "writing" && l1.done);
@@ -2908,113 +2909,276 @@ function Ch9({ memory }: { memory: Memory }) {
   const lf2 = useTW("I was hoping I'd get to see this face before we said goodbye.", 52, 0, step === "final" && lf1.done);
 
   useEffect(() => {
-    if (step === "writing" && l2.done) { const t = setTimeout(() => setStep("camera"), 1500); return () => clearTimeout(t); }
+    if (step === "writing" && l2.done) { 
+      const t = setTimeout(() => setStep("camera"), 1500); 
+      return () => clearTimeout(t); 
+    }
   }, [step, l2.done]);
 
   const clickCamera = () => {
     if (step !== "camera") return;
-    setStep("countdown"); setCount(3);
+    setStep("countdown"); 
+    setCount(3);
     const tick = (n: number) => {
       setCount(n);
-      if (n <= 0) { setStep("photo"); setTimeout(() => setStep("final"), 2200); return; }
+      if (n <= 0) { 
+        // Trigger visual screen flash
+        setTriggerFlash(true);
+        setTimeout(() => setTriggerFlash(false), 600);
+        
+        setStep("photo"); 
+        setTimeout(() => setStep("final"), 2500); 
+        return; 
+      }
       setTimeout(() => tick(n - 1), 950);
     };
     setTimeout(() => tick(2), 950);
   };
 
   const personalNote = [
-    memory.pettedCat && "the cat misses you already.",
-    memory.wateredFlowers && "your flowers will bloom again.",
-    memory.watchedButterflies && "the butterflies remember you too.",
+    memory.pettedCat && "the kitten misses your soft touch already.",
+    memory.wateredFlowers && "your flowers will bloom green and happy again.",
+    memory.watchedButterflies && "the butterflies carry your wishes.",
   ].filter(Boolean).join(" ");
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #fff8e7 0%, #fffaf0 60%, #fff5e0 100%)",
+      background: "linear-gradient(180deg, #090d16 0%, #15102a 60%, #2b1236 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
     }}>
-      {/* Floating petals */}
-      {Array.from({ length: 14 }, (_, i) => (
-        <div key={i} style={{ position: "absolute", left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, fontSize: "16px", opacity: .32, animation: `floatUp ${3 + Math.random() * 3}s ease-in-out infinite`, animationDelay: `${Math.random() * 3}s`, pointerEvents: "none" }}>🌸</div>
+      {/* Volumetric ambient background glow */}
+      <div style={{
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 600,
+        height: 600,
+        background: "radial-gradient(circle, rgba(167, 139, 250, 0.12) 0%, transparent 75%)",
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
+
+      {/* Floating Sparkles & Dandelion Seeds */}
+      {Array.from({ length: 18 }, (_, i) => (
+        <motion.div 
+          key={i} 
+          initial={{ y: "110vh", x: `${Math.random() * 100}vw`, opacity: 0 }}
+          animate={{ 
+            y: "-10vh",
+            x: [`${Math.random() * 100}vw`, `${Math.random() * 100 + (Math.random() - 0.5) * 10}vw`],
+            opacity: [0, 0.55, 0]
+          }}
+          transition={{ 
+            duration: 6 + Math.random() * 5, 
+            repeat: Infinity, 
+            delay: i * 0.5,
+            ease: "easeInOut"
+          }}
+          style={{ 
+            position: "absolute", 
+            fontSize: "14px", 
+            pointerEvents: "none",
+            zIndex: 1,
+            color: "#e9d5ff",
+          }}
+        >
+          {i % 2 === 0 ? "✨" : "🌸"}
+        </motion.div>
       ))}
 
-      <div className="nb-lines" style={{ width: 450, maxWidth: "92vw", borderRadius: 6, boxShadow: "0 8px 40px rgba(0,0,0,.1)", padding: "46px 42px 42px", display: "flex", flexDirection: "column", alignItems: "center", gap: 20, position: "relative" }}>
-        <div className="washi" style={{ position: "absolute", top: -12, left: "28%", width: 92, height: 24, transform: "rotate(-1.5deg)", borderRadius: 3 }} />
+      {/* Camera Shutter Screen Flash Overlay */}
+      <AnimatePresence>
+        {triggerFlash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "#ffffff",
+              zIndex: 10000,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="nb-lines" style={{ 
+        width: 460, 
+        maxWidth: "92vw", 
+        borderRadius: 12, 
+        boxShadow: "0 15px 45px rgba(0,0,0,0.55)", 
+        padding: "48px 40px", 
+        display: "flex", 
+        flexDirection: "column", 
+        alignItems: "center", 
+        gap: 20, 
+        position: "relative",
+        background: "#fdfbf7",
+        border: "1.5px solid #e2e8f0",
+        zIndex: 2,
+      }}>
+        {/* Decorative Washi Tape */}
+        <div className="washi" style={{ 
+          position: "absolute", 
+          top: -12, 
+          left: "32%", 
+          width: 100, 
+          height: 24, 
+          transform: "rotate(-2deg)", 
+          borderRadius: 3,
+          background: "rgba(224, 200, 150, 0.6)",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.08)",
+        }} />
 
         {/* Writing phase */}
         {(step === "writing" || step === "camera") && (<>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, color: "#3d2b1f", fontStyle: "italic", textAlign: "center" }}>
+          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 32, color: "#3d2b1f", fontStyle: "italic", textAlign: "center", fontWeight: "bold" }}>
             {l1.shown}{step === "writing" && !l1.done && <span style={{ borderRight: "2px solid #3d2b1f", animation: "blink .7s step-end infinite" }} />}
           </div>
-          {l1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 20, color: "#5a3d2f", textAlign: "center" }}>
+          {l1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 21, color: "#5a3d2f", textAlign: "center", marginTop: 4 }}>
             {l2.shown}{step === "writing" && !l2.done && <span style={{ borderRight: "2px solid #5a3d2f", animation: "blink .7s step-end infinite" }} />}
           </div>}
         </>)}
 
-        {/* Camera */}
+        {/* Instax Camera (Violet / Pastel Pink) */}
         {step === "camera" && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .35 }}
-            onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center" }}>
-            <svg width="144" height="112" viewBox="0 0 144 112" style={{ animation: "floatUp 3s ease-in-out infinite" }}>
-              <rect x="10" y="26" width="124" height="76" rx="13" fill="#4a3050" />
-              <circle cx="72" cy="66" r="28" fill="#2a2030" />
-              <circle cx="72" cy="66" r="22" fill="#3a2840" />
-              <circle cx="72" cy="66" r="15" fill="#1a1020" />
-              <circle cx="65" cy="60" r="4" fill="rgba(255,255,255,.24)" />
-              <rect x="14" y="30" width="24" height="15" rx="4" fill="#f9f0c8" />
-              <circle cx="115" cy="36" r="8" fill="#6a4060" />
-              <rect x="90" y="16" width="26" height="15" rx="4" fill="#3a2840" />
-              {/* Flower sticker */}
-              <circle cx="30" cy="52" r="9" fill="#f9c8e8" />
-              {[0,72,144,216,288].map((a,i) => (
-                <ellipse key={i} cx={30} cy={44} rx={3} ry={5} fill={["#f9c8d0","#f0c8e8","#e8c8f9","#c8d8f9","#c8f9e8"][i]} transform={`rotate(${a} 30 52)`} />
+          <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            onClick={clickCamera} style={{ cursor: "pointer", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <svg width="150" height="120" viewBox="0 0 150 120" style={{ animation: "floatUp 3s infinite ease-in-out", filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.3))" }}>
+              {/* Instax Body */}
+              <rect x="12" y="24" width="126" height="84" rx="16" fill="#ddd6fe" stroke="#c4b5fd" strokeWidth="1.5" />
+              <rect x="12" y="24" width="126" height="14" fill="#a78bfa" rx="4" />
+              
+              {/* Camera Lens ring outer */}
+              <circle cx="75" cy="72" r="32" fill="#8b5cf6" />
+              <circle cx="75" cy="72" r="27" fill="#4c1d95" />
+              {/* Lens glass elements */}
+              <circle cx="75" cy="72" r="21" fill="#1e1b4b" />
+              <circle cx="75" cy="72" r="14" fill="#030712" />
+              {/* Glass reflections */}
+              <circle cx="68" cy="65" r="4" fill="rgba(255,255,255,0.35)" />
+              <circle cx="81" cy="78" r="2" fill="rgba(255,255,255,0.18)" />
+
+              {/* Viewfinder */}
+              <rect x="22" y="32" width="22" height="14" rx="3" fill="#1e293b" stroke="#fcd34d" strokeWidth="1" />
+              <circle cx="26" cy="38" r="2" fill="#10b981" />
+
+              {/* Shutter Button */}
+              <circle cx="118" cy="38" r="8" fill="#ec4899" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }} />
+              <circle cx="118" cy="38" r="5" fill="#f472b6" />
+
+              {/* Flash window */}
+              <rect x="94" y="14" width="28" height="14" rx="4" fill="#fef08a" stroke="#eab308" strokeWidth="1" />
+              
+              {/* Floral Cute Sticker decoration */}
+              <circle cx="34" cy="94" r="7" fill="#fbcfe8" />
+              {[0, 72, 144, 216, 288].map((rot, idx) => (
+                <ellipse key={idx} cx="34" cy="88" rx="2.5" ry="4.5" fill="#f472b6" transform={`rotate(${rot} 34 94)`} />
               ))}
-              {/* Smile sticker */}
-              <circle cx="112" cy="74" r="8" fill="#f9f0a0" />
-              <circle cx="109.5" cy="72" r="1.2" fill="#3a2010" /><circle cx="114.5" cy="72" r="1.2" fill="#3a2010" />
-              <path d="M109 76Q112 79 115 76" stroke="#3a2010" strokeWidth="1.2" fill="none" />
+              <circle cx="34" cy="94" r="2.5" fill="#fef08a" />
             </svg>
-            <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#5a3d2f", marginTop: 6, lineHeight: 1.6 }}>
-              "I know today tried to steal your smile."<br />
-              "Could I borrow one?"
+            <div style={{ fontFamily: "'Caveat', cursive", fontSize: 18, color: "#4a3025", marginTop: 12, lineHeight: 1.6, padding: "0 10px" }}>
+              “I know today tried to steal your smile.”<br />
+              <span style={{ fontWeight: "bold", color: "#6d28d9" }}>“Could I borrow one?”</span>
             </div>
-            <div style={{ marginTop: 10, fontFamily: "'Caveat', cursive", fontSize: 14, color: "#9b7fa6" }}>click the camera ✦</div>
+            <div style={{ marginTop: 10, fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#6d28d9", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1 }}>click the camera to snap ✦</div>
           </motion.div>
         )}
 
         {/* Countdown */}
         {step === "countdown" && (
-          <motion.div key={count} initial={{ scale: .4, opacity: 0 }} animate={{ scale: 1.3, opacity: 1 }} exit={{ scale: 2, opacity: 0 }}
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 90, color: "#9b7fa6", textAlign: "center", lineHeight: 1 }}>
+          <motion.div key={count} initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1.4, opacity: 1 }} exit={{ scale: 2.2, opacity: 0 }}
+            style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 95, color: "#8b5cf6", fontWeight: "bold", textAlign: "center", lineHeight: 1, margin: "25px 0" }}>
             {count > 0 ? count : "✦"}
           </motion.div>
         )}
 
-        {/* Polaroid */}
+        {/* Developing Polaroid Photo of Sayani */}
         {(step === "photo" || step === "final") && (
-          <motion.div initial={{ opacity: 0, y: -30, rotate: -5 }} animate={{ opacity: 1, y: 0, rotate: -2 }} transition={{ duration: .6 }}
-            style={{ width: 204, height: 228, background: "white", boxShadow: "0 6px 26px rgba(0,0,0,.22)", display: "flex", flexDirection: "column", alignItems: "center", padding: "16px 16px 26px", borderRadius: 2, position: "relative", animation: step === "photo" ? "polarDev 2s ease-out forwards" : undefined }}>
-            <div className="washi" style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 52, height: 18, borderRadius: 2 }} />
-            <div style={{ width: "100%", flex: 1, background: "#e8d8e8", borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 50 }}>😊</div>
-            {step === "final" && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 13, color: "#4a3028", marginTop: 8, textAlign: "center" }}>♡ there she is</div>}
-            {step === "final" && <div style={{ position: "absolute", bottom: -20, right: -18, fontSize: 22 }}>✏️❤️</div>}
+          <motion.div 
+            initial={{ opacity: 0, y: -40, rotate: -6 }} 
+            animate={{ opacity: 1, y: 0, rotate: -2 }} 
+            transition={{ duration: 0.85, ease: "easeOut" }}
+            style={{ 
+              width: 220, 
+              height: 254, 
+              background: "#ffffff", 
+              boxShadow: "0 10px 30px rgba(0,0,0,0.35)", 
+              display: "flex", 
+              flexDirection: "column", 
+              alignItems: "center", 
+              padding: "14px 14px 28px", 
+              borderRadius: 3, 
+              position: "relative",
+            }}
+          >
+            {/* Washi Tape holding the polaroid */}
+            <div className="washi" style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", width: 56, height: 18, borderRadius: 2, background: "rgba(244, 114, 182, 0.45)" }} />
+            
+            {/* Image develops (fade-in, filter adjustments) */}
+            <div style={{ 
+              width: "100%", 
+              flex: 1, 
+              background: `url(${sayani2}) center/cover no-repeat`,
+              borderRadius: 1.5,
+              border: "1px solid rgba(0,0,0,0.06)",
+              animation: "photoDevelop 4s ease-out forwards",
+            }} />
+            
+            {/* Caption appears on final step */}
+            {step === "final" && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.5 }}
+                style={{ fontFamily: "'Caveat', cursive", fontSize: 15, color: "#4c1d95", marginTop: 10, textAlign: "center", fontWeight: "bold" }}
+              >
+                ♡ there she is.
+              </motion.div>
+            )}
           </motion.div>
         )}
 
-        {/* Final message */}
+        {/* Final Letter Message */}
         {step === "final" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}
-            style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, maxWidth: 340 }}>
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, color: "#3d2b1f", fontStyle: "italic" }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}
+            style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, maxWidth: 360, marginTop: 10 }}>
+            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, color: "#3d2b1f", fontStyle: "italic", fontWeight: "bold" }}>
               {lf1.shown}
             </div>
-            {lf1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#5a3d2f", lineHeight: 1.65 }}>{lf2.shown}</div>}
+            {lf1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 18, color: "#5a3d2f", lineHeight: 1.65 }}>{lf2.shown}</div>}
+            
             {lf2.done && personalNote && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .8 }}
-                style={{ fontFamily: "'Caveat', cursive", fontSize: 14, color: "#9b7fa6", marginTop: 6 }}>
+              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
+                style={{ 
+                  fontFamily: "'Caveat', cursive", 
+                  fontSize: 16, 
+                  color: "#7c3aed", 
+                  marginTop: 8, 
+                  background: "#f5f3ff", 
+                  padding: "8px 12px", 
+                  borderRadius: 8, 
+                  border: "1px dashed #c4b5fd" 
+                }}
+              >
                 {personalNote} ✦
+              </motion.div>
+            )}
+            
+            {lf2.done && (
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ delay: 1.8 }}
+                style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 14, color: "#a78bfa", marginTop: 12, fontWeight: "bold", textTransform: "uppercase", letterSpacing: 2 }}
+              >
+                — with love, always.
               </motion.div>
             )}
           </motion.div>
