@@ -26,11 +26,12 @@ const RAIN = Array.from({ length: 22 }, (_, i) => ({
 }));
 
 const CLOUDS_DATA = [
-  { id: 0, x: 10, y: 14, w: 155, face: "😴", msg: "Professional reminder: drink water.", col: "#ede8ff" },
-  { id: 1, x: 42, y: 8, w: 120, face: "🌸", msg: "You somehow make rainy days prettier.", col: "#ffe8f2" },
-  { id: 2, x: 70, y: 18, w: 140, face: "😊", msg: "If I were a cat, I'd probably nap beside you.", col: "#e8f0ff" },
-  { id: 3, x: 24, y: 38, w: 108, face: "🌙", msg: null, col: "#f0e8ff" },
-  { id: 4, x: 58, y: 42, w: 128, face: "🌿", msg: "The world is genuinely better with you in it.", col: "#e8fff0" },
+  { id: 0, x: 8, y: 15, w: 150, face: "😴", msg: "ghum er majhe break bhalo kore nis", col: "#ede8ff" },
+  { id: 1, x: 38, y: 7, w: 130, face: "🤪", msg: "tui ki pagla", col: "#ffe8f2" },
+  { id: 2, x: 68, y: 14, w: 140, face: "🌸", msg: "birar meye", col: "#e8f0ff" },
+  { id: 3, x: 22, y: 36, w: 135, face: "😈", msg: "khub shoitani", col: "#f0e8ff" },
+  { id: 4, x: 50, y: 38, w: 120, face: "👀", msg: "ei ei", col: "#e8fff0" },
+  { id: 5, x: 76, y: 33, w: 145, face: "👶", msg: "gublur masi", col: "#fffbeb" },
 ];
 
 const KEEPSAKES = [
@@ -809,7 +810,7 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
     }));
     setBts(bs => [...bs, ...newBts]);
     setTimeout(() => setBts(bs => bs.filter(b => !newBts.some(n => n.id === b.id))), 1800);
-    if (next.size >= 3) setTimeout(() => setShowNext(true), 1200);
+    if (next.size >= 6) setTimeout(() => setShowNext(true), 1200);
   };
 
   return (
