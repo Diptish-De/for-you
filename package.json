@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix \"Complete current task\"",
-    "build": "npm install --include=dev --prefix \"Complete current task\" && npm run build --prefix \"Complete current task\"",
+    "build": "cd \"Complete current task\" && npm install --include=dev && npm run build",
     "preview": "npm run preview --prefix \"Complete current task\""
   }
 }
+
