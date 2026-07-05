@@ -1462,41 +1462,143 @@ function Ch7({ onNext }: { onNext: () => void }) {
     setClicked(next);
     if (next.size >= 8 && !forming) {
       setForming(true);
-      setTimeout(() => setShowNext(true), 2400);
+      setTimeout(() => setShowNext(true), 2800);
     }
   }, [clicked, forming]);
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #030814 0%, #060b1e 60%, #0a1030 100%)",
+      background: "linear-gradient(to bottom, #03040c 0%, #080a1e 40%, #120e2a 75%, #1d133c 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
-      {/* Milky way */}
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 80% 40% at 50% 40%, rgba(100,80,180,.08) 0%, transparent 100%)", pointerEvents: "none" }} />
-      {/* Ground silhouette */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "16%", background: "#050f08", clipPath: "polygon(0 40%,5% 22%,12% 35%,20% 18%,28% 30%,35% 16%,44% 28%,50% 13%,58% 24%,65% 14%,72% 28%,80% 16%,87% 26%,94% 18%,100% 30%,100% 100%,0 100%)" }} />
+      
+      {/* Deep Space Purple Nebula */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.04) 50%, transparent 100%)",
+        pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(ellipse 60% 40% at 30% 60%, rgba(6, 182, 212, 0.06) 0%, transparent 80%)",
+        pointerEvents: "none",
+      }} />
 
-      {/* Background stars — brighter, larger, clickable */}
-      {UNIVERSE_STARS.map(s => (
-        <div key={s.id} onClick={() => clickStar(s.id)} style={{
-          position: "absolute",
-          left: `${s.x}%`, top: `${s.y}%`,
-          width:  clicked.has(s.id) ? s.size * 3 : s.size,
-          height: clicked.has(s.id) ? s.size * 3 : s.size,
-          borderRadius: "50%",
-          background: clicked.has(s.id) ? "#ffd700" : "white",
-          opacity: clicked.has(s.id) ? 1 : s.baseOpacity,
-          boxShadow: clicked.has(s.id)
-            ? `0 0 ${s.size * 6}px #ffd700, 0 0 ${s.size * 2}px #fff8c0`
-            : `0 0 ${s.size * 2}px rgba(200,220,255,.55)`,
-          animation: `twinkle ${s.dur}s ease-in-out infinite`,
-          animationDelay: `${s.delay}s`,
-          cursor: "pointer", transition: "all .4s ease", zIndex: 2,
-        }} />
-      ))}
+      {/* Layered Rolling Night Hills & Pine Silhouettes */}
+      {/* Far Hills */}
+      <svg 
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "24%", pointerEvents: "none", zIndex: 1 }}
+        viewBox="0 0 1000 100" preserveAspectRatio="none"
+      >
+        <path d="M0 60 Q 250 20, 500 55 T 1000 45 L 1000 100 L 0 100 Z" fill="#0c0a1a" opacity="0.6" />
+      </svg>
+      {/* Mid Hills with soft pine tree shapes */}
+      <svg 
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "18%", pointerEvents: "none", zIndex: 2 }}
+        viewBox="0 0 1000 100" preserveAspectRatio="none"
+      >
+        <path d="M0 65 Q 300 35, 600 70 T 1000 55 L 1000 100 L 0 100 Z" fill="#070613" />
+        
+        {/* Simple Pine Tree outlines */}
+        <polygon points="120,60 115,75 125,75" fill="#04030a" />
+        <polygon points="120,53 117,62 123,62" fill="#04030a" />
+        <polygon points="280,68 273,85 287,85" fill="#04030a" />
+        <polygon points="280,59 275,70 285,70" fill="#04030a" />
+        <polygon points="740,70 735,84 745,84" fill="#04030a" />
+        <polygon points="850,65 844,80 856,80" fill="#04030a" />
+        <polygon points="850,57 846,67 854,67" fill="#04030a" />
+      </svg>
+      
+      {/* Near Hills (Dark grass profile) */}
+      <svg 
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "12%", pointerEvents: "none", zIndex: 3 }}
+        viewBox="0 0 1000 100" preserveAspectRatio="none"
+      >
+        <path d="M0 75 Q 200 62, 400 78 T 800 68 T 1000 72 L 1000 100 L 0 100 Z" fill="#030206" />
+      </svg>
 
-      {/* ♌ Leo constellation — appears after 8 stars clicked */}
+      {/* Twinkling ambient stars in background */}
+      {UNIVERSE_STARS.map(s => {
+        const isInteractive = s.id < 8; // Only Leo stars are clickable
+        if (isInteractive) return null;
+        return (
+          <div key={s.id} style={{
+            position: "absolute",
+            left: `${s.x}%`, top: `${s.y}%`,
+            width: s.size * 0.7, height: s.size * 0.7,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.7)",
+            opacity: s.baseOpacity * 0.7,
+            animation: `twinkle ${s.dur}s ease-in-out infinite`,
+            animationDelay: `${s.delay}s`,
+            pointerEvents: "none",
+          }} />
+        );
+      })}
+
+      {/* The Clickable Constellation Stars (Leo) */}
+      {LEO_STARS.map(s => {
+        const isClicked = clicked.has(s.id);
+        return (
+          <div key={s.id} style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", zIndex: 12 }}>
+            <motion.div
+              onClick={() => clickStar(s.id)}
+              whileHover={{ scale: 1.25 }}
+              style={{
+                width: s.bright ? 20 : 16,
+                height: s.bright ? 20 : 16,
+                borderRadius: "50%",
+                background: isClicked ? "#ffd700" : "rgba(255,255,255,0.25)",
+                border: isClicked ? "3px solid #fff" : "2px solid rgba(255,255,255,0.4)",
+                boxShadow: isClicked 
+                  ? "0 0 15px #ffd700, 0 0 30px #f59e0b, inset 0 0 4px #fff" 
+                  : "0 0 6px rgba(255,255,255,0.2)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+              }}
+            >
+              {/* Core hot spot for clicked stars */}
+              {isClicked && (
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+              )}
+            </motion.div>
+
+            {/* Constellation Star Label (revealed on click) */}
+            <AnimatePresence>
+              {isClicked && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 0.8, y: 0 }}
+                  style={{
+                    position: "absolute",
+                    top: "120%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: 12,
+                    fontWeight: "bold",
+                    color: "#fef3c7",
+                    textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+                    letterSpacing: 1.2,
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {s.name}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
+
+      {/* Connecting Leo Constellation Lines */}
       {forming && (() => {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
@@ -1505,96 +1607,97 @@ function Ch7({ onNext }: { onNext: () => void }) {
         return (
           <svg
             width={vw} height={vh}
-            style={{ position: "absolute", inset: 0, zIndex: 9, pointerEvents: "none" }}>
-            <defs>
-              <filter id="leo-glow-sm">
-                <feGaussianBlur stdDeviation="3" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <filter id="leo-glow-lg">
-                <feGaussianBlur stdDeviation="7" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-
-            {/* Connecting lines — draw one by one */}
+            style={{ position: "absolute", inset: 0, zIndex: 10, pointerEvents: "none" }}>
+            
+            {/* Glowing Golden Lines */}
             {LEO_LINES.map(([a, b], i) => (
               <motion.path
                 key={i}
                 d={`M ${px(LEO_STARS[a])} ${py(LEO_STARS[a])} L ${px(LEO_STARS[b])} ${py(LEO_STARS[b])}`}
-                stroke="rgba(190,215,255,.65)"
-                strokeWidth="1.6"
+                stroke="#fef08a"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 fill="none"
+                style={{ filter: "drop-shadow(0 0 5px #eab308) drop-shadow(0 0 10px rgba(234,179,8,0.4))" }}
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ delay: 0.6 + i * 0.22, duration: 0.9, ease: "easeInOut" }}
+                transition={{ delay: 0.5 + i * 0.22, duration: 1.1, ease: "easeInOut" }}
               />
-            ))}
-
-            {/* Star dots */}
-            {LEO_STARS.map((s, i) => (
-              <g key={s.id}>
-                {/* soft halo */}
-                <motion.circle
-                  cx={px(s)} cy={py(s)} r={s.r * (s.bright ? 4 : 2.5)}
-                  fill={s.bright ? "rgba(255,220,80,.22)" : "rgba(200,225,255,.09)"}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.1, duration: 0.7 }}
-                />
-                {/* star core */}
-                <motion.circle
-                  cx={px(s)} cy={py(s)} r={s.r}
-                  fill={s.bright ? "#ffd700" : "#e8f0ff"}
-                  filter={s.bright ? "url(#leo-glow-lg)" : "url(#leo-glow-sm)"}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.3 + i * 0.1, duration: 0.55, ease: "easeOut" }}
-                />
-                {/* Regulus pulse ring */}
-                {s.bright && (
-                  <motion.circle
-                    cx={px(s)} cy={py(s)} r={s.r * 2.2}
-                    fill="none" stroke="rgba(255,215,0,.35)" strokeWidth="1.5"
-                    animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                  />
-                )}
-              </g>
             ))}
           </svg>
         );
       })()}
 
-      {/* Hint text */}
+      {/* Interactive Helper Text */}
       {!forming && (
-        <motion.div animate={{ opacity: [.45, 1, .45] }} transition={{ duration: 3, repeat: Infinity }}
-          style={{ position: "absolute", bottom: "20%", left: "50%", transform: "translateX(-50%)", fontFamily: "'Caveat', cursive", fontSize: 16, color: "rgba(200,180,240,.6)", whiteSpace: "nowrap" }}>
-          click the stars to find them ({clicked.size}/8)
+        <motion.div 
+          animate={{ opacity: [0.5, 1, 0.5] }} 
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            position: "absolute", 
+            bottom: "22%", 
+            left: "50%", 
+            transform: "translateX(-50%)", 
+            fontFamily: "'Caveat', cursive", 
+            fontSize: 18, 
+            color: "#fef3c7", 
+            textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+            whiteSpace: "nowrap",
+            zIndex: 4,
+          }}
+        >
+          click the major stars to chart them ({clicked.size}/8)
         </motion.div>
       )}
 
-      {/* Leo label */}
+      {/* Constellation Reveal Info Panel */}
       {forming && (
         <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.8 }}
-          style={{ position: "absolute", bottom: "18%", left: "50%", transform: "translateX(-50%)", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 28, fontStyle: "italic", color: "rgba(255,230,140,.9)", textShadow: "0 0 24px rgba(255,200,60,.45)", letterSpacing: 3 }}>
+          initial={{ opacity: 0, y: 15 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 2.8, duration: 1 }}
+          style={{ 
+            position: "absolute", 
+            bottom: "20%", 
+            left: "50%", 
+            transform: "translateX(-50%)", 
+            textAlign: "center",
+            zIndex: 4,
+          }}
+        >
+          <div style={{ 
+            fontFamily: "'Cormorant Garamond', serif", 
+            fontSize: 32, 
+            fontStyle: "italic", 
+            color: "#fef08a", 
+            textShadow: "0 0 20px rgba(234,179,8,0.6)", 
+            letterSpacing: 4 
+          }}>
             ♌ Leo
           </div>
-          <div style={{ fontFamily: "'Caveat', cursive", fontSize: 16, color: "rgba(200,180,240,.7)", marginTop: 4 }}>
+          <div style={{ 
+            fontFamily: "'Caveat', cursive", 
+            fontSize: 18, 
+            color: "#d8b4fe", 
+            marginTop: 4,
+            textShadow: "0 2px 4px rgba(0,0,0,0.4)"
+          }}>
             22 August · the universe remembers you
           </div>
         </motion.div>
       )}
 
+      {/* Navigation Tab */}
       {showNext && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "9%", left: "50%", transform: "translateX(-50%)" }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          style={{ position: "absolute", bottom: "9%", left: "50%", transform: "translateX(-50%)", zIndex: 4 }}
+        >
           <PageTab onClick={onNext} label="Bring the spring →" pos="center" />
         </motion.div>
       )}
+      
       <ChLabel text="Chapter VI · A Universe That Remembers You" light />
     </div>
   );
