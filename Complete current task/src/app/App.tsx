@@ -1469,56 +1469,139 @@ function Ch7({ onNext }: { onNext: () => void }) {
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(to bottom, #03040c 0%, #080a1e 40%, #120e2a 75%, #1d133c 100%)",
+      background: "linear-gradient(to bottom, #070913 0%, #0d1222 55%, #1b172a 82%, #2d2033 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
       
-      {/* Deep Space Purple Nebula */}
+      {/* Classic Serif "Leo" header in upper left */}
       <div style={{
         position: "absolute",
-        inset: 0,
-        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.04) 50%, transparent 100%)",
+        left: "8%",
+        top: "14%",
+        fontFamily: "'Cormorant Garamond', serif",
+        fontSize: 48,
+        color: "rgba(255, 255, 255, 0.75)",
+        letterSpacing: 2,
         pointerEvents: "none",
-      }} />
+        zIndex: 4,
+      }}>
+        Leo
+      </div>
+
+      {/* Deep Space Nebulous dust */}
       <div style={{
         position: "absolute",
         inset: 0,
-        background: "radial-gradient(ellipse 60% 40% at 30% 60%, rgba(6, 182, 212, 0.06) 0%, transparent 80%)",
+        background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(139, 92, 246, 0.07) 0%, transparent 100%)",
         pointerEvents: "none",
       }} />
 
-      {/* Layered Rolling Night Hills & Pine Silhouettes */}
-      {/* Far Hills */}
-      <svg 
-        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "24%", pointerEvents: "none", zIndex: 1 }}
-        viewBox="0 0 1000 100" preserveAspectRatio="none"
-      >
-        <path d="M0 60 Q 250 20, 500 55 T 1000 45 L 1000 100 L 0 100 Z" fill="#0c0a1a" opacity="0.6" />
-      </svg>
-      {/* Mid Hills with soft pine tree shapes */}
-      <svg 
-        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "18%", pointerEvents: "none", zIndex: 2 }}
-        viewBox="0 0 1000 100" preserveAspectRatio="none"
-      >
-        <path d="M0 65 Q 300 35, 600 70 T 1000 55 L 1000 100 L 0 100 Z" fill="#070613" />
-        
-        {/* Simple Pine Tree outlines */}
-        <polygon points="120,60 115,75 125,75" fill="#04030a" />
-        <polygon points="120,53 117,62 123,62" fill="#04030a" />
-        <polygon points="280,68 273,85 287,85" fill="#04030a" />
-        <polygon points="280,59 275,70 285,70" fill="#04030a" />
-        <polygon points="740,70 735,84 745,84" fill="#04030a" />
-        <polygon points="850,65 844,80 856,80" fill="#04030a" />
-        <polygon points="850,57 846,67 854,67" fill="#04030a" />
-      </svg>
-      
-      {/* Near Hills (Dark grass profile) */}
-      <svg 
-        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "12%", pointerEvents: "none", zIndex: 3 }}
-        viewBox="0 0 1000 100" preserveAspectRatio="none"
-      >
-        <path d="M0 75 Q 200 62, 400 78 T 800 68 T 1000 72 L 1000 100 L 0 100 Z" fill="#030206" />
-      </svg>
+      {/* The Red Planet (Mars) */}
+      <motion.div
+        animate={{ opacity: [0.8, 1, 0.8] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute",
+          left: "52%",
+          top: "64%",
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at center, #ffa07a 0%, #d35400 60%, #922b21 100%)",
+          boxShadow: "0 0 12px rgba(211, 84, 0, 0.85), 0 0 24px rgba(211, 84, 0, 0.45)",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+          zIndex: 8,
+        }}
+      />
+
+      {/* Realistic Tree Line Silhouette with bottom amber highlight */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "24vh",
+        pointerEvents: "none",
+        zIndex: 5,
+      }}>
+        <svg 
+          viewBox="0 0 1000 120" 
+          preserveAspectRatio="none"
+          style={{ width: "100%", height: "100%", display: "block" }}
+        >
+          <defs>
+            <linearGradient id="tree-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#080a14" />
+              <stop offset="100%" stopColor="#020306" />
+            </linearGradient>
+            <linearGradient id="glow-grad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="rgba(234, 110, 8, 0.28)" />
+              <stop offset="100%" stopColor="rgba(234, 110, 8, 0)" />
+            </linearGradient>
+          </defs>
+
+          {/* Detailed background trees for depth */}
+          <path 
+            d="M0 120 L0 80 Q 20 70 40 85 T 80 75 T 120 90 T 160 80 T 200 95 T 240 75 T 280 85 T 320 70 T 360 80 T 400 65 T 440 85 T 480 75 T 520 90 T 560 70 T 600 85 T 640 60 T 680 80 T 720 70 T 760 90 T 800 75 T 840 85 T 880 65 T 920 80 T 960 70 T 1000 85 L1000 120 Z" 
+            fill="#05060b" 
+            opacity="0.4" 
+          />
+
+          {/* Foreground leafy and pine trees */}
+          <path 
+            d="M0 120 
+               L0 85 
+               /* Tree 1: Pine */
+               L15 65 L20 72 L12 85 L25 80 L35 95 
+               /* Tree 2: Leafy bush */
+               Q50 75 65 78 T 80 85 T 100 90
+               /* Tree 3: Tall Pine */
+               L115 50 L122 62 L112 70 L128 65 L120 85 L135 80 L145 95
+               /* Tree 4: Leafy */
+               Q165 70 180 72 T 200 85 T 220 90
+               /* Tree 5: Medium Pine */
+               L230 68 L236 75 L228 82 L242 80 L238 92
+               /* Trees 6-10: Detailed irregular canopy */
+               Q260 70 280 65 T 310 75 T 340 80 T 370 70 T 400 85
+               /* Tree 11: Tall Pine */
+               L420 45 L428 58 L418 68 L435 62 L425 82 L445 78 L455 95
+               /* Canopy */
+               Q475 75 495 72 T 525 80 T 555 85 T 585 70 T 615 88
+               /* Tree 12: Pine */
+               L630 60 L637 70 L628 78 L642 75 L635 92
+               /* Canopy */
+               Q660 72 680 68 T 710 75 T 740 82 T 770 70 T 800 90
+               /* Tree 13: Tall Pine */
+               L815 48 L822 60 L812 68 L828 63 L820 83 L835 78 L845 95
+               /* Canopy to end */
+               Q865 72 885 75 T 915 80 T 945 72 T 975 85 T 1000 80 
+               L1000 120 Z" 
+            fill="url(#tree-grad)" 
+          />
+
+          {/* Warm Amber lights up the trees from below */}
+          <path 
+            d="M0 120 
+               L0 85 
+               L15 65 L20 72 L12 85 L25 80 L35 95 
+               Q50 75 65 78 T 80 85 T 100 90
+               L115 50 L122 62 L112 70 L128 65 L120 85 L135 80 L145 95
+               Q165 70 180 72 T 200 85 T 220 90
+               L230 68 L236 75 L228 82 L242 80 L238 92
+               Q260 70 280 65 T 310 75 T 340 80 T 370 70 T 400 85
+               L420 45 L428 58 L418 68 L435 62 L425 82 L445 78 L455 95
+               Q475 75 495 72 T 525 80 T 555 85 T 585 70 T 615 88
+               L630 60 L637 70 L628 78 L642 75 L635 92
+               Q660 72 680 68 T 710 75 T 740 82 T 770 70 T 800 90
+               L815 48 L822 60 L812 68 L828 63 L820 83 L835 78 L845 95
+               Q865 72 885 75 T 915 80 T 945 72 T 975 85 T 1000 80 
+               L1000 120 Z" 
+            fill="url(#glow-grad)" 
+            style={{ mixBlendMode: "screen" }}
+          />
+        </svg>
+      </div>
 
       {/* Twinkling ambient stars in background */}
       {UNIVERSE_STARS.map(s => {
@@ -1528,10 +1611,10 @@ function Ch7({ onNext }: { onNext: () => void }) {
           <div key={s.id} style={{
             position: "absolute",
             left: `${s.x}%`, top: `${s.y}%`,
-            width: s.size * 0.7, height: s.size * 0.7,
+            width: s.size * 0.6, height: s.size * 0.6,
             borderRadius: "50%",
-            background: "rgba(255,255,255,0.7)",
-            opacity: s.baseOpacity * 0.7,
+            background: "rgba(255,255,255,0.65)",
+            opacity: s.baseOpacity * 0.75,
             animation: `twinkle ${s.dur}s ease-in-out infinite`,
             animationDelay: `${s.delay}s`,
             pointerEvents: "none",
@@ -1548,24 +1631,24 @@ function Ch7({ onNext }: { onNext: () => void }) {
               onClick={() => clickStar(s.id)}
               whileHover={{ scale: 1.25 }}
               style={{
-                width: s.bright ? 20 : 16,
-                height: s.bright ? 20 : 16,
+                width: s.bright ? 16 : 12,
+                height: s.bright ? 16 : 12,
                 borderRadius: "50%",
-                background: isClicked ? "#ffd700" : "rgba(255,255,255,0.25)",
-                border: isClicked ? "3px solid #fff" : "2px solid rgba(255,255,255,0.4)",
+                background: isClicked ? "#ffffff" : "rgba(255,255,255,0.25)",
+                border: isClicked ? "2px solid #fff" : "1.5px solid rgba(255,255,255,0.4)",
                 boxShadow: isClicked 
-                  ? "0 0 15px #ffd700, 0 0 30px #f59e0b, inset 0 0 4px #fff" 
-                  : "0 0 6px rgba(255,255,255,0.2)",
+                  ? "0 0 10px #ffffff, 0 0 20px rgba(255,255,255,0.5)" 
+                  : "0 0 4px rgba(255,255,255,0.15)",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                transition: "all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                transition: "all 0.5s ease",
               }}
             >
               {/* Core hot spot for clicked stars */}
               {isClicked && (
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#fff" }} />
+                <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#fff" }} />
               )}
             </motion.div>
 
@@ -1574,17 +1657,17 @@ function Ch7({ onNext }: { onNext: () => void }) {
               {isClicked && (
                 <motion.div
                   initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 0.8, y: 0 }}
+                  animate={{ opacity: 0.75, y: 0 }}
                   style={{
                     position: "absolute",
                     top: "120%",
                     left: "50%",
                     transform: "translateX(-50%)",
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: "bold",
                     color: "#fef3c7",
-                    textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+                    textShadow: "0 2px 4px rgba(0,0,0,0.85)",
                     letterSpacing: 1.2,
                     whiteSpace: "nowrap",
                     pointerEvents: "none",
@@ -1614,11 +1697,11 @@ function Ch7({ onNext }: { onNext: () => void }) {
               <motion.path
                 key={i}
                 d={`M ${px(LEO_STARS[a])} ${py(LEO_STARS[a])} L ${px(LEO_STARS[b])} ${py(LEO_STARS[b])}`}
-                stroke="#fef08a"
-                strokeWidth="2.2"
+                stroke="rgba(255, 255, 255, 0.75)"
+                strokeWidth="1.2"
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: "drop-shadow(0 0 5px #eab308) drop-shadow(0 0 10px rgba(234,179,8,0.4))" }}
+                style={{ filter: "drop-shadow(0 0 2px rgba(255,255,255,0.5))" }}
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
                 transition={{ delay: 0.5 + i * 0.22, duration: 1.1, ease: "easeInOut" }}
@@ -1635,7 +1718,7 @@ function Ch7({ onNext }: { onNext: () => void }) {
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           style={{
             position: "absolute", 
-            bottom: "22%", 
+            bottom: "26%", 
             left: "50%", 
             transform: "translateX(-50%)", 
             fontFamily: "'Caveat', cursive", 
@@ -1658,7 +1741,7 @@ function Ch7({ onNext }: { onNext: () => void }) {
           transition={{ delay: 2.8, duration: 1 }}
           style={{ 
             position: "absolute", 
-            bottom: "20%", 
+            bottom: "25%", 
             left: "50%", 
             transform: "translateX(-50%)", 
             textAlign: "center",
@@ -1667,10 +1750,9 @@ function Ch7({ onNext }: { onNext: () => void }) {
         >
           <div style={{ 
             fontFamily: "'Cormorant Garamond', serif", 
-            fontSize: 32, 
-            fontStyle: "italic", 
+            fontSize: 22, 
             color: "#fef08a", 
-            textShadow: "0 0 20px rgba(234,179,8,0.6)", 
+            textShadow: "0 0 10px rgba(234,179,8,0.5)", 
             letterSpacing: 4 
           }}>
             ♌ Leo
@@ -1692,7 +1774,7 @@ function Ch7({ onNext }: { onNext: () => void }) {
         <motion.div 
           initial={{ opacity: 0, y: 10 }} 
           animate={{ opacity: 1, y: 0 }} 
-          style={{ position: "absolute", bottom: "9%", left: "50%", transform: "translateX(-50%)", zIndex: 4 }}
+          style={{ position: "absolute", bottom: "14%", left: "50%", transform: "translateX(-50%)", zIndex: 4 }}
         >
           <PageTab onClick={onNext} label="Bring the spring →" pos="center" />
         </motion.div>
