@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { sfx } from "./sfx";
 
 import sayani1 from "../imports/sayani-1.png";
 import sayani2 from "../imports/sayani-2.jpg";
@@ -304,7 +305,7 @@ function PageTab({ onClick, label = "Turn the page →", pos = "right" }: {
       initial={{ opacity: 0, x: pos === "right" ? 20 : 0, y: pos === "center" ? 10 : 0 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
       transition={{ delay: .3 }}
-      onClick={onClick}
+      onClick={() => { sfx.softClick(); onClick(); }}
       style={{
         background: "#f9c8d0", border: "none",
         padding: pos === "center" ? "10px 22px" : "9px 14px 9px 11px",
@@ -330,6 +331,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
 
   const handleOpen = () => {
     if (closing) return;
+    sfx.pageWhoosh();
     setOpened(true);
   };
 
@@ -344,6 +346,7 @@ function Ch1({ onNext }: { onNext: () => void }) {
   useEffect(() => { if (phase === 2 && l2.done) { const t = setTimeout(() => setPhase(3), 1100); return () => clearTimeout(t); } }, [phase, l2.done]);
 
   const handleCloseBook = () => {
+    sfx.pageWhoosh();
     setClosing(true);
     setOpened(false);
     setTimeout(() => {
@@ -1635,6 +1638,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
   const [showNext, setShowNext] = useState(false);
 
   const openCard = (id: number) => {
+    sfx.envelopeOpen();
     setSelected(id);
     const nextOpened = new Set(opened).add(id);
     setOpened(nextOpened);
@@ -1871,6 +1875,7 @@ function Ch6({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
 
   const turnHandle = () => {
     if (state !== "idle") return;
+    sfx.softClick();
     setState("turning");
     const chosenColor = colors[Math.floor(Math.random() * colors.length)];
     setCapsuleColor(chosenColor);
@@ -1878,6 +1883,7 @@ function Ch6({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
     setTimeout(() => {
       setState("dropping");
       setTimeout(() => {
+        sfx.sparkle();
         setState("open");
         const chocolate = GACHA_PRIZES[Math.floor(Math.random() * GACHA_PRIZES.length)];
         setPrize(chocolate);
@@ -2333,6 +2339,7 @@ function Ch7({ onNext }: { onNext: () => void }) {
 
   const handleStarClick = () => {
     if (clicked) return;
+    sfx.chime();
     setClicked(true);
     // Sequence text fade-in then proceed button
     setTimeout(() => setShowText(true), 600);
@@ -2559,11 +2566,13 @@ function Ch9({ memory }: { memory: Memory }) {
 
   const clickCamera = () => {
     if (step !== "camera") return;
+    sfx.softClick();
     setStep("countdown"); 
     setCount(3);
     const tick = (n: number) => {
       setCount(n);
       if (n <= 0) { 
+        sfx.cameraShutter();
         // Capture frame from video stream
         if (videoRef.current && canvasRef.current) {
           const video = videoRef.current;
@@ -2594,6 +2603,7 @@ function Ch9({ memory }: { memory: Memory }) {
         setTimeout(() => setStep("final"), 2500); 
         return;
       }
+      sfx.countdownBeep();
       setTimeout(() => tick(n - 1), 950);
     };
     setTimeout(() => tick(2), 950);
@@ -2987,7 +2997,7 @@ export default function App() {
     selectedChocolate: "",
   });
 
-  const next = () => setChapter(c => Math.min(c + 1, 6));
+  const next = () => { sfx.pageWhoosh(); setChapter(c => Math.min(c + 1, 6)); };
 
   const chapters = [
     <Ch1 key={0} onNext={next} />,
