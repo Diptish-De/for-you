@@ -1595,27 +1595,49 @@ function Ch4({ onNext, memory, setMemory }: { onNext: () => void; memory: Memory
 // ═════════════════════════════════════════════════════════════════════════════
 //  CHAPTER 5 · The Keepsake Box
 // ═════════════════════════════════════════════════════════════════════════════
+const TRUTHS = [
+  {
+    id: 0,
+    title: "You always notice when someone feels left out.",
+    content: "I don't know if you even realize you do it. But you somehow make people feel included without making it obvious. That's rare."
+  },
+  {
+    id: 1,
+    title: "You're much kinder than you give yourself credit for.",
+    content: "Even on days when you're exhausted... you still choose kindness first."
+  },
+  {
+    id: 2,
+    title: "You care deeply.",
+    content: "Sometimes so deeply that people mistake it for weakness. It isn't. It's one of the bravest ways to exist."
+  },
+  {
+    id: 3,
+    title: "The opinions of loud people are never louder than the truth about you.",
+    content: "Someone else's anger doesn't get to rewrite who you are."
+  },
+  {
+    id: 4,
+    title: "You survived days you once believed would break you.",
+    content: "That's easy to forget. But it says a lot about who you are."
+  },
+  {
+    id: 5,
+    title: "There was never anything wrong with you.",
+    content: "Today was simply a day where someone else forgot how to be kind. Don't carry their mistake as if it were your identity."
+  }
+];
+
 function Ch5({ onNext }: { onNext: () => void }) {
-  const [boxOpen, setBoxOpen] = useState(false);
-  const [selected, setSelected] = useState<number | null>(null);
   const [opened, setOpened] = useState<Set<number>>(new Set());
+  const [selected, setSelected] = useState<number | null>(null);
   const [showNext, setShowNext] = useState(false);
 
-  // Position coordinates for items scattered on the desk (outside the box)
-  const [itemPositions, setItemPositions] = useState([
-    { id: 0, left: "15%", bottom: "14%", rot: -10 },
-    { id: 1, left: "28%", bottom: "8%", rot: 15 },
-    { id: 2, left: "38%", bottom: "16%", rot: -5 },
-    { id: 3, left: "58%", bottom: "12%", rot: 8 },
-    { id: 4, left: "68%", bottom: "6%", rot: -12 },
-    { id: 5, left: "80%", bottom: "18%", rot: 20 },
-  ]);
-
-  const dropItem = (id: number) => {
+  const openCard = (id: number) => {
     setSelected(id);
     const nextOpened = new Set(opened).add(id);
     setOpened(nextOpened);
-    if (nextOpened.size >= 4) {
+    if (nextOpened.size >= 6) {
       setShowNext(true);
     }
   };
@@ -1623,260 +1645,210 @@ function Ch5({ onNext }: { onNext: () => void }) {
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #1f140e 0%, #120a07 100%)",
+      background: "linear-gradient(180deg, #090910 0%, #151020 60%, #25122b 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
     }}>
-      {/* Subtle Wallpaper Stripe Pattern */}
+      {/* Floating particles background */}
       <div style={{
         position: "absolute",
         inset: 0,
-        backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.01) 50%, transparent 50%)",
-        backgroundSize: "24px 100%",
+        background: "radial-gradient(circle at center, rgba(253, 224, 71, 0.05) 0%, transparent 80%)",
         pointerEvents: "none",
         zIndex: 1,
       }} />
 
-      {/* Cozy Warm Lamp Glow Projection */}
+      {/* Chapter Title */}
       <div style={{
         position: "absolute",
-        left: "10%",
-        top: "40%",
-        width: 320,
-        height: 320,
-        borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(253, 224, 71, 0.16) 0%, rgba(253, 224, 71, 0.04) 50%, transparent 70%)",
-        pointerEvents: "none",
-        zIndex: 2,
-        mixBlendMode: "screen",
-      }} />
-
-      {/* Detailed Parquet Table Top */}
-      <div style={{ 
-        position: "absolute", 
-        bottom: 0, 
-        left: 0, 
-        right: 0, 
-        height: "36%", 
-        background: "linear-gradient(180deg, #42281c 0%, #25130b 100%)", 
-        borderTop: "5px solid #5a3825",
-        boxShadow: "0 -8px 25px rgba(0,0,0,0.6)",
-        zIndex: 2,
+        top: "12%",
+        textAlign: "center",
+        zIndex: 3,
       }}>
-        {/* Soft shadow directly underneath the box */}
         <div style={{
-          position: "absolute",
-          top: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 350,
-          height: 30,
-          background: "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, transparent 80%)",
-        }} />
-      </div>
-
-      {/* Antique Table Props (Left: Brass Oil Lamp) */}
-      <div style={{ position: "absolute", left: "6%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))" }}>
-        <svg width="44" height="95" viewBox="0 0 44 95">
-          {/* Glass chimney */}
-          <path d="M16 10 C16 0, 28 0, 28 10 L24 45 L20 45 Z" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)" strokeWidth="0.8" />
-          <ellipse cx="22" cy="10" rx="6" ry="1.5" fill="rgba(255,255,255,0.3)" />
-          
-          {/* Flame */}
-          <ellipse cx="22" cy="38" rx="3.5" ry="7" fill="#f59e0b" style={{ filter: "drop-shadow(0 0 8px #f59e0b)" }} />
-
-          {/* Brass Burner & base */}
-          <rect x="17" y="45" width="10" height="8" fill="#ca8a04" />
-          <path d="M12 53 L32 53 L36 78 L8 78 Z" fill="#b45309" stroke="#78350f" strokeWidth="1" />
-          <rect x="6" y="78" width="32" height="6" rx="1.5" fill="#ca8a04" />
-        </svg>
-      </div>
-
-      {/* Antique Table Props (Right: Feather Quill & Stamp) */}
-      <div style={{ position: "absolute", right: "6%", bottom: "31%", zIndex: 3, filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.35))" }}>
-        <svg width="60" height="75" viewBox="0 0 60 75">
-          {/* Ink pot */}
-          <rect x="36" y="44" width="16" height="18" rx="2" fill="#1e293b" />
-          <rect x="39" y="38" width="10" height="6" fill="#ca8a04" />
-          
-          {/* Feather Quill */}
-          <path d="M18 10 C22 25, 34 38, 41 42" stroke="#e2e8f0" strokeWidth="1.2" fill="none" />
-          <path d="M18 10 C26 15, 32 30, 42 41 C40 38, 32 25, 18 10 Z" fill="#f8fafc" opacity="0.85" />
-        </svg>
-      </div>
-
-      {/* Interactive Helper Text */}
-      {!boxOpen && (
-        <motion.div 
-          animate={{ opacity: [0.6, 1, 0.6] }} 
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", fontFamily: "'Caveat', cursive", fontSize: 24, color: "#fde68a", textShadow: "0 2px 6px rgba(0,0,0,0.7)", zIndex: 4 }}
-        >
-          🎁 click to open the keepsake box
-        </motion.div>
-      )}
-
-      {boxOpen && !showNext && (
-        <motion.div 
-          animate={{ opacity: [0.6, 1, 0.6] }} 
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", fontFamily: "'Caveat', cursive", fontSize: 22, color: "#fde68a", textShadow: "0 2px 6px rgba(0,0,0,0.7)", zIndex: 4, textAlign: "center" }}
-        >
-          🔍 drag the memories on the table into the box ({opened.size}/4)
-        </motion.div>
-      )}
-
-      {/* Ornate Keepsake Wooden Box Chest */}
-      <motion.div 
-        animate={!boxOpen ? { y: [0, -4, 0] } : {}} 
-        transition={{ duration: 3, repeat: boxOpen ? 0 : Infinity, ease: "easeInOut" }}
-        style={{ zIndex: 3, marginTop: -60 }}
-      >
-        {/* Lid (rotates open) */}
-        <motion.div animate={boxOpen ? { rotateX: -130, y: -24 } : { rotateX: 0 }} transition={{ duration: .75, ease: "easeOut" }}
-          onClick={() => setBoxOpen(true)}
-          style={{
-            width: 320, height: 42,
-            background: "linear-gradient(135deg, #7c2d12 0%, #451a03 100%)",
-            borderRadius: "6px 6px 0 0", 
-            boxShadow: "0 -4px 15px rgba(0,0,0,0.35)",
-            transformOrigin: "top center", cursor: boxOpen ? "default" : "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            position: "relative", zIndex: 5,
-            border: "1px solid #7c2d12",
-          }}>
-          <div style={{ position: "absolute", top: 4, left: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderLeft: "2px solid #fbbf24" }} />
-          <div style={{ position: "absolute", top: 4, right: 4, width: 10, height: 10, borderTop: "2px solid #fbbf24", borderRight: "2px solid #fbbf24" }} />
-          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 13, color: "#fcd34d", letterSpacing: 2, textTransform: "uppercase" }}>
-            {boxOpen ? "" : "click to open ✦"}
-          </span>
-          <div style={{ position: "absolute", bottom: -6, left: "50%", transform: "translateX(-50%)", width: 22, height: 12, background: "#d97706", border: "1px solid #b45309", borderRadius: "0 0 4px 4px" }} />
-        </motion.div>
-
-        {/* Chest Box Body - Droppable zone */}
-        <div style={{
-          width: 320, height: 180,
-          background: boxOpen 
-            ? "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)" // Crimson velvet interior
-            : "linear-gradient(180deg, #451a03 0%, #301202 100%)",
-          borderRadius: "0 0 8px 8px", 
-          boxShadow: "0 12px 36px rgba(0,0,0,0.55), inset 0 4px 12px rgba(0,0,0,0.3)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          border: "1.5px solid #451a03",
-          position: "relative",
-          zIndex: 4,
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 32,
+          color: "#fde68a",
+          fontWeight: "bold",
+          letterSpacing: 2,
+          textShadow: "0 0 12px rgba(253, 224, 71, 0.4)",
         }}>
-          {boxOpen && (
-            <div style={{ position: "absolute", inset: 0, boxShadow: "inset 0 6px 15px rgba(0,0,0,0.8)", pointerEvents: "none" }} />
-          )}
-
-          {boxOpen ? (
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center", padding: 12, zIndex: 5 }}>
-              {KEEPSAKES.map(k => {
-                const inside = opened.has(k.id);
-                return (
-                  <motion.div
-                    key={k.id}
-                    animate={inside ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0.2 }}
-                    style={{
-                      width: 58, height: 58,
-                      background: "rgba(255, 255, 255, 0.12)",
-                      borderRadius: 8,
-                      border: "1px dashed rgba(255,255,255,0.3)",
-                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                      cursor: inside ? "pointer" : "default"
-                    }}
-                    onClick={() => inside && setSelected(k.id)}
-                  >
-                    <span style={{ fontSize: 22 }}>{inside ? k.icon : "?"}</span>
-                  </motion.div>
-                );
-              })}
-            </div>
-          ) : (
-            <div style={{ color: "rgba(249,232,200,.32)", fontSize: 22, zIndex: 5 }}>✦ ✦ ✦</div>
-          )}
+          Things That Are Still True
         </div>
-      </motion.div>
+        <div style={{
+          fontFamily: "'Caveat', cursive",
+          fontSize: 18,
+          color: "#c084fc",
+          marginTop: 6,
+          opacity: 0.8,
+        }}>
+          open each envelope when you are ready ✦
+        </div>
+      </div>
 
-      {/* Scattered Draggable Items on the Desk */}
-      {boxOpen && itemPositions.map(pos => {
-        const isOpened = opened.has(pos.id);
-        const item = KEEPSAKES[pos.id];
-        if (isOpened) return null; // hide from table once dropped
+      {/* Grid of Envelopes */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: 28,
+        maxWidth: 720,
+        width: "90%",
+        zIndex: 3,
+        marginTop: 40,
+      }}>
+        {TRUTHS.map(t => {
+          const isOpened = opened.has(t.id);
+          return (
+            <motion.div
+              key={t.id}
+              onClick={() => openCard(t.id)}
+              whileHover={{ scale: 1.06, y: -4 }}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                background: isOpened ? "rgba(255, 255, 255, 0.03)" : "rgba(255, 253, 244, 0.95)",
+                border: isOpened ? "1.5px dashed rgba(253, 224, 71, 0.25)" : "1.5px solid #d4af37",
+                borderRadius: 12,
+                height: 110,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                position: "relative",
+                boxShadow: isOpened ? "none" : "0 8px 24px rgba(0,0,0,0.3)",
+                transition: "background 0.5s ease, border 0.5s ease, boxShadow 0.5s ease",
+              }}
+            >
+              {!isOpened ? (
+                <>
+                  {/* Wax Seal */}
+                  <div style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: "#7c2d12",
+                    border: "1.5px solid #ca8a04",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    color: "#fcd34d",
+                    marginBottom: 6,
+                  }}>
+                    💛
+                  </div>
+                  <span style={{ fontSize: 16, color: "#78350f", fontWeight: "bold", textTransform: "uppercase", letterSpacing: 1.5 }}>
+                    Truth {t.id + 1}
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontSize: 16, color: "rgba(253, 224, 71, 0.55)" }}>
+                  Opened ✦
+                </span>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
 
-        return (
-          <motion.div
-            key={pos.id}
-            drag
-            dragConstraints={{ left: -300, right: 300, top: -400, bottom: 100 }}
-            dragElastic={0.1}
-            dragTransition={{ power: 0.2, timeConstant: 200 }}
-            onDragEnd={(e, info) => {
-              // Simple check if dropped near the box (middle center)
-              const screenWidth = window.innerWidth;
-              const screenHeight = window.innerHeight;
-              const dropX = info.point.x;
-              const dropY = info.point.y;
-              
-              // Box is in middle horizontally, and slightly above center vertically
-              const boxMinX = screenWidth / 2 - 180;
-              const boxMaxX = screenWidth / 2 + 180;
-              const boxMinY = screenHeight / 2 - 160;
-              const boxMaxY = screenHeight / 2 + 120;
-
-              if (dropX > boxMinX && dropX < boxMaxX && dropY > boxMinY && dropY < boxMaxY) {
-                dropItem(pos.id);
-              }
-            }}
-            whileHover={{ scale: 1.15, cursor: "grab" }}
-            whileDrag={{ scale: 1.2, cursor: "grabbing", zIndex: 100 }}
-            style={{
-              position: "absolute",
-              left: pos.left,
-              bottom: pos.bottom,
-              width: 80,
-              height: 80,
-              background: "rgba(255, 253, 246, 0.95)",
-              border: "1.5px solid #d4af37",
-              borderRadius: "12px",
-              boxShadow: "0 6px 14px rgba(0,0,0,0.3)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              transform: `rotate(${pos.rot}deg)`,
-              zIndex: 10,
-              userSelect: "none",
-            }}
-          >
-            <span style={{ fontSize: 32 }}>{item.icon}</span>
-            <span style={{ fontSize: 11, color: "#665", fontWeight: "bold", marginTop: 4 }}>{item.label}</span>
-          </motion.div>
-        );
-      })}
-
-      {/* Story popup */}
+      {/* Envelope Zoom Overlay */}
       <AnimatePresence>
-        {selected !== null && (
-          <motion.div key={selected}
-            initial={{ opacity: 0, y: 20, scale: .9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, scale: .92 }}
-            className="paper"
-            onClick={() => setSelected(null)}
-            style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", padding: "22px 30px", borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,.18)", maxWidth: 360, textAlign: "center", fontFamily: "'Caveat', cursive", fontSize: 21, color: "#3d2b1f", lineHeight: 1.65, cursor: "pointer", zIndex: 100 }}>
-            <div style={{ fontSize: 34, marginBottom: 10 }}>{KEEPSAKES[selected].icon}</div>
-            {KEEPSAKES[selected].story}
-            <div style={{ marginTop: 12, fontSize: 13, color: "#9a7060" }}>tap anywhere to close</div>
-          </motion.div>
-        )}
+        {selected !== null && (() => {
+          const t = TRUTHS.find(x => x.id === selected);
+          if (!t) return null;
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelected(null)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(10, 5, 20, 0.85)",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+                cursor: "pointer",
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.85, y: 30 }}
+                animate={{ scale: 1.0, y: 0 }}
+                exit={{ scale: 0.85, y: 30 }}
+                transition={{ type: "spring", damping: 25, stiffness: 220 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  width: 380,
+                  maxWidth: "90%",
+                  background: "#fffdf7",
+                  borderRadius: 16,
+                  padding: "35px 30px",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.55)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  border: "1.5px solid #e2e8f0",
+                  position: "relative",
+                }}
+              >
+                {/* Gold foiled border lines */}
+                <div style={{ position: "absolute", inset: 12, border: "1px dashed #ca8a04", borderRadius: 10, pointerEvents: "none" }} />
+                
+                {/* Title */}
+                <div style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 24,
+                  fontStyle: "italic",
+                  fontWeight: "bold",
+                  color: "#7c2d12",
+                  marginBottom: 16,
+                  textAlign: "center",
+                  lineHeight: 1.3,
+                }}>
+                  “{t.title}”
+                </div>
+
+                {/* Content */}
+                <div style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: 21,
+                  color: "#451a03",
+                  textAlign: "center",
+                  lineHeight: 1.6,
+                }}>
+                  {t.content}
+                </div>
+
+                {/* Close instruction */}
+                <div style={{
+                  fontFamily: "'Caveat', cursive",
+                  fontSize: 14,
+                  color: "#9a7060",
+                  marginTop: 24,
+                }}>
+                  tap anywhere to close ✦
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
 
       {showNext && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%", zIndex: 10 }}>
-          <PageTab onClick={onNext} label="To the gacha machine →" />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{ position: "absolute", bottom: "8%", zIndex: 10 }}
+        >
+          <PageTab onClick={onNext} label="To the gacha machine →" pos="center" />
         </motion.div>
       )}
-      <ChLabel text="Chapter IV · The Keepsake Box" />
+
+      <ChLabel text="Chapter IV · Things That Are Still True" />
     </div>
   );
 }
