@@ -1594,7 +1594,7 @@ const LEO_LINES: [number, number][] = [
   [3, 4], // Adhafera → μ Leo  (sickle arcs right — the curve)
   [4, 5], // μ Leo → ε Leo     (sickle hook tip)
   [0, 7], // Regulus → Chertan (body goes left)
-  [7, 6], // Chertan → Zosma   (body rises)
+  [6, 8], // Zosma → Denebola  (connected!)
   [6, 2], // Zosma → Algieba   (body meets mane)
   [7, 8], // Chertan → Denebola (tail sweeps out)
 ];
