@@ -1773,7 +1773,7 @@ function Ch5({ onNext }: { onNext: () => void }) {
       </AnimatePresence>
 
       {showNext && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%" }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: "absolute", bottom: "5%", right: "6%", zIndex: 10 }}>
           <PageTab onClick={onNext} label="To the gacha machine →" />
         </motion.div>
       )}
