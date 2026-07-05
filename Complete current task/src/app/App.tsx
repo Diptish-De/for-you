@@ -622,87 +622,264 @@ function Ch1({ onNext }: { onNext: () => void }) {
 //  CHAPTER 2 · The Letter
 // ═════════════════════════════════════════════════════════════════════════════
 function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispatch<React.SetStateAction<Memory>> }) {
-  const [step, setStep] = useState<"sealed" | "cracking" | "open" | "bird" | "feather">("sealed");
-  const [showNext, setShowNext] = useState(false);
+  const [caughtCount, setCaughtCount] = useState(0);
+  const [fireflies, setFireflies] = useState(() =>
+    Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      x: 10 + Math.random() * 80,
+      y: 15 + Math.random() * 60,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      scale: 0.6 + Math.random() * 0.8,
+      speed: 0.25 + Math.random() * 0.25,
+      caught: false,
+    }))
+  );
+  const [completed, setCompleted] = useState(false);
 
-  const l1 = useTW("Sayani,", 80, 0, step === "open");
-  const l2 = useTW("There are people who make rooms feel warmer just by walking into them.", 50, 0, step === "open" && l1.done);
-  const l3 = useTW("You are one of those people.", 55, 0, step === "open" && l2.done);
-  const l4 = useTW("Don't let today tell you otherwise.", 55, 0, step === "open" && l3.done);
-
+  // Animate fireflies floating around
   useEffect(() => {
-    if (step === "open" && l4.done) { const t = setTimeout(() => setStep("bird"), 1200); return () => clearTimeout(t); }
-  }, [step, l4.done]);
-  useEffect(() => {
-    if (step === "bird") {
-      const t = setTimeout(() => { setStep("feather"); setMemory(m => ({ ...m, foundFeather: true })); setTimeout(() => setShowNext(true), 1000); }, 2600);
-      return () => clearTimeout(t);
-    }
-  }, [step, setMemory]);
+    if (completed) return;
+    let animId: number;
+    const update = () => {
+      setFireflies(prev =>
+        prev.map(f => {
+          if (f.caught) return f;
+          let nx = f.x + f.vx * f.speed;
+          let ny = f.y + f.vy * f.speed;
+          let nvx = f.vx;
+          let nvy = f.vy;
 
-  const crack = () => { if (step !== "sealed") return; setStep("cracking"); setTimeout(() => setStep("open"), 650); };
+          // Bounce off invisible boundary walls
+          if (nx < 5 || nx > 95) nvx = -nvx;
+          if (ny < 10 || ny > 75) nvy = -nvy;
+
+          // Random slight drift changes
+          if (Math.random() < 0.02) nvx += (Math.random() - 0.5) * 0.1;
+          if (Math.random() < 0.02) nvy += (Math.random() - 0.5) * 0.1;
+
+          // Cap speed
+          const mag = Math.sqrt(nvx * nvx + nvy * nvy);
+          if (mag > 0.4) {
+            nvx = (nvx / mag) * 0.4;
+            nvy = (nvy / mag) * 0.4;
+          }
+
+          return { ...f, x: nx, y: ny, vx: nvx, vy: nvy };
+        })
+      );
+      animId = requestAnimationFrame(update);
+    };
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, [completed]);
+
+  const handleCatch = (id: number) => {
+    playSound("chime");
+    setFireflies(prev =>
+      prev.map(f => {
+        if (f.id === id && !f.caught) {
+          setCaughtCount(c => {
+            const nextCount = c + 1;
+            if (nextCount >= 5) {
+              setCompleted(true);
+              setMemory(m => ({ ...m, foundFeather: true }));
+            }
+            return nextCount;
+          });
+          return { ...f, caught: true };
+        }
+        return f;
+      })
+    );
+  };
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #0f1540 0%, #1a205a 50%, #1e2868 100%)",
+      background: "linear-gradient(180deg, #070d1e 0%, #0d162a 60%, #15203b 100%)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
+      position: "relative", overflow: "hidden",
     }}>
-      {STARS_BG.slice(0, 32).map(s => (
-        <div key={s.id} style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, width: s.size * .8, height: s.size * .8, borderRadius: "50%", background: "white", opacity: .12 + .2 * Math.random(), animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s` }} />
+      {/* Background Star twinkle */}
+      {STARS_BG.slice(0, 25).map(s => (
+        <div key={s.id} style={{
+          position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
+          width: s.size * .8, height: s.size * .8, borderRadius: "50%", background: "white",
+          opacity: .1 + .18 * Math.random(),
+          animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s`
+        }} />
       ))}
 
-      {step === "sealed" || step === "cracking" ? (
-        <motion.div initial={{ scale: .9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: .6 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 28 }}>
-          {/* Envelope */}
-          <div className="paper" style={{ width: 268, height: 200, borderRadius: 4, boxShadow: "0 8px 40px rgba(0,0,0,.5)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-            <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 1, background: "rgba(61,43,31,.14)" }} />
-            <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 20, color: "rgba(61,43,31,.38)", letterSpacing: 3, fontStyle: "italic" }}>for Sayani</div>
-          </div>
-          {/* Wax seal */}
-          <div onClick={crack} style={{
-            width: 72, height: 72, borderRadius: "50%",
-            background: "radial-gradient(circle at 35% 35%, #d44040, #8b2020)",
-            boxShadow: "0 4px 16px rgba(180,30,30,.5)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", fontSize: 24,
-            animation: step === "cracking" ? "waxCrack .6s ease-out forwards" : undefined,
-          }}>✦</div>
-          <div style={{ color: "rgba(200,180,240,.55)", fontSize: 14 }}>click the seal to open</div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ clipPath: "inset(50% 0 50% 0)", opacity: 0 }}
-          animate={{ clipPath: "inset(0% 0 0% 0)", opacity: 1 }}
-          transition={{ duration: .7, ease: "easeOut" }}
-          className="paper"
-          style={{ width: 420, maxWidth: "90vw", borderRadius: 6, boxShadow: "0 12px 55px rgba(0,0,0,.55)", padding: "48px 44px 40px", display: "flex", flexDirection: "column", gap: 18, position: "relative" }}>
-          <div className="washi" style={{ position: "absolute", top: -11, left: "30%", width: 82, height: 22, transform: "rotate(-2deg)", borderRadius: 2 }} />
-          <div style={{ fontFamily: "'Caveat', cursive", fontSize: 22, color: "#2c1810" }}>
-            {l1.shown}{step === "open" && !l1.done && <span style={{ borderRight: "2px solid #2c1810", animation: "blink .7s step-end infinite" }} />}
-          </div>
-          {l1.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#3d2010", lineHeight: 1.75 }}>
-            {l2.shown}{step === "open" && !l2.done && <span style={{ borderRight: "2px solid #3d2010", animation: "blink .7s step-end infinite" }} />}
-          </div>}
-          {l2.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#3d2010", lineHeight: 1.75 }}>
-            {l3.shown}{step === "open" && !l3.done && <span style={{ borderRight: "2px solid #3d2010", animation: "blink .7s step-end infinite" }} />}
-          </div>}
-          {l3.done && <div style={{ fontFamily: "'Caveat', cursive", fontSize: 17, color: "#3d2010", lineHeight: 1.75 }}>
-            {l4.shown}{step === "open" && !l4.done && <span style={{ borderRight: "2px solid #3d2010", animation: "blink .7s step-end infinite" }} />}
-          </div>}
-          {(step === "bird" || step === "feather") && (
-            <div style={{ position: "absolute", bottom: 70, right: 30, fontSize: 26, animation: step === "bird" ? "birdHop 2.4s ease-in-out forwards" : undefined }}>🐦</div>
+      {/* Floating Fireflies (not caught yet) */}
+      {fireflies.map(f => {
+        if (f.caught) return null;
+        return (
+          <motion.div
+            key={f.id}
+            onClick={() => handleCatch(f.id)}
+            onMouseEnter={() => handleCatch(f.id)}
+            style={{
+              position: "absolute",
+              left: `${f.x}%`,
+              top: `${f.y}%`,
+              width: 14 * f.scale,
+              height: 14 * f.scale,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(253,224,71,1) 0%, rgba(234,179,8,0.5) 40%, transparent 70%)",
+              boxShadow: "0 0 16px rgba(253, 224, 71, 0.9)",
+              cursor: "pointer",
+              transform: "translate(-50%, -50%)",
+              willChange: "left, top",
+            }}
+            animate={{ scale: [1, 1.25, 1] }}
+            transition={{ duration: 1 + Math.random(), repeat: Infinity, ease: "easeInOut" }}
+          />
+        );
+      })}
+
+      {/* Centerpiece: The Glass Jar on a wooden stool */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", top: 40 }}>
+        {/* The glass jar */}
+        <div style={{
+          position: "relative",
+          width: 150,
+          height: 200,
+          background: "rgba(220, 240, 255, 0.12)",
+          border: "4px solid rgba(255, 255, 255, 0.35)",
+          borderTop: "6px solid rgba(255, 255, 255, 0.45)",
+          borderRadius: "24px 24px 18px 18px",
+          boxShadow: "inset 0 10px 30px rgba(255,255,255,0.15), 0 12px 36px rgba(0,0,0,0.3)",
+          overflow: "hidden",
+        }}>
+          {/* Metal Lid */}
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 80,
+            height: 12,
+            background: "linear-gradient(90deg, #c0c0c0, #e8e8e8, #a8a8a8)",
+            borderBottom: "1px solid #777",
+            borderRadius: "4px 4px 0 0",
+          }} />
+
+          {/* Golden glow inside jar */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "radial-gradient(circle at center, rgba(253,224,71,0.6) 0%, rgba(234,179,8,0.2) 50%, transparent 90%)",
+            opacity: Math.min(1, (caughtCount / 5)),
+            transition: "opacity 0.8s ease-out",
+          }} />
+
+          {/* Caught Fireflies inside the jar */}
+          {Array.from({ length: caughtCount }).map((_, idx) => (
+            <motion.div
+              key={idx}
+              style={{
+                position: "absolute",
+                left: `${25 + (idx * 13) + Math.random() * 8}%`,
+                top: `${40 + (idx * 22) + Math.random() * 12}%`,
+                width: 9,
+                height: 9,
+                borderRadius: "50%",
+                background: "#fde047",
+                boxShadow: "0 0 12px #fde047, 0 0 20px #eab308",
+              }}
+              animate={{
+                y: [0, -6, 0],
+                x: [0, Math.sin(idx) * 4, 0]
+              }}
+              transition={{
+                duration: 1.5 + idx * 0.3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+
+          {/* Pencil doodle (Revealed when 5 caught) */}
+          {completed && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "20px 10px",
+                pointerEvents: "none",
+              }}
+            >
+              {/* Cute doodle bunny drawing */}
+              <svg width="60" height="60" viewBox="0 0 60 60" style={{ opacity: 0.8, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}>
+                {/* Ears */}
+                <ellipse cx="22" cy="18" rx="5" ry="12" fill="#fff" stroke="#4a3028" strokeWidth="2" />
+                <ellipse cx="22" cy="18" rx="2" ry="8" fill="#ffd0e0" />
+                <ellipse cx="38" cy="18" rx="5" ry="12" fill="#fff" stroke="#4a3028" strokeWidth="2" />
+                <ellipse cx="38" cy="18" rx="2" ry="8" fill="#ffd0e0" />
+                {/* Head */}
+                <circle cx="30" cy="35" r="16" fill="#fff" stroke="#4a3028" strokeWidth="2" />
+                {/* Face details */}
+                <circle cx="24" cy="33" r="1.5" fill="#4a3028" />
+                <circle cx="36" cy="33" r="1.5" fill="#4a3028" />
+                <path d="M28 37Q30 39 32 37" stroke="#4a3028" strokeWidth="1.5" fill="none" />
+                {/* Blush */}
+                <circle cx="21" cy="36" r="2" fill="#ffb0c0" opacity="0.6" />
+                <circle cx="39" cy="36" r="2" fill="#ffb0c0" opacity="0.6" />
+              </svg>
+              <div style={{
+                fontFamily: "'Caveat', cursive",
+                fontSize: 15,
+                color: "#4a3028",
+                fontWeight: "bold",
+                textAlign: "center",
+                marginTop: 2,
+                background: "rgba(255, 255, 255, 0.72)",
+                padding: "1px 6px",
+                borderRadius: 8,
+              }}>
+                hello sayani ✦
+              </div>
+            </motion.div>
           )}
-          {step === "feather" && (
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-              style={{ position: "absolute", bottom: 22, right: 34, fontSize: 28, animation: "featherDrift 3s ease-in-out infinite" }}>🪶</motion.div>
-          )}
-          {showNext && <div style={{ position: "absolute", bottom: 18, right: -46 }}><PageTab onClick={onNext} /></div>}
-        </motion.div>
-      )}
-      <ChLabel text="Chapter II · The Letter" light />
+        </div>
+
+        {/* The stool it sits on */}
+        <svg width="180" height="40" viewBox="0 0 180 40" style={{ marginTop: -2 }}>
+          <rect x="25" y="0" width="130" height="8" rx="3" fill="#5c3c24" />
+          <line x1="45" y1="8" x2="35" y2="35" stroke="#462c16" strokeWidth="6" strokeLinecap="round" />
+          <line x1="135" y1="8" x2="145" y2="35" stroke="#462c16" strokeWidth="6" strokeLinecap="round" />
+        </svg>
+
+        {/* Instruction label */}
+        <div style={{
+          fontFamily: "'Caveat', cursive",
+          fontSize: 16,
+          color: "rgba(220,205,240,.65)",
+          textAlign: "center",
+          marginTop: 15,
+          letterSpacing: 0.5,
+          height: 24,
+        }}>
+          {completed ? "You gathered the stars ✦" : "Catch the dancing fireflies in the jar..."}
+        </div>
+
+        {/* Turn the page */}
+        {completed && (
+          <div style={{ marginTop: 12 }}>
+            <PageTab onClick={onNext} />
+          </div>
+        )}
+      </div>
+
+      <ChLabel text="Chapter II · The Light-Gatherer" light />
     </div>
   );
 }
