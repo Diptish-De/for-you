@@ -787,6 +787,7 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
 
   const burstCloud = (c: typeof CLOUDS_DATA[0]) => {
     if (burst.has(c.id)) return;
+    playSound("chime");
     const next = new Set(burst).add(c.id);
     setBurst(next);
     if (c.msg) setMsg(c.msg);
@@ -795,79 +796,175 @@ function Ch3({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
       id: bid.current++,
       x: c.x + Math.random() * 15,
       y: c.y + Math.random() * 8,
-      bx: (Math.random() - .5) * 220,
-      by: -(70 + Math.random() * 120),
+      bx: (Math.random() - .5) * 260,
+      by: -(100 + Math.random() * 150),
     }));
     setBts(bs => [...bs, ...newBts]);
-    setTimeout(() => setBts(bs => bs.filter(b => !newBts.some(n => n.id === b.id))), 1500);
-    if (next.size >= 3) setTimeout(() => setShowNext(true), 1000);
+    setTimeout(() => setBts(bs => bs.filter(b => !newBts.some(n => n.id === b.id))), 1800);
+    if (next.size >= 3) setTimeout(() => setShowNext(true), 1200);
   };
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #9b8fcc 0%, #b8a8e0 35%, #d0bce8 65%, #e8d5f5 100%)",
+      background: "linear-gradient(180deg, #4c3f68 0%, #685382 30%, #886a9a 65%, #c89ba3 100%)",
       position: "relative", overflow: "hidden", fontFamily: "'Caveat', cursive",
     }}>
-      {/* Meadow */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "30%", background: "linear-gradient(180deg, #5a8060 0%, #4a6a50 100%)", clipPath: "ellipse(60% 38% at 50% 100%)" }} />
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "22%", background: "#4a6a50" }} />
+      
+      {/* Ethereal Sky Nebula glow */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "radial-gradient(ellipse 60% 40% at 50% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 100%)",
+        pointerEvents: "none",
+      }} />
+
+      {/* Glowing Crescent Moon */}
+      <div style={{ position: "absolute", top: "10%", right: "12%", pointerEvents: "none", opacity: 0.75 }}>
+        <svg width="44" height="44" viewBox="0 0 44 44" style={{ filter: "drop-shadow(0 0 8px #fff6d0)" }}>
+          <circle cx="22" cy="22" r="16" fill="#fff6d0" />
+          <circle cx="28" cy="16" r="16" fill="#4c3f68" />
+        </svg>
+      </div>
+
+      {/* Star twinkling in dream garden */}
+      {STARS_BG.slice(0, 15).map(s => (
+        <div key={s.id} style={{
+          position: "absolute", left: `${s.x}%`, top: `${s.y * 0.8}%`,
+          width: s.size * 0.8, height: s.size * 0.8, borderRadius: "50%", background: "white",
+          opacity: .2 + Math.random() * .6,
+          animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s`,
+          pointerEvents: "none",
+        }} />
+      ))}
+
+      {/* Layered Ethereal Meadow Hills */}
+      <svg 
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "26%", pointerEvents: "none", zIndex: 1 }}
+        viewBox="0 0 1000 100" preserveAspectRatio="none"
+      >
+        <path d="M0 75 Q 250 35, 500 68 T 1000 60 L 1000 100 L 0 100 Z" fill="#203a27" opacity="0.6" />
+      </svg>
+      <svg 
+        style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "18%", pointerEvents: "none", zIndex: 2 }}
+        viewBox="0 0 1000 100" preserveAspectRatio="none"
+      >
+        <path d="M0 80 Q 300 50, 600 78 T 1000 70 L 1000 100 L 0 100 Z" fill="#15271a" />
+      </svg>
+
       {/* Meadow flowers */}
       {["🌸","🌼","🌺","🌻","🌸","🌼","🌺","🌻","🌸","🌼","🌺","🌻"].map((f, i) => (
-        <div key={i} style={{ position: "absolute", bottom: `${6 + Math.random() * 10}%`, left: `${4 + i * 8}%`, fontSize: "17px" }}>{f}</div>
+        <div key={i} style={{ 
+          position: "absolute", 
+          bottom: `${4 + Math.random() * 8}%`, 
+          left: `${4 + i * 8}%`, 
+          fontSize: "19px",
+          zIndex: 3,
+          filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+          animation: "floatUp 4s ease-in-out infinite",
+          animationDelay: `${i * 0.25}s`
+        }}>{f}</div>
       ))}
 
-      {/* Clouds */}
-      {CLOUDS_DATA.map(c => (
-        <motion.div key={c.id}
-          animate={burst.has(c.id) ? { scale: 0, opacity: 0 } : { y: [0, -7, 0] }}
-          transition={burst.has(c.id) ? { duration: .35 } : { duration: 3 + c.id * .5, repeat: Infinity, ease: "easeInOut", delay: c.id * .4 }}
+      {/* Clouds - Redesigned to be Fluffy Glassmorphic Elements */}
+      {CLOUDS_DATA.map(c => {
+        const isBurst = burst.has(c.id);
+        return (
+          <div key={c.id} style={{
+            position: "absolute", 
+            left: `${c.x}%`, 
+            top: `${c.y}%`,
+            width: c.w,
+            height: c.w * 0.6,
+            cursor: isBurst ? "default" : "pointer",
+            zIndex: 4,
+          }}
           onClick={() => burstCloud(c)}
-          style={{
-            position: "absolute", left: `${c.x}%`, top: `${c.y}%`,
-            width: c.w, height: c.w * .52,
-            background: c.col, borderRadius: 50,
-            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 4px 22px rgba(140,110,200,.22)",
-            userSelect: "none",
-          }}>
-          <span style={{ fontSize: 30 }}>{c.face}</span>
-        </motion.div>
-      ))}
+          >
+            <motion.div
+              animate={isBurst ? { scale: 0, opacity: 0 } : { y: [0, -6, 0] }}
+              transition={isBurst ? { duration: .35 } : { duration: 3.5 + c.id * 0.6, repeat: Infinity, ease: "easeInOut", delay: c.id * 0.3 }}
+              style={{
+                width: "100%",
+                height: "100%",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1.5px solid rgba(255, 255, 255, 0.35)",
+                backdropFilter: "blur(12px)",
+                borderRadius: 50,
+                boxShadow: "0 10px 32px rgba(90, 60, 140, 0.2), inset 0 4px 12px rgba(255, 255, 255, 0.4)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+              }}
+            >
+              {/* Cloud Fluff Overlaps */}
+              <div style={{ position: "absolute", top: "-28%", left: "15%", width: "42%", height: "65%", borderRadius: "50%", background: "inherit", borderTop: "1.5px solid rgba(255,255,255,0.35)", backdropFilter: "inherit" }} />
+              <div style={{ position: "absolute", top: "-40%", left: "44%", width: "38%", height: "58%", borderRadius: "50%", background: "inherit", borderTop: "1.5px solid rgba(255,255,255,0.35)", backdropFilter: "inherit" }} />
+              
+              <span style={{ fontSize: 32, zIndex: 5, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))" }}>{c.face}</span>
+            </motion.div>
+          </div>
+        );
+      })}
 
-      {/* Flying butterflies */}
+      {/* Swirling Butterfly swarm */}
       {bts.map(b => (
         <motion.div key={b.id}
-          initial={{ x: `${b.x}vw`, y: `${b.y}vh`, opacity: 1, rotate: 0 }}
-          animate={{ x: `calc(${b.x}vw + ${b.bx}px)`, y: `calc(${b.y}vh + ${b.by}px)`, opacity: 0, rotate: 540 }}
-          transition={{ duration: 1.4, ease: "easeOut" }}
-          style={{ position: "absolute", top: 0, left: 0, fontSize: 18, pointerEvents: "none" }}>
+          initial={{ x: `${b.x}vw`, y: `${b.y}vh`, opacity: 1, scale: 0.6, rotate: 0 }}
+          animate={{ 
+            x: `calc(${b.x}vw + ${b.bx}px)`, 
+            y: `calc(${b.y}vh + ${b.by}px)`, 
+            opacity: 0, 
+            rotate: [0, 15, -15, 360],
+            scale: [0.6, 1.2, 0.4]
+          }}
+          transition={{ duration: 1.8, ease: "easeOut" }}
+          style={{ position: "absolute", top: 0, left: 0, fontSize: 26, pointerEvents: "none", zIndex: 8 }}>
           🦋
         </motion.div>
       ))}
 
-      {/* Compliment */}
+      {/* Floating Compliment paper */}
       <AnimatePresence>
         {msg && (
           <motion.div key={msg}
-            initial={{ opacity: 0, y: 18, scale: .9 }}
+            initial={{ opacity: 0, y: 25, scale: .92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -25, scale: 0.92 }}
             className="paper"
-            style={{ position: "absolute", bottom: "30%", left: "50%", transform: "translateX(-50%)", padding: "16px 28px", borderRadius: 14, boxShadow: "0 4px 24px rgba(0,0,0,.14)", fontFamily: "'Caveat', cursive", fontSize: 20, color: "#4a2860", textAlign: "center", maxWidth: "78vw" }}>
+            style={{ 
+              position: "absolute", 
+              bottom: "28%", 
+              left: "50%", 
+              transform: "translateX(-50%)", 
+              padding: "18px 30px", 
+              borderRadius: 16, 
+              boxShadow: "0 10px 30px rgba(0,0,0,0.22)", 
+              fontFamily: "'Caveat', cursive", 
+              fontSize: 22, 
+              color: "#381a4b", 
+              textAlign: "center", 
+              maxWidth: "76vw",
+              background: "#fffdf9",
+              border: "1px dashed #d8b4fe",
+              zIndex: 5,
+            }}
+          >
             {msg}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Dot progress */}
-      <div style={{ position: "absolute", bottom: "17%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 10 }}>
+      {/* Dot progress indicator */}
+      <div style={{ position: "absolute", bottom: "17%", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 10, zIndex: 3 }}>
         {CLOUDS_DATA.map(c => (
-          <div key={c.id} style={{ width: 8, height: 8, borderRadius: "50%", background: burst.has(c.id) ? "#9b7fa6" : "rgba(90,60,130,.28)", transition: "background .4s" }} />
+          <div key={c.id} style={{ width: 8, height: 8, borderRadius: "50%", background: burst.has(c.id) ? "#d8b4fe" : "rgba(255,255,255,0.25)", transition: "background .4s" }} />
         ))}
       </div>
 
       {showNext && (
-        <div style={{ position: "absolute", bottom: "8%", left: "50%", transform: "translateX(-50%)" }}>
+        <div style={{ position: "absolute", bottom: "8%", left: "50%", transform: "translateX(-50%)", zIndex: 3 }}>
           <PageTab onClick={onNext} label="Step into the room →" pos="center" />
         </div>
       )}
