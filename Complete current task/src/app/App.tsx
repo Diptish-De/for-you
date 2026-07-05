@@ -636,33 +636,51 @@ function Ch1({ onNext }: { onNext: () => void }) {
               </div>
             </div>
 
-            {/* Back of cover (inside left notebook flap) */}
+            {/* Back of cover (inside left notebook page) */}
             <div style={{
               position: "absolute",
               inset: 0,
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
-              background: "#ebd2d8",
+              background: "#fdf8ef",
               borderRadius: "14px 0 0 14px",
               boxShadow: "inset -12px 0 24px rgba(0,0,0,0.15)",
+              padding: "60px 50px 50px 60px",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              flexDirection: "column",
+              gap: 15,
+              color: "#2c1810",
+              fontSize: 19,
+              lineHeight: 1.4,
+              fontFamily: "'Caveat', cursive",
             }}>
-              <div style={{ 
-                color: "#7a3a50", 
-                fontFamily: "'Caveat', cursive", 
-                fontSize: 36, 
-                transform: "rotate(-8deg)",
-                textShadow: "1px 1px 2px rgba(255,255,255,0.6)",
-              }}>
-                For Sayani 🌸
-              </div>
+              {/* Central Spine shadow crease (left edge) */}
+              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 26, background: "linear-gradient(270deg, rgba(0,0,0,0.14), transparent)", zIndex: 4 }} />
+
+              {/* Left page content */}
+              {phase >= 1 && (
+                <div style={{ fontSize: 27, fontWeight: "bold" }}>
+                  {l1.shown}
+                  {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                </div>
+              )}
               
+              {phase >= 2 && (
+                <div style={{ fontStyle: "italic", color: "#5c4d46" }}>
+                  {l2.shown}
+                  {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                </div>
+              )}
+
+              {phase >= 3 && (
+                <div style={{ whiteSpace: "pre-line", color: "#3d2010" }}>
+                  {l3.shown}
+                  {phase === 3 && !l3.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
+                </div>
+              )}
+
               {/* Left page botanical doodle sketch */}
-              <div style={{ position: "absolute", bottom: 20, left: 30, opacity: 0.15, fontSize: 80, transform: "rotate(-10deg)", userSelect: "none" }}>🌿</div>
-              
-              <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 3, background: "rgba(0,0,0,0.12)" }} />
+              <div style={{ position: "absolute", bottom: 20, left: 30, opacity: 0.08, fontSize: 80, transform: "rotate(-10deg)", userSelect: "none" }}>🌿</div>
             </div>
           </div>
 
@@ -714,39 +732,17 @@ function Ch1({ onNext }: { onNext: () => void }) {
                 transformOrigin: "top center",
               }} />
 
-              {/* Letter Content Container */}
+              {/* Letter Content Container (Second Half) */}
               <div style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 13,
-                fontSize: 18,
+                gap: 16,
+                fontSize: 19,
                 color: "#2c1810",
-                lineHeight: 1.35,
-                maxHeight: "82%",
-                overflowY: "auto",
+                lineHeight: 1.5,
+                maxHeight: "85%",
                 paddingRight: 10,
               }}>
-                {phase >= 1 && (
-                  <div style={{ fontSize: 26, fontWeight: "bold" }}>
-                    {l1.shown}
-                    {phase === 1 && !l1.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
-                  </div>
-                )}
-                
-                {phase >= 2 && (
-                  <div style={{ fontStyle: "italic", color: "#5c4d46" }}>
-                    {l2.shown}
-                    {phase === 2 && !l2.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
-                  </div>
-                )}
-
-                {phase >= 3 && (
-                  <div style={{ whiteSpace: "pre-line", color: "#3d2010" }}>
-                    {l3.shown}
-                    {phase === 3 && !l3.done && <span style={{ borderRight: "2px solid #2c1810", marginLeft: 1, animation: "blink .7s step-end infinite" }} />}
-                  </div>
-                )}
-
                 {phase >= 4 && (
                   <div style={{ whiteSpace: "pre-line", fontWeight: "bold", color: "#2c1810" }}>
                     {l4.shown}
