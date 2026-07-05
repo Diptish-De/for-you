@@ -252,7 +252,8 @@ function Cursor() {
           left: 0, 
           top: 0, 
           willChange: "transform",
-          transform: "translate3d(-200px, -200px, 0)" 
+          transform: "translate3d(-200px, -200px, 0)",
+          pointerEvents: "none"
         }}
       >
         <svg width="22" height="20" viewBox="0 0 22 20">
@@ -636,15 +637,41 @@ function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
     }))
   );
   const [completed, setCompleted] = useState(false);
+  const mousePos = useRef({ x: -1000, y: -1000 });
 
-  // Animate fireflies floating around
+  // Listen to mouse movement
+  useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      mousePos.current = { x: e.clientX, y: e.clientY };
+    };
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+
+  // Animate fireflies floating around and check mathematical hover distance
   useEffect(() => {
     if (completed) return;
     let animId: number;
     const update = () => {
-      setFireflies(prev =>
-        prev.map(f => {
+      const mx = mousePos.current.x;
+      const my = mousePos.current.y;
+
+      setFireflies(prev => {
+        const nextList = prev.map(f => {
           if (f.caught) return f;
+
+          // Convert firefly % position to screen pixels
+          const fxPx = (f.x / 100) * window.innerWidth;
+          const fyPx = (f.y / 100) * window.innerHeight;
+          const dx = mx - fxPx;
+          const dy = my - fyPx;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          // If cursor is within 70px of the firefly, scoop it up!
+          if (dist < 70) {
+            return { ...f, caught: true };
+          }
+
           let nx = f.x + f.vx * f.speed;
           let ny = f.y + f.vy * f.speed;
           let nvx = f.vx;
@@ -666,32 +693,46 @@ function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
           }
 
           return { ...f, x: nx, y: ny, vx: nvx, vy: nvy };
-        })
-      );
+        });
+
+        const newCaughtCount = nextList.filter(f => f.caught).length;
+        if (newCaughtCount > caughtCount) {
+          playSound("chime");
+          setCaughtCount(newCaughtCount);
+          if (newCaughtCount >= 5) {
+            setCompleted(true);
+            setMemory(m => ({ ...m, foundFeather: true }));
+          }
+        }
+
+        return nextList;
+      });
+
       animId = requestAnimationFrame(update);
     };
     animId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animId);
-  }, [completed]);
+  }, [completed, caughtCount, setMemory]);
 
   const handleCatch = (id: number) => {
-    playSound("chime");
-    setFireflies(prev =>
-      prev.map(f => {
+    setFireflies(prev => {
+      const nextList = prev.map(f => {
         if (f.id === id && !f.caught) {
-          setCaughtCount(c => {
-            const nextCount = c + 1;
-            if (nextCount >= 5) {
-              setCompleted(true);
-              setMemory(m => ({ ...m, foundFeather: true }));
-            }
-            return nextCount;
-          });
           return { ...f, caught: true };
         }
         return f;
-      })
-    );
+      });
+      const newCaughtCount = nextList.filter(f => f.caught).length;
+      if (newCaughtCount > caughtCount) {
+        playSound("chime");
+        setCaughtCount(newCaughtCount);
+        if (newCaughtCount >= 5) {
+          setCompleted(true);
+          setMemory(m => ({ ...m, foundFeather: true }));
+        }
+      }
+      return nextList;
+    });
   };
 
   return (
