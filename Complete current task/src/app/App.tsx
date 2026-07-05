@@ -993,103 +993,417 @@ function Ch6({ onNext }: { onNext: () => void }) {
   const [prize, setPrize] = useState<string | null>(null);
   const [conf, setConf] = useState<ConfEl[]>([]);
   const [plays, setPlays] = useState(0);
+  const [capsuleColor, setCapsuleColor] = useState("#ffd700");
   const cid = useRef(0);
+
+  const colors = ["#ffb3ba", "#baffc9", "#bae1ff", "#ffffba", "#ffdfba", "#e8c4ff"];
 
   const turnHandle = () => {
     if (state !== "idle") return;
     setState("turning");
+    const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+    setCapsuleColor(chosenColor);
+
     setTimeout(() => {
       setState("dropping");
       setTimeout(() => {
         setState("open");
         setPrize(GACHA_PRIZES[Math.floor(Math.random() * GACHA_PRIZES.length)]);
-        const newConf: ConfEl[] = Array.from({ length: 22 }, () => ({
-          id: cid.current++, x: 22 + Math.random() * 56,
-          col: SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)],
+        const newConf: ConfEl[] = Array.from({ length: 25 }, () => ({
+          id: cid.current++,
+          x: 40 + Math.random() * 20,
+          col: ["#ffd700", "#ffb3ba", "#bae1ff", "#ffffff", "#ffdfba"][Math.floor(Math.random() * 5)],
           rot: (Math.random() - .5) * 360,
         }));
         setConf(newConf);
-        setTimeout(() => setConf([]), 1300);
-      }, 950);
+        setTimeout(() => setConf([]), 1400);
+      }, 1100);
     }, 900);
   };
 
-  const reset = () => { setState("idle"); setPrize(null); setPlays(p => p + 1); };
+  const reset = () => {
+    setState("idle");
+    setPrize(null);
+    setPlays(p => p + 1);
+  };
 
   return (
     <div style={{
       width: "100vw", height: "100vh",
-      background: "linear-gradient(180deg, #f7dfa8 0%, #f5d590 50%, #f0c870 100%)",
+      background: "radial-gradient(circle at 50% 35%, #2a201c 0%, #150f0d 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       fontFamily: "'Caveat', cursive", position: "relative", overflow: "hidden",
-    }}>
-      {["✦","✦","✦","✦","✦","✦","✦","✦"].map((s, i) => (
-        <div key={i} style={{ position: "absolute", fontSize: 18, left: `${7 + i * 12}%`, top: `${12 + (i % 3) * 22}%`, opacity: .5, animation: `floatUp ${2 + i * .4}s ease-in-out infinite`, animationDelay: `${i * .3}s` }}>{s}</div>
+    }} className="gacha-chapter">
+      
+      {/* Warm Ambient Lamp Light */}
+      <div style={{
+        position: "absolute",
+        top: -100,
+        right: "-10%",
+        width: 500,
+        height: 500,
+        background: "radial-gradient(circle, rgba(253, 186, 116, 0.15) 0%, rgba(253, 186, 116, 0) 70%)",
+        pointerEvents: "none",
+        zIndex: 1,
+      }} />
+
+      {/* Floating Sparkles in air */}
+      {["✦","✦","✦","✦","✦"].map((s, i) => (
+        <div key={i} style={{
+          position: "absolute",
+          fontSize: 16,
+          color: "#fde047",
+          left: `${15 + i * 18}%`,
+          top: `${20 + (i % 2) * 30}%`,
+          opacity: 0.35,
+          animation: `twinkle ${2.5 + i * 0.5}s ease-in-out infinite`,
+        }}>{s}</div>
       ))}
 
-      {/* Machine */}
-      <div style={{ position: "relative" }}>
-        <div style={{ textAlign: "center", fontSize: 36, marginBottom: -6, animation: "floatUp 2.5s ease-in-out infinite" }}>🐰</div>
-        <svg width="220" height="285" viewBox="0 0 220 285">
-          {/* Globe */}
-          <ellipse cx="110" cy="100" rx="76" ry="82" fill="rgba(255,255,255,.65)" stroke="#c8a040" strokeWidth="4" />
-          {/* Body */}
-          <rect x="34" y="168" width="152" height="92" rx="10" fill="#d48030" />
-          <rect x="34" y="168" width="152" height="22" rx="5" fill="#c07020" />
-          {/* Capsule chute */}
-          <rect x="78" y="235" width="64" height="17" rx="7" fill="#8b5020" />
-          {/* Handle base */}
-          <rect x="170" y="192" width="30" height="12" rx="4" fill="#c87020" />
-          {/* Handle arm */}
-          <g transform="translate(185,198)" style={{ animation: state === "turning" ? "handleTurn .9s ease-in-out" : undefined, transformOrigin: "0 0" }}>
-            <rect x="-4" y="-32" width="8" height="32" rx="3" fill="#e89030" />
-            <circle cx="0" cy="-35" r="9" fill="#f0a040" />
-          </g>
-          {/* Capsules inside */}
-          {[[90,80,"#f9c8e8"],[122,65,"#c8d8f9"],[100,112,"#f9f0c8"],[75,96,"#d8c8f9"],[138,102,"#c8f9e8"]].map(([x,y,f],i) => (
-            <ellipse key={i} cx={x as number} cy={y as number} rx="14" ry="10" fill={f as string} opacity=".8" />
-          ))}
-          {/* Label */}
-          <rect x="54" y="180" width="112" height="30" rx="4" fill="#f0e8d0" />
-          <text x="110" y="200" textAnchor="middle" fontFamily="'Caveat',cursive" fontSize="14" fill="#8b5020">ガチャ ✦ Joy</text>
-          {/* Coin slot */}
-          <rect x="88" y="222" width="44" height="7" rx="3.5" fill="#8b5020" />
-        </svg>
-
-        {/* Falling capsule */}
-        {state === "dropping" && (
-          <div style={{ position: "absolute", left: "50%", top: "62%", transform: "translateX(-50%)", fontSize: 32, animation: "capFall .95s ease-out forwards" }}>💊</div>
-        )}
-
-        {/* Confetti */}
-        {conf.map(c => (
-          <motion.div key={c.id}
-            initial={{ y: 0, rotate: 0, opacity: 1 }}
-            animate={{ y: 170, rotate: c.rot, opacity: 0 }}
-            transition={{ duration: 1.1, ease: "easeOut" }}
-            style={{ position: "absolute", left: `${c.x}%`, top: "55%", width: 10, height: 10, background: c.col, borderRadius: 2 }} />
-        ))}
+      {/* Chapter Title */}
+      <div style={{
+        position: "absolute",
+        top: "6%",
+        fontFamily: "'Cormorant Garamond', serif",
+        fontSize: 22,
+        color: "#cbb39e",
+        letterSpacing: 2,
+        fontStyle: "italic",
+        opacity: 0.85,
+        zIndex: 5,
+      }}>
+        Chapter V · Gacha of Tiny Joy
       </div>
 
-      {/* Turn button */}
+      {/* Wooden Desk Surface */}
+      <div style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "28vh",
+        background: "linear-gradient(180deg, #442a1d 0%, #291810 100%)",
+        borderTop: "6px solid #583929",
+        boxShadow: "0 -8px 30px rgba(0,0,0,0.6)",
+        zIndex: 2,
+      }}>
+        {/* Soft shadow cast by the machine */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 280,
+          height: 35,
+          background: "radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, transparent 80%)",
+        }} />
+      </div>
+
+      {/* Cozy Desk Accessories (Plant, cup) */}
+      <div style={{ position: "absolute", bottom: "16vh", left: "10%", display: "flex", gap: 30, zIndex: 3, opacity: 0.85 }}>
+        {/* Mini Flower Pot */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ fontSize: 24, transform: "scaleX(-1)", marginBottom: -4 }}>🌱</div>
+          <div style={{ width: 22, height: 18, background: "#8c6239", borderRadius: "0 0 8px 8px", border: "2px solid #5c3f24" }} />
+        </div>
+      </div>
+      <div style={{ position: "absolute", bottom: "16vh", right: "12%", zIndex: 3, opacity: 0.85 }}>
+        {/* Ornate Brass Lamp silhouette */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ width: 40, height: 26, background: "#eab308", borderRadius: "30px 30px 0 0", boxShadow: "0 0 15px rgba(234,179,8,0.7)", border: "2px solid #ca8a04" }} />
+          <div style={{ width: 4, height: 35, background: "#ca8a04" }} />
+          <div style={{ width: 28, height: 6, background: "#ca8a04", borderRadius: 3 }} />
+        </div>
+      </div>
+
+      {/* Main Gacha Machine Container */}
+      <div style={{ position: "relative", zIndex: 4, top: "-3vh" }}>
+        
+        {/* Cute Bunny Sign on Top */}
+        <motion.div 
+          animate={{ y: [0, -4, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{ fontSize: 34, textAlign: "center", marginBottom: -10, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))" }}
+        >
+          🐰
+        </motion.div>
+
+        {/* Machine Body */}
+        <div style={{
+          width: 210,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}>
+          {/* Glass Globe */}
+          <div style={{
+            position: "relative",
+            width: 176,
+            height: 176,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.03) 60%, rgba(0,0,0,0.25) 100%)",
+            border: "5px solid rgba(245, 158, 11, 0.45)",
+            boxShadow: "inset 0 10px 30px rgba(255,255,255,0.15), 0 8px 24px rgba(0,0,0,0.5)",
+            overflow: "hidden",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}>
+            {/* Glossy Reflection Arc */}
+            <div style={{
+              position: "absolute",
+              top: 10,
+              left: 18,
+              width: 140,
+              height: 70,
+              borderRadius: "140px 140px 0 0",
+              background: "linear-gradient(180deg, rgba(255,255,255,0.28) 0%, transparent 100%)",
+              transform: "rotate(-15deg)",
+              pointerEvents: "none",
+            }} />
+
+            {/* Capsules inside globe */}
+            {[[34,44,"#ffb3ba",-10],[88,32,"#bae1ff",12],[126,52,"#baffc9",-18],[42,88,"#ffffba",22],[84,94,"#ffdfba",-5],[128,96,"#e8c4ff",15]].map(([cx, cy, col, rot], i) => (
+              <motion.div
+                key={i}
+                animate={state === "turning" ? {
+                  x: [0, (Math.random() - 0.5) * 16, 0],
+                  y: [0, (Math.random() - 0.5) * 16, 0],
+                  rotate: [rot, rot + 45, rot],
+                } : {
+                  y: [0, -3, 0],
+                }}
+                transition={state === "turning" ? { duration: 0.8, ease: "easeInOut" } : { duration: 2.5 + i * 0.4, repeat: Infinity, ease: "easeInOut" }}
+                style={{
+                  position: "absolute",
+                  left: cx,
+                  top: cy,
+                  width: 34,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: `linear-gradient(135deg, ${col} 40%, rgba(0,0,0,0.2) 100%)`,
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  boxShadow: "inset 0 4px 6px rgba(255,255,255,0.4), 0 3px 6px rgba(0,0,0,0.3)",
+                  transform: `rotate(${rot}deg)`,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Machine Metal Collar */}
+          <div style={{
+            width: 110,
+            height: 12,
+            background: "linear-gradient(90deg, #d97706, #f59e0b, #b45309)",
+            borderRadius: "4px 4px 0 0",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            marginTop: -6,
+            zIndex: 3,
+          }} />
+
+          {/* Terracotta/Brass Base Panel */}
+          <div style={{
+            width: 142,
+            height: 98,
+            background: "linear-gradient(135deg, #d97706 0%, #92400e 100%)",
+            borderRadius: "0 0 16px 16px",
+            boxShadow: "inset 0 4px 10px rgba(255,255,255,0.25), 0 8px 20px rgba(0,0,0,0.45)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            padding: "8px 10px",
+            border: "1px solid #78350f",
+            position: "relative",
+            zIndex: 2,
+          }}>
+            
+            {/* Ornate Gold Label Panel */}
+            <div style={{
+              width: 90,
+              height: 22,
+              background: "linear-gradient(180deg, #fef08a 0%, #ca8a04 100%)",
+              border: "1px solid #854d0e",
+              borderRadius: 4,
+              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 12,
+              fontWeight: "bold",
+              color: "#422006",
+              letterSpacing: 1.5,
+              textTransform: "uppercase",
+            }}>
+              ガチャ ✦ JOY
+            </div>
+
+            {/* Brass Twist Turn-Handle */}
+            <div style={{ position: "relative", marginTop: 12, width: 44, height: 44, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <motion.div
+                animate={state === "turning" ? { rotate: 360 } : {}}
+                transition={{ duration: 0.9, ease: "easeInOut" }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  background: "radial-gradient(circle, #fef08a 0%, #a16207 100%)",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.4)",
+                  cursor: state === "idle" ? "pointer" : "default",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "2px solid #854d0e",
+                }}
+                onClick={turnHandle}
+              >
+                {/* Cross bars of the turn knob */}
+                <div style={{ position: "absolute", width: 22, height: 4, background: "#713f12" }} />
+                <div style={{ position: "absolute", width: 4, height: 22, background: "#713f12" }} />
+              </motion.div>
+            </div>
+
+            {/* Coin Slot */}
+            <div style={{ position: "absolute", right: 12, top: 38, width: 6, height: 16, background: "#451a03", borderRadius: 1 }} />
+
+            {/* Capsule Tray Chute (Where capsule drops out) */}
+            <div style={{
+              position: "absolute",
+              bottom: -10,
+              width: 58,
+              height: 24,
+              background: "#451a03",
+              borderRadius: "10px 10px 0 0",
+              boxShadow: "inset 0 3px 6px rgba(0,0,0,0.8)",
+              overflow: "hidden",
+            }}>
+              {/* Soft reflection glow in tray */}
+              <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.15)" }} />
+            </div>
+
+          </div>
+        </div>
+
+        {/* Dropping Capsule Animation */}
+        {state === "dropping" && (
+          <motion.div
+            initial={{ y: 220, x: 88, rotate: 0, scale: 0.4 }}
+            animate={{
+              y: 295,
+              x: 88,
+              scale: 1,
+              rotate: [0, 45, 90],
+            }}
+            transition={{ duration: 0.65, ease: "easeIn" }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 34,
+              height: 28,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${capsuleColor} 45%, rgba(0,0,0,0.2) 100%)`,
+              boxShadow: "0 4px 10px rgba(0,0,0,0.4), inset 0 3px 5px rgba(255,255,255,0.4)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
+              zIndex: 1,
+            }}
+          />
+        )}
+
+        {/* Opened Capsule on Desk (Click to show prize) */}
+        {state === "open" && prize && (
+          <motion.div
+            initial={{ scale: 0.8, y: 295, x: 88 }}
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ repeat: Infinity, duration: 1.6 }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 36,
+              height: 30,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${capsuleColor} 45%, rgba(0,0,0,0.25) 100%)`,
+              boxShadow: "0 0 15px rgba(253, 224, 71, 0.8), 0 5px 12px rgba(0,0,0,0.4)",
+              border: "1.5px solid #fff",
+              cursor: "pointer",
+              zIndex: 3,
+            }}
+            onClick={reset}
+          />
+        )}
+
+        {/* Confetti Explosion */}
+        {conf.map(c => (
+          <motion.div key={c.id}
+            initial={{ y: 285, x: 105, scale: 0.8, opacity: 1 }}
+            animate={{ y: 200 + (Math.random() - 0.5) * 120, x: 105 + c.x - 50 + (Math.random() - 0.5) * 120, rotate: c.rot, opacity: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            style={{ position: "absolute", top: 0, left: 0, width: 8, height: 8, background: c.col, borderRadius: 2, zIndex: 5 }} />
+        ))}
+
+      </div>
+
+      {/* Interactive Trigger Button */}
       {state === "idle" && (
-        <motion.button initial={{ scale: .9 }} animate={{ scale: 1 }} whileHover={{ scale: 1.06 }}
+        <motion.button 
+          initial={{ scale: .92, opacity: 0 }} 
+          animate={{ scale: 1, opacity: 1 }} 
+          whileHover={{ scale: 1.05 }}
           onClick={turnHandle}
-          style={{ marginTop: 22, background: "#e89040", border: "none", padding: "14px 34px", borderRadius: 30, fontFamily: "'Caveat',cursive", fontSize: 20, color: "white", cursor: "pointer", boxShadow: "0 4px 18px rgba(200,120,0,.35)" }}>
-          {plays > 0 ? "turn again ✦" : "turn the handle ✦"}
+          style={{
+            marginTop: 40,
+            background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+            border: "1px solid #78350f",
+            padding: "12px 36px",
+            borderRadius: 30,
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 17,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            color: "#fef3c7",
+            cursor: "pointer",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+            zIndex: 4,
+          }}
+        >
+          {plays > 0 ? "turn again ✦" : "twist the handle ✦"}
         </motion.button>
       )}
 
-      {/* Prize card */}
+      {/* Prize card Envelope Pop-up */}
       <AnimatePresence>
         {state === "open" && prize && (
-          <motion.div initial={{ opacity: 0, scale: .6, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+          <motion.div 
+            initial={{ opacity: 0, scale: .8, y: 40 }} 
+            animate={{ opacity: 1, scale: 1, y: -20 }}
+            exit={{ opacity: 0, scale: 0.8, y: 40 }}
             className="paper"
-            style={{ marginTop: 18, padding: "20px 32px", borderRadius: 18, boxShadow: "0 8px 32px rgba(0,0,0,.14)", textAlign: "center", maxWidth: 340, fontFamily: "'Caveat',cursive", fontSize: 20, color: "#3d2b1f", lineHeight: 1.55 }}>
+            style={{
+              position: "absolute",
+              zIndex: 10,
+              padding: "24px 36px",
+              borderRadius: 16,
+              boxShadow: "0 15px 45px rgba(0,0,0,0.5)",
+              textAlign: "center",
+              maxWidth: 320,
+              fontFamily: "'Caveat', cursive",
+              fontSize: 22,
+              color: "#3d2b1f",
+              lineHeight: 1.5,
+              background: "#fff9f0",
+              border: "1px dashed #c4a482",
+            }}
+          >
+            {/* Sparkly corner stars */}
+            <div style={{ position: "absolute", top: 8, left: 10, fontSize: 13, opacity: 0.4 }}>✦</div>
+            <div style={{ position: "absolute", bottom: 8, right: 10, fontSize: 13, opacity: 0.4 }}>✦</div>
+
             {prize}
-            <div style={{ marginTop: 16, display: "flex", gap: 12, justifyContent: "center" }}>
-              <button onClick={reset} style={{ background: "#f0e0c8", border: "none", padding: "8px 20px", borderRadius: 20, fontFamily: "'Caveat',cursive", fontSize: 15, cursor: "pointer", color: "#7a5020" }}>again!</button>
-              <button onClick={onNext} style={{ background: "#9b7fa6", border: "none", padding: "8px 20px", borderRadius: 20, fontFamily: "'Caveat',cursive", fontSize: 15, cursor: "pointer", color: "white" }}>to the stars →</button>
+            
+            <div style={{ marginTop: 20, display: "flex", gap: 14, justifyContent: "center" }}>
+              <button onClick={reset} style={{ background: "#efe1d1", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "#654020", fontWeight: "bold" }}>another coin</button>
+              <button onClick={onNext} style={{ background: "#7c3aed", border: "none", padding: "6px 18px", borderRadius: 20, fontFamily: "'Caveat', cursive", fontSize: 15, cursor: "pointer", color: "white", fontWeight: "bold" }}>to the stars →</button>
             </div>
           </motion.div>
         )}
