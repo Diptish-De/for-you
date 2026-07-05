@@ -638,6 +638,12 @@ function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
   );
   const [completed, setCompleted] = useState(false);
   const mousePos = useRef({ x: -1000, y: -1000 });
+  const firefliesRef = useRef(fireflies);
+
+  // Sync fireflies state to Ref
+  useEffect(() => {
+    firefliesRef.current = fireflies;
+  }, [fireflies]);
 
   // Listen to mouse movement
   useEffect(() => {
@@ -656,82 +662,81 @@ function Ch2({ onNext, setMemory }: { onNext: () => void; setMemory: React.Dispa
       const mx = mousePos.current.x;
       const my = mousePos.current.y;
 
-      setFireflies(prev => {
-        const nextList = prev.map(f => {
-          if (f.caught) return f;
+      // Check distance for all uncaught fireflies
+      const currentList = firefliesRef.current;
+      let caughtId: number | null = null;
 
-          // Convert firefly % position to screen pixels
+      for (const f of currentList) {
+        if (!f.caught) {
           const fxPx = (f.x / 100) * window.innerWidth;
           const fyPx = (f.y / 100) * window.innerHeight;
           const dx = mx - fxPx;
           const dy = my - fyPx;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          // If cursor is within 70px of the firefly, scoop it up!
           if (dist < 70) {
-            return { ...f, caught: true };
+            caughtId = f.id;
+            break; // Catch one firefly per frame
           }
+        }
+      }
 
-          let nx = f.x + f.vx * f.speed;
-          let ny = f.y + f.vy * f.speed;
-          let nvx = f.vx;
-          let nvy = f.vy;
-
-          // Bounce off invisible boundary walls
-          if (nx < 5 || nx > 95) nvx = -nvx;
-          if (ny < 10 || ny > 75) nvy = -nvy;
-
-          // Random slight drift changes
-          if (Math.random() < 0.02) nvx += (Math.random() - 0.5) * 0.1;
-          if (Math.random() < 0.02) nvy += (Math.random() - 0.5) * 0.1;
-
-          // Cap speed
-          const mag = Math.sqrt(nvx * nvx + nvy * nvy);
-          if (mag > 0.4) {
-            nvx = (nvx / mag) * 0.4;
-            nvy = (nvy / mag) * 0.4;
-          }
-
-          return { ...f, x: nx, y: ny, vx: nvx, vy: nvy };
-        });
-
-        const newCaughtCount = nextList.filter(f => f.caught).length;
-        if (newCaughtCount > caughtCount) {
-          playSound("chime");
-          setCaughtCount(newCaughtCount);
-          if (newCaughtCount >= 5) {
+      if (caughtId !== null) {
+        const targetId = caughtId;
+        playSound("chime");
+        setFireflies(prev => prev.map(f => f.id === targetId ? { ...f, caught: true } : f));
+        setCaughtCount(c => {
+          const nextCount = c + 1;
+          if (nextCount >= 5) {
             setCompleted(true);
             setMemory(m => ({ ...m, foundFeather: true }));
           }
-        }
+          return nextCount;
+        });
+      } else {
+        // Run standard drift simulation
+        setFireflies(prev =>
+          prev.map(f => {
+            if (f.caught) return f;
+            let nx = f.x + f.vx * f.speed;
+            let ny = f.y + f.vy * f.speed;
+            let nvx = f.vx;
+            let nvy = f.vy;
 
-        return nextList;
-      });
+            if (nx < 5 || nx > 95) nvx = -nvx;
+            if (ny < 10 || ny > 75) nvy = -nvy;
+
+            if (Math.random() < 0.02) nvx += (Math.random() - 0.5) * 0.1;
+            if (Math.random() < 0.02) nvy += (Math.random() - 0.5) * 0.1;
+
+            const mag = Math.sqrt(nvx * nvx + nvy * nvy);
+            if (mag > 0.4) {
+              nvx = (nvx / mag) * 0.4;
+              nvy = (nvy / mag) * 0.4;
+            }
+
+            return { ...f, x: nx, y: ny, vx: nvx, vy: nvy };
+          })
+        );
+      }
 
       animId = requestAnimationFrame(update);
     };
     animId = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animId);
-  }, [completed, caughtCount, setMemory]);
+  }, [completed, setMemory]);
 
   const handleCatch = (id: number) => {
-    setFireflies(prev => {
-      const nextList = prev.map(f => {
-        if (f.id === id && !f.caught) {
-          return { ...f, caught: true };
-        }
-        return f;
-      });
-      const newCaughtCount = nextList.filter(f => f.caught).length;
-      if (newCaughtCount > caughtCount) {
-        playSound("chime");
-        setCaughtCount(newCaughtCount);
-        if (newCaughtCount >= 5) {
-          setCompleted(true);
-          setMemory(m => ({ ...m, foundFeather: true }));
-        }
+    // Click fallback
+    playSound("chime");
+    setFireflies(prev => prev.map(f => f.id === id ? { ...f, caught: true } : f));
+    setCaughtCount(c => {
+      const nextCount = c + 1;
+      if (nextCount >= 5) {
+        setCompleted(true);
+        setMemory(m => ({ ...m, foundFeather: true }));
       }
-      return nextList;
+      return nextCount;
     });
   };
 
