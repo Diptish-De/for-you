@@ -234,12 +234,8 @@ function Cursor() {
 
     let rafId: number;
     const updateCursor = () => {
-      const lerpFactor = 0.22; // smooth lag effect
-      currentX += (mouseX - currentX) * lerpFactor;
-      currentY += (mouseY - currentY) * lerpFactor;
-
       if (containerRef.current) {
-        containerRef.current.style.transform = `translate3d(${currentX - 11}px, ${currentY - 10}px, 0)`;
+        containerRef.current.style.transform = `translate3d(${mouseX - 11}px, ${mouseY - 10}px, 0)`;
       }
       rafId = requestAnimationFrame(updateCursor);
     };
