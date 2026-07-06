@@ -3033,10 +3033,258 @@ function Ch9({ memory }: { memory: Memory }) {
   );
 }
 
+// ─── Passcode Lock ────────────────────────────────────────────────────────────
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function PasscodeLock({ onUnlock }: { onUnlock: () => void }) {
+  const [code, setCode] = useState<string>("");
+  const [error, setError] = useState<boolean>(false);
+  const [shake, setShake] = useState<boolean>(false);
+
+  const handleKeyPress = useCallback(async (num: string) => {
+    if (code.length >= 4) return;
+    setError(false);
+    const newCode = code + num;
+    setCode(newCode);
+
+    if (newCode.length === 4) {
+      const hashed = await sha256(newCode);
+      const expectedHash = import.meta.env.VITE_PASS_HASH || "9559c5d0139b4b9b70bb19163e80d4c82c3c97db3db8c067e2a9009f485db0e9";
+      if (hashed === expectedHash) {
+        setTimeout(() => {
+          onUnlock();
+        }, 300);
+      } else {
+        setTimeout(() => {
+          setShake(true);
+          setError(true);
+          setCode("");
+          setTimeout(() => setShake(false), 500);
+        }, 200);
+      }
+    }
+  }, [code, onUnlock]);
+
+  const handleBackspace = useCallback(() => {
+    setError(false);
+    setCode(prev => prev.slice(0, -1));
+  }, []);
+
+  const handleClear = useCallback(() => {
+    setError(false);
+    setCode("");
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= "0" && e.key <= "9") {
+        handleKeyPress(e.key);
+      } else if (e.key === "Backspace") {
+        handleBackspace();
+      } else if (e.key === "Escape" || e.key === "Delete") {
+        handleClear();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyPress, handleBackspace, handleClear]);
+
+  return (
+    <div style={{
+      width: "100vw",
+      height: "100vh",
+      background: "linear-gradient(180deg, #050a14 0%, #0a1122 60%, #12182c 100%)",
+      position: "relative",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "'Caveat', cursive",
+      color: "#fdf8ef"
+    }}>
+      {/* Twinkling ambient stars */}
+      {STARS_BG.map(s => (
+        <div key={s.id} style={{
+          position: "absolute", left: `${s.x}%`, top: `${s.y}%`,
+          width: s.size, height: s.size, borderRadius: "50%", background: "white",
+          opacity: .3 + Math.random() * .7,
+          animation: `twinkle ${s.dur}s ease-in-out infinite`, animationDelay: `${s.delay}s`,
+          pointerEvents: "none",
+        }} />
+      ))}
+
+      <motion.div
+        animate={shake ? { x: [-10, 10, -10, 10, -5, 5, 0] } : {}}
+        transition={{ duration: 0.4 }}
+        style={{
+          width: 320,
+          background: "rgba(255, 255, 255, 0.03)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: 24,
+          padding: "36px 24px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          boxShadow: "0 20px 50px rgba(0, 0, 0, 0.4)",
+          zIndex: 10
+        }}
+      >
+        <div style={{ marginBottom: 20, color: error ? "#f87171" : "#f9c8d0", transition: "color 0.3s" }}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 22,
+          fontWeight: 400,
+          letterSpacing: 2,
+          marginBottom: 8,
+          color: error ? "#f87171" : "#fff",
+          textAlign: "center"
+        }}>
+          {error ? "Incorrect Passcode" : "Private Journal"}
+        </h2>
+        
+        <p style={{
+          fontSize: 16,
+          opacity: 0.7,
+          marginBottom: 24,
+          textAlign: "center"
+        }}>
+          {error ? "Please try again" : "Enter passcode to open"}
+        </p>
+
+        <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <motion.div
+              key={i}
+              animate={i < code.length ? { scale: 1.2 } : { scale: 1 }}
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                border: "2px solid rgba(255, 255, 255, 0.3)",
+                background: i < code.length ? (error ? "#f87171" : "#f9c8d0") : "transparent",
+                boxShadow: i < code.length && !error ? "0 0 8px #f9c8d0" : "none",
+                transition: "background-color 0.2s, border-color 0.2s"
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "16px 20px",
+          width: "100%",
+          maxWidth: 240
+        }}>
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map(num => (
+            <motion.button
+              key={num}
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleKeyPress(num)}
+              style={{
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.05)",
+                borderRadius: "50%",
+                width: 54,
+                height: 54,
+                fontSize: 20,
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                margin: "0 auto",
+                outline: "none",
+                fontFamily: "'Cormorant Garamond', serif",
+              }}
+            >
+              {num}
+            </motion.button>
+          ))}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleClear}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: 14,
+              color: "rgba(255, 255, 255, 0.5)",
+              cursor: "pointer",
+              outline: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            Clear
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleKeyPress("0")}
+            style={{
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid rgba(255, 255, 255, 0.05)",
+              borderRadius: "50%",
+              width: 54,
+              height: 54,
+              fontSize: 20,
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              margin: "0 auto",
+              outline: "none",
+              fontFamily: "'Cormorant Garamond', serif",
+            }}
+          >
+            0
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleBackspace}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: 14,
+              color: "rgba(255, 255, 255, 0.5)",
+              cursor: "pointer",
+              outline: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            ⌫
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  ROOT APP
 // ═════════════════════════════════════════════════════════════════════════════
 export default function App() {
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const [chapter, setChapter] = useState(0);
   const [memory, setMemory] = useState<Memory>({
     pettedCat: false, wateredFlowers: false,
@@ -3097,6 +3345,16 @@ export default function App() {
     <Ch7 key={5} onNext={next} />,
     <Ch9 key={6} memory={memory} />,
   ];
+
+  if (!isUnlocked) {
+    return (
+      <div style={{ width: "100vw", height: "100vh", overflow: "hidden", position: "relative" }}>
+        <style>{GCSS}</style>
+        <Cursor />
+        <PasscodeLock onUnlock={() => setIsUnlocked(true)} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ width: "100vw", height: "100vh", overflow: "hidden", position: "relative" }}>

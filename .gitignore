@@ -4,3 +4,5 @@ dist/
 .agents/
 .gemini/
 *.log
+.env
+.env.*
