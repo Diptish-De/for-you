@@ -32,3 +32,12 @@ declare module "*.mp3" {
   const value: string;
   export default value;
 }
+
+interface ImportMetaEnv {
+  readonly VITE_PASS_HASH?: string;
+  readonly [key: string]: string | undefined;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

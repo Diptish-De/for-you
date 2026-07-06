@@ -1,3 +1,4 @@
+/// <reference path="../declarations.d.ts" />
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
