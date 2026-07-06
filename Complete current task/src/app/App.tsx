@@ -3054,7 +3054,7 @@ function PasscodeLock({ onUnlock }: { onUnlock: () => void }) {
 
     if (newCode.length === 4) {
       const hashed = await sha256(newCode);
-      const expectedHash = import.meta.env.VITE_PASS_HASH || "9559c5d0139b4b9b70bb19163e80d4c82c3c97db3db8c067e2a9009f485db0e9";
+      const expectedHash = import.meta.env.VITE_PASS_HASH || "f223bccd09b2dbe3f74e556d6147e964a013ea96404e3c90a9af88fcdf67ec3b";
       if (hashed === expectedHash) {
         setTimeout(() => {
           onUnlock();
