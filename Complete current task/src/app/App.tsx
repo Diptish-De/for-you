@@ -322,7 +322,7 @@ function PageTab({ onClick, label = "Turn the page →", pos = "right" }: {
 // ═════════════════════════════════════════════════════════════════════════════
 //  CHAPTER 1 · The Notebook
 // ═════════════════════════════════════════════════════════════════════════════
-function Ch1({ onNext }: { onNext: () => void }) {
+function Ch1({ onNext, onPlayMusic }: { onNext: () => void; onPlayMusic?: () => void }) {
   const [opened, setOpened] = useState(false);
   const [phase, setPhase] = useState(0); // 0 nothing, 1..6 lines, 7 button
   const [closing, setClosing] = useState(false);
@@ -337,6 +337,9 @@ function Ch1({ onNext }: { onNext: () => void }) {
   const handleOpen = () => {
     if (closing) return;
     setOpened(true);
+    if (onPlayMusic) {
+      onPlayMusic();
+    }
   };
 
   useEffect(() => {
@@ -3297,30 +3300,24 @@ export default function App() {
 
   const next = () => setChapter(c => Math.min(c + 1, 6));
 
-  // Initialize audio and attempt autoplay on first click/interaction
+  // Initialize audio without auto-playing on first click immediately
   useEffect(() => {
     const audio = new Audio(bgMusic);
     audio.loop = true;
     audio.volume = 0.55; // Cozy background volume level
     audioRef.current = audio;
 
-    const playAudio = () => {
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-          // Remove listener once successfully started
-          window.removeEventListener("click", playAudio);
-        })
-        .catch(err => console.log("Autoplay waiting for interaction...", err));
-    };
-
-    window.addEventListener("click", playAudio);
-
     return () => {
-      window.removeEventListener("click", playAudio);
       audio.pause();
     };
   }, []);
+
+  const startMusic = () => {
+    if (!audioRef.current || isPlaying) return;
+    audioRef.current.play()
+      .then(() => setIsPlaying(true))
+      .catch(err => console.log("Failed to start music on opening book:", err));
+  };
 
   const togglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -3337,7 +3334,7 @@ export default function App() {
   };
 
   const chapters = [
-    <Ch1 key={0} onNext={next} />,
+    <Ch1 key={0} onNext={next} onPlayMusic={startMusic} />,
     <Ch3 key={1} onNext={next} setMemory={setMemory} />,
     <Ch4 key={2} onNext={next} memory={memory} setMemory={setMemory} />,
     <Ch5 key={3} onNext={next} />,
